@@ -1,4 +1,6 @@
 <script setup>
+import dayjs from 'dayjs';
+
     import { ref } from 'vue'
     defineProps({
         name: String,
@@ -18,7 +20,7 @@
     <div id="bubbleMessage">
         <div id="headerBubble">
             <h3>{{ name }}</h3>
-            <h3>{{ datePubli }}</h3>
+            <h3>{{ dayjs(datePubli).format('DD/MM/YYYY') }}</h3>
         </div>
         <p>
             {{ content }}
