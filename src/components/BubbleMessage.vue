@@ -1,6 +1,7 @@
 <script setup>
 import dayjs from 'dayjs';
 
+    import { ref } from 'vue'
     defineProps({
         name: String,
         datePubli: Date,
@@ -9,6 +10,10 @@ import dayjs from 'dayjs';
         nbComments: Number,
         liked: Boolean
     })
+
+    const replying = ref(false);
+
+
 </script>
 
 <template>
@@ -21,19 +26,23 @@ import dayjs from 'dayjs';
             {{ content }}
         </p>
         <div id="footerBubble">
-            <button class="reply">Répondre</button>
-            <div class="actions">
-                <div>
-                    <span class="material-symbols-rounded">comment</span>
-                    <h4>{{ nbComments }}</h4>
+            <i v-if="!replying" class="replyText" @click="replying = true">Répondre...</i>
+            <textarea v-if="replying"></textarea>
+            <div>
+                <div class="actions">
+                    <div>
+                        <span class="material-symbols-rounded">comment</span>
+                        <h4>{{ nbComments }}</h4>
+                    </div>
+                    <div>
+                        <span v-if="liked" class="material-symbols-rounded fill">favorite</span>
+                        <span v-else class="material-symbols-rounded">favorite</span>
+                        <h4>{{ nbLike }}</h4>
+                    </div>
                 </div>
-                <div>
-                    <span v-if="liked" class="material-symbols-rounded fill">favorite</span>
-                    <span v-else class="material-symbols-rounded">favorite</span>
-                    <h4>{{ nbLike }}</h4>
-                </div>
-                
+                <button v-if="replying" class="reply">Répondre</button>
             </div>
+            
         </div>
     </div>
 </template>
@@ -62,6 +71,19 @@ import dayjs from 'dayjs';
     #footerBubble {
         display: flex;
         justify-content: space-between;
+        .replyText {
+            color: $primary;
+            font-size: large;
+        }
+        textarea {
+            height: 75px;
+            width: 100%;
+            resize: none;
+            background-color: $quartiary;
+            border: solid 2px $primary;
+            border-radius: 10px;
+            padding: 5px;
+        }
         .reply {
             background-color: $primary;
             border: none;
@@ -70,6 +92,7 @@ import dayjs from 'dayjs';
             color: white;
             font-weight: 700;
             transition: all ease-in-out 0.1s;
+            margin: 20%;
             cursor: pointer;
         }
         .reply:hover {
