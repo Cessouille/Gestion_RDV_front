@@ -15,7 +15,7 @@ const test = {
 <template>
   <header>
     <Navigation />
-    <BubbleMessage :name="test.name" :datePubli="test.datePubli" :content="test.content" :nbComments="test.nbComments" :nbLike="test.nbLike" :liked="test.liked"/>
+    <BubbleMessage :name="test.name" :datePubli="test.datePubli" :content="test.content" :nbComments="test.nbComments" :nbLike.sync="test.nbLike" :liked.sync="test.liked"/>
   </header>
 </template>
 
