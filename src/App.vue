@@ -4,7 +4,7 @@ import Navigation from './components/layout/Navigation.vue';
 
 <template>
   <header>
-    <Navigation/>
+    <Navigation />
   </header>
 </template>
 
