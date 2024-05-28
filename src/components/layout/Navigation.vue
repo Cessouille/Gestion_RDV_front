@@ -16,7 +16,7 @@
         <img
           id="logo"
           class="image"
-          src="/src/assets/images/Logo (2).png"
+          src="/src/assets/images/logo_full.png"
         >
       </RouterLink>
       <RouterLink
@@ -46,11 +46,18 @@
         >
       </div>
       <div v-if="openMenu" class="menu">
-        <ul>
-          <li>Notifications ({{ notification }})</li>
-          <li>Profil</li>
-          <li>Déconnexion</li>
-        </ul>
+          <RouterLink to="/notification" class="menuItem" @click="openMenu = false">
+            <span class="material-symbols-rounded"> notifications </span> 
+            Notifications ({{ notification }})
+          </RouterLink>
+          <RouterLink to="/profile" class="menuItem" @click="openMenu = false">
+            <span class="material-symbols-rounded"> account_circle </span>
+            Profil
+          </RouterLink>
+          <RouterLink to="/logout" class="menuItem" @click="openMenu = false">
+            <span class="material-symbols-rounded"> logout </span>
+            Déconnexion
+          </RouterLink>
     </div>
   </nav>
 
@@ -86,13 +93,6 @@ nav {
     z-index: 1;
 }
 
-li {
-    border: solid #A4A4A4;
-    border-width: 2px;
-    padding: 2px;
-    border-collapse: separate;
-}
-
 .image {
     height: 6.5vh;
 }
@@ -116,11 +116,27 @@ nav a {
 
 nav a.router-link-exact-active {
     color: white;
-    border-bottom: solid 1px white;
 }
 nav a.router-link-exact-active:hover {
   background-color: transparent;
   cursor: pointer;
+}
+
+.menuItem {
+  color: black;
+  display: flex;
+  align-items: center;
+  border: solid #A4A4A4;
+  border-width: 2px;
+  padding: 2px;
+}
+
+.menuItem.router-link-exact-active {
+  color: black;
+}
+
+.menuItem span {
+  margin: 0 5px;
 }
 
 </style>
