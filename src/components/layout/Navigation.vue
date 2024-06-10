@@ -36,7 +36,7 @@
         <img
           id="pp"
           :src="profilePicture"
-          class="image"
+          class="item image"
         >
         <span class="item">{{ name }}</span>
         <img
@@ -89,7 +89,7 @@ nav {
     top: 8.5%;
     right: 0;
     background-color: white;
-    width: 250px;
+    width: 225px;
     z-index: 1;
 }
 
@@ -102,7 +102,7 @@ nav {
 }
 
 .item {
-    margin: 0 10px;
+    margin-right: 7.5px;
 }
 
 .item:hover {

@@ -1,19 +1,17 @@
 <script setup>
 import dayjs from 'dayjs';
+import { ref } from 'vue';
 
-    import { ref } from 'vue'
-    defineProps({
-        name: String,
-        datePubli: Date,
-        content: String,
-        nbLike: Number,
-        nbComments: Number,
-        liked: Boolean
-    })
+defineProps({
+    name: String,
+    datePubli: Date,
+    content: String,
+    nbLike: Number,
+    nbComments: Number,
+    liked: Boolean
+});
 
-    const replying = ref(false);
-
-
+const replying = ref(false);
 </script>
 
 <template>
