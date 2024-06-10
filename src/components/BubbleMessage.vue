@@ -1,28 +1,43 @@
 <script setup>
 import dayjs from 'dayjs';
-import { ref } from 'vue';
+import { ref, defineProps, defineEmits } from 'vue'
 
-defineProps({
+const props = defineProps({
     name: String,
     datePubli: Date,
     content: String,
     nbLike: Number,
     nbComments: Number,
     liked: Boolean
-});
+})
+
+const emit = defineEmits(['update:liked', 'update:nbLike'])
 
 const replying = ref(false);
+
+const toggleLike = () => {
+    props.liked = !props.liked;
+    if (props.liked) {
+        props.nbLike += 1;
+    } else {
+        props.nbLike -= 1;
+    }
+    emit('update:liked', props.liked)
+    emit('update:nbLike', props.nbLike)
+}
+
 </script>
 
 <template>
     <div id="bubbleMessage">
         <div id="headerBubble">
-            <h3>{{ name }}</h3>
-            <h3>{{ dayjs(datePubli).format('DD/MM/YYYY') }}</h3>
+            <h3>{{ props.name }}</h3>
+            <h3>{{ dayjs(props.datePubli).format('DD/MM/YYYY') }}</h3>
         </div>
         <p>
-            {{ content }}
+            {{ props.content }}
         </p>
+        <span v-if="replying" @click="replying = false" class="material-symbols-rounded closeBox">close</span>
         <div id="footerBubble">
             <i v-if="!replying" class="replyText" @click="replying = true">Répondre...</i>
             <textarea v-if="replying"></textarea>
@@ -30,18 +45,18 @@ const replying = ref(false);
                 <div class="actions">
                     <div>
                         <span class="material-symbols-rounded">comment</span>
-                        <h4>{{ nbComments }}</h4>
+                        <h4>{{ props.nbComments }}</h4>
                     </div>
                     <div>
-                        <span v-if="liked" class="material-symbols-rounded fill">favorite</span>
-                        <span v-else class="material-symbols-rounded">favorite</span>
-                        <h4>{{ nbLike }}</h4>
+                        <span v-if="props.liked" class="material-symbols-rounded fill" @click=toggleLike>favorite</span>
+                        <span v-else class="material-symbols-rounded" @click="toggleLike">favorite</span>
+                        <h4>{{ props.nbLike }}</h4>
                     </div>
                 </div>
                 <button v-if="replying" class="reply">Répondre</button>
             </div>
-            
         </div>
+        
     </div>
 </template>
 
@@ -54,6 +69,23 @@ const replying = ref(false);
     border-radius: 15px;
     padding: 7px;
     width: 500px;
+    .replyText {
+        color: $primary;
+        font-size: large;
+        cursor: pointer;
+    }
+    .closeBox {
+        background-color: $primary;
+        color: $quartiary;
+        border-radius: 50%;
+        transition: all ease-in-out 0.5s;
+    }
+    .closeBox:hover {
+        transform: rotate(180deg) scale(1.01);
+        background-color: $quartiary;
+        color: $primary;
+        cursor: pointer;
+    }
     #headerBubble {
         display: flex;
         justify-content: space-between;
@@ -69,10 +101,6 @@ const replying = ref(false);
     #footerBubble {
         display: flex;
         justify-content: space-between;
-        .replyText {
-            color: $primary;
-            font-size: large;
-        }
         textarea {
             height: 75px;
             width: 100%;
