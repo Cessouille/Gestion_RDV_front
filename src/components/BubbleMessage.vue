@@ -1,5 +1,6 @@
 <script setup>
 import dayjs from 'dayjs';
+import ReplyList from './ReplyList.vue';
 import { ref, defineProps, defineEmits } from 'vue'
 
 const props = defineProps({
@@ -56,8 +57,10 @@ const toggleLike = () => {
                 <button v-if="replying" class="reply">Répondre</button>
             </div>
         </div>
-        
     </div>
+    <ReplyList />
+    <ReplyList />
+    <ReplyList />
 </template>
 
 <style lang="scss">
@@ -66,9 +69,10 @@ const toggleLike = () => {
 #bubbleMessage {
     background-color: $secondary;
     border: 3px solid $primary;
-    border-radius: 15px;
+    border-radius: 15px 15px 15px 0;
     padding: 7px;
     width: 500px;
+    margin-top: 25px;
     .replyText {
         color: $primary;
         font-size: large;
