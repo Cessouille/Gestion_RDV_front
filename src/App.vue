@@ -1,6 +1,5 @@
 <script setup>
 import Navigation from './components/layout/Navigation.vue';
-import BubbleMessage from './components/BubbleMessage.vue';
 import BubbleUser from './components/BubbleUserProfile.vue';
 
 const test = {
@@ -20,7 +19,6 @@ const user = {
 <template>
   <header>
     <Navigation />
-    <BubbleMessage :name="test.name" :datePubli="test.datePubli" :content="test.content" :nbComments="test.nbComments" :nbLike="test.nbLike" :liked="test.liked"/>
     <br>
     <BubbleUser :id="user.id"/>
   </header>
