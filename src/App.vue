@@ -1,6 +1,6 @@
 <script setup>
 import Navigation from './components/layout/Navigation.vue';
-import BubbleMessage from './components/BubbleMessage.vue';
+import BubbleUser from './components/BubbleUserProfile.vue';
 
 const test = {
   name: "Jean MALADE",
@@ -10,20 +10,31 @@ const test = {
   nbLike: 50,
   liked: true
 }
+
+const user = {
+  id: 1,
+}
 </script>
 
 <template>
   <header>
     <Navigation />
-    <BubbleMessage :name="test.name" :datePubli="test.datePubli" :content="test.content" :nbComments="test.nbComments" :nbLike.sync="test.nbLike" :liked.sync="test.liked"/>
+    <br>
+    <BubbleUser :id="user.id"/>
   </header>
 </template>
 
-<style scoped>
+<style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
 
 * {
   margin: 0;
   padding: 0;
+}
+
+html, body {
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  color: #333;
 }
 </style>
