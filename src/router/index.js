@@ -6,6 +6,7 @@ import NotificationView from "../views/NotificationView.vue";
 import ProfileView from "../views/ProfileView.vue";
 import LoginView from "../views/LoginView.vue";
 import UserView from "../views/UserView.vue";
+import FormTest from "../views/FormTest.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -44,7 +45,12 @@ const router = createRouter({
       path: "/user/:id",
       name: "user",
       component: UserView,
-    }
+    },
+    {
+      path: "/form",
+      name: "form",
+      component: FormTest,
+    },
   ],
 });
 
