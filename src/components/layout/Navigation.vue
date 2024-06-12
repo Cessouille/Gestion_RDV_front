@@ -1,60 +1,60 @@
 <script setup>
-    import { RouterLink, RouterView } from 'vue-router'
-    import { ref } from 'vue';
+import { RouterLink, RouterView } from 'vue-router'
+import { ref } from 'vue';
 
-    const openMenu = ref(false);
+const openMenu = ref(false);
 
-    const name = ref('Jedan-Michel ZEUB');
-    const profilePicture = ref('/src/assets/images/pp.png')
-    const notification = ref(0);
+const name = ref('Jedan-Michel ZEUB');
+const profilePicture = ref('/src/assets/images/pp.png')
+const notification = ref(0);
 </script>
 
 <template>
-  <nav>
-    <div class="nav">
+  <nav class="bg-primary h-[8vh] flex items-center justify-between px-2.5 text-white">
+    <div class="flex items-center space-x-2.5">
       <RouterLink to="/">
         <img
           id="logo"
-          class="image"
+          class="h-[6.5vh]"
           src="/src/assets/images/logo_full.png"
         >
       </RouterLink>
       <RouterLink
         to="/conversation"
-        class="item"
+        class="mr-2.5 hover:cursor-pointer"
       >
         Conversation
       </RouterLink>
       <RouterLink
         to="/historique"
-        class="item"
+        class="mr-2.5 hover:cursor-pointer"
       >
         Historique
       </RouterLink>
     </div>
-    <div class="nav">
+    <div class="flex items-center space-x-2.5">
         <img
           id="pp"
           :src="profilePicture"
-          class="item image"
+          class="h-[6.5vh] rounded-full"
         >
-        <span class="item">{{ name }}</span>
+        <span class="mr-2.5">{{ name }}</span>
         <img
           src="/src/assets/images/arrow_down.png"
-          class="item arrow"
+          class="mr-2.5 hover:cursor-pointer"
           @click="openMenu = !openMenu"
         >
       </div>
-      <div v-if="openMenu" class="menu">
-          <RouterLink to="/notification" class="menuItem" @click="openMenu = false">
+      <div v-if="openMenu" class="absolute top-[8%] right-0 bg-white w-[225px] z-10 text-black">
+          <RouterLink to="/notification" class="flex items-center border border-gray-400 p-2" @click="openMenu = false">
             <span class="material-symbols-rounded"> notifications </span> 
             Notifications ({{ notification }})
           </RouterLink>
-          <RouterLink to="/profile" class="menuItem" @click="openMenu = false">
+          <RouterLink to="/profile" class="flex items-center border border-gray-400 p-2" @click="openMenu = false">
             <span class="material-symbols-rounded"> account_circle </span>
             Profil
           </RouterLink>
-          <RouterLink to="/logout" class="menuItem" @click="openMenu = false">
+          <RouterLink to="/logout" class="flex items-center border border-gray-400 p-2" @click="openMenu = false">
             <span class="material-symbols-rounded"> logout </span>
             Déconnexion
           </RouterLink>
@@ -63,80 +63,3 @@
 
   <RouterView />
 </template>
-
-<style lang="scss">
-@import "../../assets/scss/settings.scss";
-
-nav {
-    background-color: $primary;
-    height: 8vh;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 5px 10px 0 10px;
-    color: white;
-}
-
-.nav {
-    display: flex;
-    align-items: center;
-    width: auto;
-}
-
-.menu {
-    color: black;
-    position: absolute;
-    top: 8.5%;
-    right: 0;
-    background-color: white;
-    width: 225px;
-    z-index: 1;
-}
-
-.image {
-    height: 6.5vh;
-}
-
-#pp {
-    border-radius: 100%;
-}
-
-.item {
-    margin-right: 7.5px;
-}
-
-.item:hover {
-    cursor: pointer;
-}
-
-nav a {
-    color: #efeded;
-    text-decoration: none;
-}
-
-nav a.router-link-exact-active {
-    color: white;
-}
-nav a.router-link-exact-active:hover {
-  background-color: transparent;
-  cursor: pointer;
-}
-
-.menuItem {
-  color: black;
-  display: flex;
-  align-items: center;
-  border: solid #A4A4A4;
-  border-width: 2px;
-  padding: 2px;
-}
-
-.menuItem.router-link-exact-active {
-  color: black;
-}
-
-.menuItem span {
-  margin: 0 5px;
-}
-
-</style>

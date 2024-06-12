@@ -1,12 +1,31 @@
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue';
+import { Disponibilite, User } from '@/models/types';
 
 const props = defineProps({
     id: Number
 });
 
-const user = {
-    id: props.id,
+const dispo: Disponibilite[] = [
+    {
+        date: '09/05/2024',
+        debut: 8,
+        fin: 12
+    },
+    {
+        date: '12/06/2025',
+        debut: 14,
+        fin: 16
+    },
+    {
+        date: '28/06/2024',
+        debut: 15,
+        fin: 18
+    },
+]
+
+const user: User = {
+    id: props.id ?? 0,
     name: 'Philippe LE DOCTEUR',
     metier: 'Dentiste',
     description: 'Je suis Philipe LE DOCTEUR, suivez moi pour des bon tips !',
@@ -14,9 +33,10 @@ const user = {
     domainePrincipale: 'Dents',
     prixConsultation: 29.99,
     phone: '0667788990',
-    avatar: '/src/assets/images/pp.png',
+    avatar: '/src/assets/images/avatar.png',
     subscribers: 12458,
     subscribed: true,
+    disponibilites: dispo
 }
 
 const socials = {
@@ -28,10 +48,11 @@ const socials = {
 }
 
 const subscribed = ref(user.subscribed);
+const seeAll = ref(true);
 
-function format(number) {
+function formatSubscribers(number: number) {
     if (number / 1000 > 10) {
-        return (number /1000).toString().slice(0, 2).concat('k');
+        return (number / 1000).toString().slice(0, 2).concat('k');
     }
     return number;
 }
@@ -45,17 +66,17 @@ function format(number) {
             <div>
                 <div class="flex items-center">
                     <h3 class="text-tertiary font-bold text-lg mr-2">{{ user.name }}</h3>
-                    <span v-if="subscribed">
+                    <span v-if="subscribed" class="hover:cursor-pointer">
                         <i class="fa-solid fa-user-check text-tertiary" @click="subscribed = !subscribed"></i>
                     </span>
-                    <span v-else>
+                    <span v-else class="hover:cursor-pointer">
                         <i class="fa-solid fa-user-plus text-tertiary" @click="subscribed = !subscribed"></i>
                     </span>
                 </div>
                 <p class="text-primary text-sm"> Professionnel : {{ user.metier }} </p>
             </div>
             <div class="ml-auto items-center">
-                <p class="text-sm text-primary text-right">{{ format(user.subscribers) }} abonnés</p>
+                <p class="text-sm text-primary text-right">{{ formatSubscribers(user.subscribers) }} abonnés</p>
                 <div class="flex gap-1 ml-1.5 text-tertiary">
                     <a :href="socials.instagram" target="ext" v-if="socials.instagram">
                         <i class="fa-brands fa-square-instagram"></i>
@@ -96,14 +117,22 @@ function format(number) {
             <p class="mr-2">
                 <span class="font-semibold">Disponibilité :</span>
             </p>
-            <div>
-                <p>29/05/2024, 8h - 12h</p>
-                <p>12/06/2024, 14h - 16h</p>
-                <p class="text-xs italic">Voir toutes</p>
+            <div v-if="seeAll">
+                <p v-for="dispo in user.disponibilites.slice(0, 2)">
+                    {{ dispo.date }}, {{ dispo.debut }}h - {{ dispo.fin }}h
+                </p>
+                <p class="text-xs italic hover:cursor-pointer" @click="seeAll = !seeAll">Voir toutes</p>
+            </div>
+            <div v-else>
+                <p v-for="dispo in user.disponibilites">
+                    {{ dispo.date }}, {{ dispo.debut }}h - {{ dispo.fin }}h
+                </p>
+                <p class="text-xs italic hover:cursor-pointer" @click="seeAll = !seeAll">Voir moins</p>
             </div>
         </div>
-        <button class="bg-tertiary text-white font-bold py-2 px-3 rounded-lg block ml-auto text-sm my-1.5">
+        <RouterLink :to="'/user/' + user.id"
+            class="bg-tertiary w-[175px] text-white text-center font-bold py-2 px-3 rounded-lg block ml-auto text-sm my-1.5 hover:cursor-pointer">
             Prendre rendez-vous
-        </button>
+        </RouterLink>
     </div>
 </template>
