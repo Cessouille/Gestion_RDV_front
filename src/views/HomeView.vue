@@ -16,6 +16,10 @@ const test = {
 </script>
 
 <template>
+  <RouterLink to="/user/test">
+    Test
+  </RouterLink>
+
   <main class="flex flex-col items-center justify-center mt-10">
     <h2 v-if="!replying" @click="replying = true" class="text-white bg-tertiary p-4 rounded-xl text-center w-1/4 text-lg cursor-pointer transition-colors duration-300 hover:bg-primary">Poster</h2>
     <div v-if="replying">
