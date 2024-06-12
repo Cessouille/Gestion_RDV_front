@@ -1,22 +1,41 @@
 <script>
-import Field from './Field.js';
 export default {
   props: {
     fields: Array,
     buttonName: String,
-    action: String,
     name: String,
     errMsg: String,
+    errLine: String,
+    buttons: Array,
   },
-  data () {
+  data() {
     return {
       form: {},
+      passScore: 0,
     };
   },
-  emits: ['submit'],
+  emits: ['submit','choiceButton'],
   methods: {
-    submit() {
-      this.$emit("submit", this.form);
+    strengthChecker(event) {
+      var pass = event.target.value;
+      var score = 0;
+      if (pass.length >= 8)
+        score++;
+      if (/[ `!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/.test(pass))
+        score++;
+      if (/[A-Z]/.test(pass) && /[a-z]/.test(pass))
+        score++;
+      if (/[0-9]/.test(pass))
+        score++;
+      this.passScore = score;
+    },
+    submit(callback = null) {
+      if (callback) {
+        this.$emit("choiceButton", callback);
+      } else {
+        this.form["title"] = this.name;
+        this.$emit("submit", this.form);
+      }
     }
   }
 }
@@ -27,15 +46,44 @@ export default {
     <div id="formHeader">
       <h3>{{ name }}</h3>
     </div>
-    <div v-if="errMsg" id="errMsg">{{ errMsg }}</div>
+    <div v-if="errMsg" id="errMsg"><span class="material-symbols-rounded fill">warning</span>{{ errMsg }}</div>
     <div id="formMain">
+      <div v-if="buttons" class="formActions">
+        <button v-for="button in buttons" @click="submit(button.callback)"
+          :class="{ choiceButton: true, selectedChoice: button.selected }">{{ button.text }}</button>
+      </div>
       <div v-for="field in fields" class="formLine">
-        <div class="inputTitle">{{ field.title }} :</div>
-        <input v-model="form[field.ref]" :type=field.type class="inputBox"></input>
+        <template v-if="field.type != 'info'">
+          <div class="inputTitle">{{ field.title }} :</div>
+          <input v-if="field.ref == 'mdpcreate'" @keyup="strengthChecker" v-model="form[field.ref]" :type=field.type
+            class="inputBox"></input>
+          <input v-else v-model="form[field.ref]" :type=field.type
+            :class="{ inputBox: true, erroredLine: errLine == field.ref }"></input>
+          <div v-if="field.ref == 'mdpcreate' && form['mdpcreate'] != null && form['mdpcreate'] != ''" id="passRow">
+            <div>Sécurité : </div>
+            <div class="strengthBar"
+              :style="[passScore >= 4 ? 'background-color: green' : passScore >= 3 ? 'background-color: lime' : passScore >= 2 ? 'background-color: yellow' : passScore >= 1 ? 'background-color: orange' : 'background-color: red']">
+            </div>
+            <div class="strengthBar"
+              :style="[passScore >= 4 ? 'background-color: green' : passScore >= 3 ? 'background-color: lime' : passScore >= 2 ? 'background-color: yellow' : passScore >= 1 ? 'background-color: orange' : '']">
+            </div>
+            <div class="strengthBar"
+              :style="[passScore >= 4 ? 'background-color: green' : passScore >= 3 ? 'background-color: lime' : passScore >= 2 ? 'background-color: yellow' : '']">
+            </div>
+            <div class="strengthBar"
+              :style="[passScore >= 4 ? 'background-color: green' : passScore >= 3 ? 'background-color: lime' : '']">
+            </div>
+            <div class="strengthBar" :style="[passScore >= 4 ? 'background-color: green' : '']"></div>
+          </div>
+        </template>
+        <template v-else>
+          <div class="inputTitle">{{ field.title }} :</div>
+          <div class="infoText">{{ field.ref }}</div>
+        </template>
       </div>
     </div>
     <div id="formAction">
-      <button :onclick=submit class="reply">{{ buttonName }}</button>
+      <button @click="submit(null)" class="reply">{{ buttonName }}</button>
     </div>
   </div>
 </template>
@@ -68,6 +116,13 @@ export default {
     margin: 0 auto;
     margin-top: 10px;
     width: 80%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
+    span {
+      padding-right: 5px;
+    }
   }
 
   #formMain {
@@ -78,22 +133,66 @@ export default {
   }
 
   .formLine {
-    display: flex;
+    display: grid;
     justify-content: space-between;
     align-items: center;
-    padding: 0 50px;
+    margin: 0 50px;
+    padding-bottom: 2px;
+  }
+
+  .erroredLine {
+    position: relative;
+  }
+
+  .erroredLine:after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    box-shadow: 0px 2px red;
+    animation: breathing 5s ease-in-out infinite normal;
+  }
+
+  .strengthBar {
+    width: 20px;
+    height: 5px;
+    background-color: lightgray;
+  }
+
+  #passRow {
+    grid-column: 2;
+    display: flex;
+    flex-direction: row;
+    justify-content: right;
+    align-items: baseline;
+    gap: 5px;
+    color: $tertiary;
   }
 
   .inputTitle {
+    grid-row: 1;
     color: $tertiary;
   }
 
   .inputBox {
+    grid-row: 1;
     width: 200px;
     background-color: $quartiary;
     border: solid 2px $primary;
     border-radius: 10px;
     padding: 5px;
+  }
+
+  .infoText {
+    width: 210px;
+    grid-row: 1;
+    color: $primary;
+  }
+
+  .erroredLine {
+    border: solid 2px red;
   }
 
   p {
@@ -124,6 +223,31 @@ export default {
     display: flex;
     align-items: center;
     justify-content: center;
+  }
+
+  .formActions {
+    display: flex;
+    justify-content: space-between;
+    margin: 0 50px;
+    gap: 15px;
+  }
+
+  .choiceButton {
+    background-color: $quartiary;
+    border: 2px solid $tertiary;
+    border-radius: 18px;
+    padding: 5px 20px 5px 20px;
+    color: $tertiary;
+    font-weight: 700;
+    transition: all ease-in-out 0.1s;
+    cursor: pointer;
+    width: 100%
+  }
+
+  .choiceButton.selectedChoice {
+    background-color: $tertiary;
+    color: white;
+    border: 2px solid $tertiary;
   }
 }
 </style>
