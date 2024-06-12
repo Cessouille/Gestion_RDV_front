@@ -1,6 +1,6 @@
 <script setup>
 import dayjs from 'dayjs';
-import ReplyList from './ReplyList.vue';
+
 import { ref, defineProps, defineEmits } from 'vue'
 
 const props = defineProps({
@@ -58,9 +58,7 @@ const toggleLike = () => {
             </div>
         </div>
     </div>
-    <ReplyList />
-    <ReplyList />
-    <ReplyList />
+    <slot />
 </template>
 
 <style lang="scss">

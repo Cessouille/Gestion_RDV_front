@@ -1,5 +1,10 @@
 <script setup>
+import { ref } from 'vue';
 import BubbleMessage from '@/components/BubbleMessage.vue';
+import ReplyList from '@/components/ReplyList.vue';
+
+const replying = ref(false);
+
 const test = {
   name: "Jean MALADE",
   datePubli: new Date("2024/05/27"),
@@ -12,9 +17,21 @@ const test = {
 
 <template>
   <main>
-    <h2>Poster</h2>
+    <h2 v-if="!replying" @click="replying = true">Poster</h2>
+    <div v-if="replying">
+      <textarea  class="w-96 h-32 border-tertiary border-solid border-2 rounded-xl p-2 resize-none bg-quartiary">eze</textarea>
+      <div class="flex justify-between">
+        <h3 class="bg-secondary p-2 rounded-xl text-primary font-bold cursor-pointer" @click="replying = false">Annuler</h3>
+        <h3 class="bg-tertiary p-2 rounded-xl font-bold text-white cursor-pointer">Envoyer</h3>
+      </div>
+    </div>
+    
     <div id="fil">
-      <BubbleMessage  :name="test.name" :datePubli="test.datePubli" :content="test.content" :nbComments="test.nbComments" :nbLike.sync="test.nbLike" :liked.sync="test.liked"/>
+      <BubbleMessage  :name="test.name" :datePubli="test.datePubli" :content="test.content" :nbComments="test.nbComments" :nbLike.sync="test.nbLike" :liked.sync="test.liked">
+        <ReplyList />
+        <ReplyList />
+        <ReplyList />
+      </BubbleMessage>
       <BubbleMessage  :name="test.name" :datePubli="test.datePubli" :content="test.content" :nbComments="test.nbComments" :nbLike.sync="test.nbLike" :liked.sync="test.liked"/>
       <BubbleMessage  :name="test.name" :datePubli="test.datePubli" :content="test.content" :nbComments="test.nbComments" :nbLike.sync="test.nbLike" :liked.sync="test.liked"/>
     </div> 
