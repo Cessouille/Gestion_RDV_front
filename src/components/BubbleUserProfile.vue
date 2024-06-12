@@ -130,7 +130,7 @@ function formatSubscribers(number: number) {
                 <p class="text-xs italic hover:cursor-pointer" @click="seeAll = !seeAll">Voir moins</p>
             </div>
         </div>
-        <RouterLink :to="'/user/' + user.id"
+        <RouterLink :to="'/user/' + user.id + '/appointment'"
             class="bg-tertiary w-[175px] text-white text-center font-bold py-2 px-3 rounded-lg block ml-auto text-sm my-1.5 hover:cursor-pointer">
             Prendre rendez-vous
         </RouterLink>
