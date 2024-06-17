@@ -19,8 +19,6 @@ const user = {
 <template>
   <header>
     <Navigation />
-    <br>
-    <BubbleUser :id="user.id"/>
   </header>
 </template>
 
