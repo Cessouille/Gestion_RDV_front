@@ -31,13 +31,13 @@ const test = {
     </div>
     
     <div id="fil">
-      <BubbleMessage :name="test.name" :datePubli="test.datePubli" :content="test.content" :nbComments="test.nbComments" :nbLike.sync="test.nbLike" :liked.sync="test.liked">
+      <BubbleMessage :param="test">
         <ReplyList />
         <ReplyList />
         <ReplyList />
       </BubbleMessage>
-      <BubbleMessage :name="test.name" :datePubli="test.datePubli" :content="test.content" :nbComments="test.nbComments" :nbLike.sync="test.nbLike" :liked.sync="test.liked"/>
-      <BubbleMessage :name="test.name" :datePubli="test.datePubli" :content="test.content" :nbComments="test.nbComments" :nbLike.sync="test.nbLike" :liked.sync="test.liked"/>
+      <BubbleMessage :param="test" />
+      <BubbleMessage :param="test" />
     </div> 
   </main>
 </template>
