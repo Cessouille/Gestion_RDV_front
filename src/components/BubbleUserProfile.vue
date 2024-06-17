@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import { Disponibilite, User } from '@/models/types';
+import { Disponibilite, Profile } from '@/models/types';
 
-const props = defineProps({
-    id: Number
-});
+export interface BubbleUserProps {
+    id: number;
+}
+
+const props = defineProps<BubbleUserProps>();
 
 const dispo: Disponibilite[] = [
     {
@@ -24,8 +26,8 @@ const dispo: Disponibilite[] = [
     },
 ]
 
-const user: User = {
-    id: props.id ?? 0,
+const user: Profile = {
+    id: props.id,
     name: 'Philippe LE DOCTEUR',
     metier: 'Dentiste',
     description: 'Je suis Philipe LE DOCTEUR, suivez moi pour des bon tips !',
@@ -60,7 +62,7 @@ function formatSubscribers(number: number) {
 </script>
 
 <template>
-    <div class="bg-secondary border-[3px] border-primary rounded-lg p-2 w-[500px]">
+    <div class="bg-secondary border-[3px] border-primary rounded-lg p-2 w-full">
         <div class="flex">
             <img :src="user.avatar" class="border-2 border-primary rounded-lg mr-2 mb-2 w-[10%]" />
             <div>

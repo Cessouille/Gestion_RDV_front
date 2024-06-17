@@ -1,30 +1,31 @@
-<script setup>
+<script setup lang="ts">
 import dayjs from 'dayjs';
+import { BubbleMessageParam } from '@/models/types';
 
 import { ref, defineProps, defineEmits } from 'vue'
 
-const props = defineProps({
-    name: String,
-    datePubli: Date,
-    content: String,
-    nbLike: Number,
-    nbComments: Number,
-    liked: Boolean
-})
+export interface BubbleMessageProps {
+    param: BubbleMessageParam;
+}
+
+const props = defineProps<BubbleMessageProps>();
 
 const emit = defineEmits(['update:liked', 'update:nbLike'])
 
 const replying = ref(false);
 
+const liked = ref(props.param.liked);
+const nbLike = ref(props.param.nbLike.valueOf());
+
 const toggleLike = () => {
-    props.liked = !props.liked;
-    if (props.liked) {
-        props.nbLike += 1;
+    liked.value = !liked.value;
+    if (liked.value) {
+        nbLike.value += 1;
     } else {
-        props.nbLike -= 1;
+        nbLike.value -= 1;
     }
-    emit('update:liked', props.liked)
-    emit('update:nbLike', props.nbLike)
+    emit('update:liked', liked.value)
+    emit('update:nbLike', nbLike.value)
 }
 
 </script>
@@ -32,11 +33,11 @@ const toggleLike = () => {
 <template>
     <div id="bubbleMessage">
         <div id="headerBubble">
-            <h3>{{ props.name }}</h3>
-            <h3>{{ dayjs(props.datePubli).format('DD/MM/YYYY') }}</h3>
+            <h3>{{ props.param.name }}</h3>
+            <h3>{{ dayjs(props.param.datePubli).format('DD/MM/YYYY') }}</h3>
         </div>
         <p>
-            {{ props.content }}
+            {{ props.param.content }}
         </p>
         <span v-if="replying" @click="replying = false" class="material-symbols-rounded closeBox">close</span>
         <div id="footerBubble">
@@ -46,12 +47,12 @@ const toggleLike = () => {
                 <div class="actions">
                     <div>
                         <span class="material-symbols-rounded">comment</span>
-                        <h4>{{ props.nbComments }}</h4>
+                        <h4>{{ props.param.nbComments }}</h4>
                     </div>
                     <div>
-                        <span v-if="props.liked" class="material-symbols-rounded fill" @click=toggleLike>favorite</span>
+                        <span v-if="liked" class="material-symbols-rounded fill" @click=toggleLike>favorite</span>
                         <span v-else class="material-symbols-rounded" @click="toggleLike">favorite</span>
-                        <h4>{{ props.nbLike }}</h4>
+                        <h4>{{ nbLike }}</h4>
                     </div>
                 </div>
                 <button v-if="replying" class="reply">Répondre</button>
@@ -69,7 +70,6 @@ const toggleLike = () => {
     border: 3px solid $primary;
     border-radius: 15px 15px 15px 0;
     padding: 7px;
-    width: 500px;
     margin-top: 25px;
     .replyText {
         color: $primary;

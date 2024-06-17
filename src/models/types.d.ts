@@ -4,7 +4,7 @@ interface Disponibilite {
     fin: number,
 }
 
-interface User {
+interface Profile {
     id: number,
     name: string,
     metier: string,
@@ -19,4 +19,24 @@ interface User {
     disponibilites: Disponibilite[]
 }
 
-export { Disponibilite, User };
+interface Reply {
+    id: number,
+    name: string,
+    description: string
+}
+
+interface BubbleMessageParam {
+    name: string;
+    datePubli: Date;
+    content: string;
+    nbLike: number;
+    nbComments: number;
+    liked: boolean;
+    thumbed: boolean | null;
+}
+
+interface User {
+    name: string;
+}
+
+export { Disponibilite, Profile, Reply, BubbleMessageParam, User };
