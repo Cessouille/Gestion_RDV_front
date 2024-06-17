@@ -1,6 +1,8 @@
 <script setup>
 import Navigation from './components/layout/Navigation.vue';
-import BubbleUser from './components/BubbleUserProfile.vue';
+import { useUserStore } from '@/stores/user';
+
+const userStore = useUserStore();
 
 const test = {
   name: "Jean MALADE",
@@ -19,8 +21,6 @@ const user = {
 <template>
   <header>
     <Navigation />
-    <br>
-    <BubbleUser :id="user.id"/>
   </header>
 </template>
 
