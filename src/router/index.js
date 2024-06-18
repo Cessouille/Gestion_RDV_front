@@ -5,7 +5,6 @@ import HistoriqueView from "../views/HistoriqueView.vue";
 import NotificationView from "../views/NotificationView.vue";
 import ProfileView from "../views/ProfileView.vue";
 import LoginView from "../views/LoginView.vue";
-import ProfileView from "../views/UserProfileView.vue";
 import FormTest from "../views/FormTest.vue";
 import AppointmentView from "../views/AppointmentView.vue";
 
@@ -44,12 +43,7 @@ const router = createRouter({
       component: LoginView,
     },
     {
-      path: "/user/:id",
-      name: "user",
-      component: UserView,
-    },
-    {
-      path: "/user/:id/appointment",
+      path: "/profile/:id/appointment",
       name: "appointment",
       component: AppointmentView
     },
