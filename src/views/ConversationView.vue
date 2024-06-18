@@ -25,24 +25,24 @@ var textChats = ref([
 ]);
 
 var conversations = ref([
-  { users: ["Mike", "Steven"], id: 1 },
-  { users: ["Mike", "Opticien"], id: 2 },
-  { users: ["Mike", "Steven", "Opticien"], id: 3 },
-  { users: ["Mike", "Steven 2"], id: 4 },
-  { users: ["Mike", "Steven 2", "Steven", "Michel"], id: 5 },
+  { name: "Mike", users: ["Mike", "Steven"], id: 1 },
+  { name: "Conv name", users: ["Mike", "Opticien"], id: 2 },
+  { name: "Rdv a deux", users: ["Mike", "Steven", "Opticien"], id: 3 },
+  { name: "Conv name", users: ["Mike", "Steven 2"], id: 4 },
+  { name: "Conv name", users: ["Mike", "Steven 2", "Steven", "Michel"], id: 5 },
 ])
 
 var currentConversation = ref(conversations.value[0]);
 console.log(currentConversation)
 
-function showConvName(users) {
+function showConvNames(users) {
   if (users.length > 2) {
     var userString = "";
     users.forEach(function callback(value, index) {
       if (value != currentUser) {
         userString += value;
         if (index < users.length - 1) {
-          userString += " & ";
+          userString += ", ";
         }
       }
     });
@@ -87,6 +87,8 @@ function switchChat(e) {
       { user: "Mike", date: new Date(), text: "Il est maintenant" },
       { user: "Opticien", date: "2024-06-18T06:55:33.558Z", text: "En tant qu'opticien..." },
       { user: "Stephen", date: "2024-06-18T06:57:33.558Z", text: "En tant que Steven..." },
+      { user: "Steven", date: "2024-06-18T06:55:33.558Z", text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent ac bibendum massa. Integer metus sem, porttitor ut maximus at, dignissim nec ligula. In hac habitasse platea dictumst. Cras auctor nisl sed efficitur convallis. Nunc vel pellentesque urna. Pellentesque vitae tincidunt tellus. Ut imperdiet ornare semper. Nam lacus urna, tincidunt nec erat at, efficitur pellentesque velit. Aliquam tortor augue, tincidunt ac hendrerit eu, bibendum at erat. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Phasellus tellus metus, venenatis quis tincidunt quis, porttitor malesuada ipsum. Mauris gravida, diam a vehicula consectetur, justo nisi tincidunt neque, quis ornare felis purus a odio. Nam ex nibh, pulvinar nec porttitor et, sollicitudin ut mauris. Integer luctus luctus gravida. Curabitur quis pretium lectus. Etiam sodales fringilla sem at ultrices." },
+
     ];
     currentConversation.value = conversations.value[2];
   } else {
@@ -105,17 +107,20 @@ function switchChat(e) {
     <div class="chatHolder h-[90vh]">
       <div class="chatPicker">
         <div>Chats :</div>
-        <div v-for="conv in conversations" :id="'c' + conv.id" :class="{chatName: true, currentChat: currentConversation.id == conv.id}"
-          v-on:click="switchChat">{{
-          showConvName(conv.users) }}</div>
+        <div v-for="conv in conversations" :id="'c' + conv.id"
+          :class="{ chatName: true, currentChat: currentConversation.id == conv.id }" v-on:click="switchChat">{{
+          conv.name }}</div>
       </div>
       <div class="chat">
-        <div id="chatName">Chat avec {{ showConvName(currentConversation.users) }}</div>
+        <div id="chatName">{{ currentConversation.name }}
+          <div class="text-xs text-primary" v-if="currentConversation.users.length > 2">{{
+          showConvNames(currentConversation.users) }}</div>
+        </div>
         <div id="chatScroll"
           class="scrollwindow flex align-self-center flex-col h-full overflow-scroll overflow-x-hidden bg-quartiary">
           <Chat :chats="textChats" :currentUser="currentUser"></Chat>
         </div>
-        <div class="w-auto flex gap-2 items-center">
+        <div class="w-auto flex gap-2 items-center bg-quartiary p-2">
           <div contenteditable
             class="messageBox w-full border-tertiary border-solid border-2 rounded-xl p-2 bg-quartiary row-span-1">
           </div>
@@ -217,7 +222,7 @@ function switchChat(e) {
   cursor: pointer;
 }
 
-#chatName{
+#chatName {
   background-color: $secondary;
   color: $tertiary;
   padding: 10px;
