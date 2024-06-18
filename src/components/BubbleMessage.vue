@@ -1,151 +1,92 @@
-<script setup>
-import dayjs from 'dayjs';
+<script setup lang="ts">
+import dayjs from "dayjs";
+import ReplyList from "@/components/ReplyList.vue";
+import { Post } from "@/models/types";
 
-import { ref, defineProps, defineEmits } from 'vue'
+import { ref, defineProps } from "vue";
 
-const props = defineProps({
-    name: String,
-    datePubli: Date,
-    content: String,
-    nbLike: Number,
-    nbComments: Number,
-    liked: Boolean
-})
+export interface BubbleMessageProps {
+    param: Post;
+}
 
-const emit = defineEmits(['update:liked', 'update:nbLike'])
+const props = defineProps<BubbleMessageProps>();
 
 const replying = ref(false);
 
-const toggleLike = () => {
-    props.liked = !props.liked;
-    if (props.liked) {
-        props.nbLike += 1;
-    } else {
-        props.nbLike -= 1;
-    }
-    emit('update:liked', props.liked)
-    emit('update:nbLike', props.nbLike)
-}
+const liked = ref(props.param.liked);
+const nbLike = ref(props.param.nbLike.valueOf());
 
+const name = $cookies.get("userName");
+
+const replies = ref([
+    {
+        id: 1,
+        name: "Christien Opticien",
+        description: "En tant qu'opticien, je ne sais pas ...",
+    },
+    {
+        id: 2,
+        name: "Opticien Christien",
+        description: "En tant que christien, je sais !",
+    },
+]);
+
+const toggleLike = () => {
+    liked.value = !liked.value;
+    if (liked.value) {
+        nbLike.value += 1;
+    } else {
+        nbLike.value -= 1;
+    }
+};
 </script>
 
 <template>
-    <div id="bubbleMessage">
-        <div id="headerBubble">
-            <h3>{{ props.name }}</h3>
-            <h3>{{ dayjs(props.datePubli).format('DD/MM/YYYY') }}</h3>
+    <div class="bg-secondary border-[3px] border-primary rounded-tl-lg rounded-tr-lg rounded-br-lg p-2 mt-6">
+        <div class="flex justify-between text-primary text-sm">
+            <h3>
+                {{
+                    props.param.name == name
+                        ? props.param.name + " (moi)"
+                        : props.param.name
+                }}
+            </h3>
+            <h3>{{ dayjs(props.param.datePubli).format("DD/MM/YYYY") }}</h3>
         </div>
-        <p>
-            {{ props.content }}
+        <p class="my-2.5 text-justify text-tertiary text-lg">
+            {{ props.param.content }}
         </p>
-        <span v-if="replying" @click="replying = false" class="material-symbols-rounded closeBox">close</span>
-        <div id="footerBubble">
-            <i v-if="!replying" class="replyText" @click="replying = true">Répondre...</i>
-            <textarea v-if="replying"></textarea>
-            <div>
-                <div class="actions">
-                    <div>
-                        <span class="material-symbols-rounded">comment</span>
-                        <h4>{{ props.nbComments }}</h4>
+        <div class="flex">
+            <div class="w-full">
+                <i v-if="!replying" class="text-primary text-lg cursor-pointer" @click="replying = true">Répondre...</i>
+                <textarea v-if="replying"
+                    class="h-18 w-full resize-none bg-quartiary border-2 border-primary rounded-lg p-1.5"></textarea>
+                <div class="flex items-center justify-between">
+                    <button v-if="replying" @click="replying = false"
+                        class="bg-primary border-none rounded-lg px-3 py-1 text-white font-bold transition-colors duration-300 cursor-pointer hover:bg-tertiary">
+                        Annuler
+                    </button>
+                    <button v-if="replying"
+                        class="bg-tertiary border-none rounded-lg px-3 py-1 text-white font-bold transition-colors duration-300 cursor-pointer hover:bg-primary">
+                        Répondre
+                    </button>
+                </div>
+            </div>
+            <div class="ml-auto">
+                <div class="flex text-tertiary">
+                    <div class="flex items-center ml-2.5">
+                        <span class="material-symbols-rounded mx-1.5">comment</span>
+                        <h4>{{ replies.length }}</h4>
                     </div>
-                    <div>
-                        <span v-if="props.liked" class="material-symbols-rounded fill" @click=toggleLike>favorite</span>
-                        <span v-else class="material-symbols-rounded" @click="toggleLike">favorite</span>
-                        <h4>{{ props.nbLike }}</h4>
+                    <div class="flex items-center ml-2.5">
+                        <i v-if="liked" class="fa-solid fa-heart mx-1.5 cursor-pointer text-xl" @click="toggleLike"></i>
+                        <i v-else class="fa-regular fa-heart mx-1.5 cursor-pointer text-xl" @click="toggleLike"></i>
+                        <h4>{{ nbLike }}</h4>
                     </div>
                 </div>
-                <button v-if="replying" class="reply">Répondre</button>
             </div>
         </div>
     </div>
     <slot />
+    <ReplyList :replies="replies" />
 </template>
-
-<style lang="scss">
-@import "../assets/scss/settings.scss";
-
-#bubbleMessage {
-    background-color: $secondary;
-    border: 3px solid $primary;
-    border-radius: 15px 15px 15px 0;
-    padding: 7px;
-    width: 500px;
-    margin-top: 25px;
-    .replyText {
-        color: $primary;
-        font-size: large;
-        cursor: pointer;
-    }
-    .closeBox {
-        background-color: $primary;
-        color: $quartiary;
-        border-radius: 50%;
-        transition: all ease-in-out 0.5s;
-    }
-    .closeBox:hover {
-        transform: rotate(180deg) scale(1.01);
-        background-color: $quartiary;
-        color: $primary;
-        cursor: pointer;
-    }
-    #headerBubble {
-        display: flex;
-        justify-content: space-between;
-        color: $primary;
-        font-size: small;
-    }
-    p {
-        margin: 5px 0 10px 0;
-        text-align: justify;
-        color: $tertiary;
-        font-size: large;
-    }
-    #footerBubble {
-        display: flex;
-        justify-content: space-between;
-        textarea {
-            height: 75px;
-            width: 100%;
-            resize: none;
-            background-color: $quartiary;
-            border: solid 2px $primary;
-            border-radius: 10px;
-            padding: 5px;
-        }
-        .reply {
-            background-color: $primary;
-            border: none;
-            border-radius: 25px;
-            padding: 5px;
-            color: white;
-            font-weight: 700;
-            transition: all ease-in-out 0.1s;
-            margin: 20%;
-            cursor: pointer;
-        }
-        .reply:hover {
-            background-color: $tertiary;
-            transform: scale(1.1,1.1);
-        }
-        .actions {
-            color: $tertiary;
-            display: flex;
-            div {
-                display: flex;
-                margin-left: 10px;
-                align-items: center;
-                span {
-                    margin: 5px;
-                }
-            }
-            .fill {
-                font-variation-settings:
-                'FILL' 1,
-                'wght' 400,
-                'GRAD' 0,
-                'opsz' 24
-            }
-        }
-    }
-}
-</style>

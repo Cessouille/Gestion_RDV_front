@@ -1,10 +1,15 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { Disponibilite, User } from '@/models/types';
+import { useToast } from 'vue-toast-notification';
 
-const props = defineProps({
-    id: Number
-});
+export interface BubbleUserProps {
+    id: number;
+}
+
+const props = defineProps<BubbleUserProps>();
+
+const $toast = useToast();
 
 const dispo: Disponibilite[] = [
     {
@@ -25,7 +30,7 @@ const dispo: Disponibilite[] = [
 ]
 
 const user: User = {
-    id: props.id ?? 0,
+    id: props.id,
     name: 'Philippe LE DOCTEUR',
     metier: 'Dentiste',
     description: 'Je suis Philipe LE DOCTEUR, suivez moi pour des bon tips !',
@@ -57,20 +62,36 @@ function formatSubscribers(number: number) {
     return number;
 }
 
+function changeSubscribe() {
+    if (subscribed.value) {
+        subscribed.value = false;
+        $toast.default(`Vous n\'êtes plus abonné à ${user.name}`, {
+            position: 'bottom-right',
+            duration: 3000,
+        })
+    } else {
+        subscribed.value = true;
+        $toast.default(`Vous êtes abonné à ${user.name}`, {
+            position: 'bottom-right',
+            duration: 3000,
+        })
+    }
+}
+
 </script>
 
 <template>
-    <div class="bg-secondary border-[3px] border-primary rounded-lg p-2 w-[500px]">
+    <div class="bg-secondary border-[3px] border-primary rounded-lg p-2 w-full">
         <div class="flex">
             <img :src="user.avatar" class="border-2 border-primary rounded-lg mr-2 mb-2 w-[10%]" />
             <div>
                 <div class="flex items-center">
                     <h3 class="text-tertiary font-bold text-lg mr-2">{{ user.name }}</h3>
                     <span v-if="subscribed" class="hover:cursor-pointer">
-                        <i class="fa-solid fa-user-check text-tertiary" @click="subscribed = !subscribed"></i>
+                        <i class="fa-solid fa-user-check text-tertiary" @click="changeSubscribe"></i>
                     </span>
                     <span v-else class="hover:cursor-pointer">
-                        <i class="fa-solid fa-user-plus text-tertiary" @click="subscribed = !subscribed"></i>
+                        <i class="fa-solid fa-user-plus text-tertiary" @click="changeSubscribe"></i>
                     </span>
                 </div>
                 <p class="text-primary text-sm"> Professionnel : {{ user.metier }} </p>
@@ -130,9 +151,12 @@ function formatSubscribers(number: number) {
                 <p class="text-xs italic hover:cursor-pointer" @click="seeAll = !seeAll">Voir moins</p>
             </div>
         </div>
-        <RouterLink :to="'/user/' + user.id"
-            class="bg-tertiary w-[175px] text-white text-center font-bold py-2 px-3 rounded-lg block ml-auto text-sm my-1.5 hover:cursor-pointer">
-            Prendre rendez-vous
-        </RouterLink>
+        <div class="flex">
+            <RouterLink :to="`/user/${user.id}/appointment`"
+                class="bg-tertiary text-white text-center font-bold py-2 px-3 rounded-lg ml-auto text-sm my-1.5 transition-colors duration-300 hover:cursor-pointer hover:bg-primary"
+            >
+                Prendre rendez-vous
+            </RouterLink>
+        </div>
     </div>
 </template>
