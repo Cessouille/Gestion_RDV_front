@@ -5,7 +5,7 @@ export const useUserStore = defineStore('user', {
   state: () => {
     return { me: null }
   },
-  getters: {
+  actions: {
     async getMe() {
       try {
         this.me = {

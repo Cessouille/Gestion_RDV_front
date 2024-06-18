@@ -1,14 +1,18 @@
 <script setup lang="ts">
 import { RouterLink, RouterView } from 'vue-router';
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useUserStore } from '@/stores/user';
 
 const userStore = useUserStore();
 
 const openMenu = ref(false);
 
+onMounted(() => {
+  userStore.getMe();
+})
+
 const connectedUser = computed<Profile>(
-  () => userStore.me
+  () => userStore.me,
 );
 const notification = ref(0);
 </script>
