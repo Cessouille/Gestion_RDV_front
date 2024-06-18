@@ -4,7 +4,7 @@ interface Disponibilite {
     fin: number,
 }
 
-interface Profile {
+interface User {
     id: number,
     name: string,
     metier: string,
@@ -35,8 +35,9 @@ interface BubbleMessageParam {
     thumbed: boolean | null;
 }
 
-interface User {
+interface Profile {
     name: string;
+    profilePicture: string;
 }
 
-export { Disponibilite, Profile, Reply, BubbleMessageParam, User };
+export { Disponibilite, User, Reply, BubbleMessageParam, Profile };
