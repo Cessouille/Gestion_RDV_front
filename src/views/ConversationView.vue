@@ -91,6 +91,17 @@ function switchChat(e) {
 
     ];
     currentConversation.value = conversations.value[2];
+  } else if (e.target.id == "c5") {
+    textChats.value = [
+      { user: "Opticien", date: "2024-06-18T06:55:33.558Z", text: "Jordan Cereals pour opticien ?" },
+      { user: "Stephen", date: "2024-06-18T06:57:33.558Z", text: "Jordan Cereals pour Steven !" },
+      { user: "Mike", date: new Date(), text: "Il est maintenant" },
+      { user: "Opticien", date: "2024-06-18T06:55:33.558Z", text: "En tant qu'opticien..." },
+      { user: "Stephen", date: "2024-06-18T06:57:33.558Z", text: "En tant que Steven..." },
+      { user: "Steven", date: "2024-06-18T06:55:33.558Z", text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent ac bibendum massa. Integer metus sem, porttitor ut maximus at, dignissim nec ligula. In hac habitasse platea dictumst. Cras auctor nisl sed efficitur convallis. Nunc vel pellentesque urna. Pellentesque vitae tincidunt tellus. Ut imperdiet ornare semper. Nam lacus urna, tincidunt nec erat at, efficitur pellentesque velit. Aliquam tortor augue, tincidunt ac hendrerit eu, bibendum at erat. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Phasellus tellus metus, venenatis quis tincidunt quis, porttitor malesuada ipsum. Mauris gravida, diam a vehicula consectetur, justo nisi tincidunt neque, quis ornare felis purus a odio. Nam ex nibh, pulvinar nec porttitor et, sollicitudin ut mauris. Integer luctus luctus gravida. Curabitur quis pretium lectus. Etiam sodales fringilla sem at ultrices." },
+
+    ];
+    currentConversation.value = conversations.value[4];
   } else {
     textChats.value = [
       { user: "Steven", date: "2024-06-18T06:55:33.558Z", text: "ok." },
