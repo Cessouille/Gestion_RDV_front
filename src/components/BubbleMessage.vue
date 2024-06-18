@@ -70,7 +70,7 @@ const toggleLike = () => {
                 </div>
             </div>
         </div>
-  </div>
+    </div>
     <slot />
 </template>
 
