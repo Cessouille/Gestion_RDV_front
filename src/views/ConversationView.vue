@@ -24,6 +24,35 @@ var textChats = ref([
   { user: "Mike", date: new Date(), text: "Il est maintenant" },
 ]);
 
+var conversations = ref([
+  { users: ["Mike", "Steven"], id: 1 },
+  { users: ["Mike", "Opticien"], id: 2 },
+  { users: ["Mike", "Steven", "Opticien"], id: 3 },
+  { users: ["Mike", "Steven 2"], id: 4 },
+  { users: ["Mike", "Steven 2", "Steven", "Michel"], id: 5 },
+])
+
+var currentConversation = ref(conversations.value[0]);
+console.log(currentConversation)
+
+function showConvName(users) {
+  if (users.length > 2) {
+    var userString = "";
+    users.forEach(function callback(value, index) {
+      if (value != currentUser) {
+        userString += value;
+        if (index < users.length - 1) {
+          userString += " & ";
+        }
+      }
+    });
+    return userString;
+  } else {
+    var name = users.find(u => u != currentUser);
+    return name;
+  }
+}
+
 function switchChat(e) {
   var chats = document.querySelectorAll(".chatName");
   chats.forEach(chat => {
@@ -43,12 +72,14 @@ function switchChat(e) {
       { user: "Steven", date: "2024-06-18T06:55:33.558Z", text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent ac bibendum massa. Integer metus sem, porttitor ut maximus at, dignissim nec ligula. In hac habitasse platea dictumst. Cras auctor nisl sed efficitur convallis. Nunc vel pellentesque urna. Pellentesque vitae tincidunt tellus. Ut imperdiet ornare semper. Nam lacus urna, tincidunt nec erat at, efficitur pellentesque velit. Aliquam tortor augue, tincidunt ac hendrerit eu, bibendum at erat. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Phasellus tellus metus, venenatis quis tincidunt quis, porttitor malesuada ipsum. Mauris gravida, diam a vehicula consectetur, justo nisi tincidunt neque, quis ornare felis purus a odio. Nam ex nibh, pulvinar nec porttitor et, sollicitudin ut mauris. Integer luctus luctus gravida. Curabitur quis pretium lectus. Etiam sodales fringilla sem at ultrices." },
       { user: "Mike", date: new Date(), text: "Il est maintenant" },
     ];
+    currentConversation.value = conversations.value[0];
   } else if (e.target.id == "c2") {
     textChats.value = [
       { user: "Opticien", date: "2024-06-18T06:55:33.558Z", text: "Jordan Cereals pour opticien ?" },
       { user: "Mike", date: new Date(), text: "Il est maintenant" },
       { user: "Opticien", date: "2024-06-18T06:55:33.558Z", text: "En tant qu'opticien..." },
     ];
+    currentConversation.value = conversations.value[1];
   } else if (e.target.id == "c3") {
     textChats.value = [
       { user: "Opticien", date: "2024-06-18T06:55:33.558Z", text: "Jordan Cereals pour opticien ?" },
@@ -56,13 +87,14 @@ function switchChat(e) {
       { user: "Mike", date: new Date(), text: "Il est maintenant" },
       { user: "Opticien", date: "2024-06-18T06:55:33.558Z", text: "En tant qu'opticien..." },
       { user: "Stephen", date: "2024-06-18T06:57:33.558Z", text: "En tant que Steven..." },
-
     ];
+    currentConversation.value = conversations.value[2];
   } else {
     textChats.value = [
-      { user: "Steven", date: "2024-06-18T06:55:33.558Z", text: "Jordan Cereals 2" },
-      { user: "Mike", date: new Date(), text: "Il est maintenant" },
+      { user: "Steven", date: "2024-06-18T06:55:33.558Z", text: "ok." },
+      { user: "Mike", date: new Date(), text: "ok." },
     ];
+    currentConversation.value = conversations.value[3];
   }
 
 }
@@ -73,17 +105,17 @@ function switchChat(e) {
     <div class="chatHolder h-[90vh]">
       <div class="chatPicker">
         <div>Chats :</div>
-        <div id="c1" class="chatName currentChat" v-on:click="switchChat">Steven</div>
-        <div id="c2" class="chatName" v-on:click="switchChat">Opticien</div>
-        <div id="c3" class="chatName" v-on:click="switchChat">Steven & Opticien</div>
-        <div id="c4" class="chatName" v-on:click="switchChat">Steven 2</div>
+        <div v-for="conv in conversations" :id="'c' + conv.id" :class="{chatName: true, currentChat: currentConversation.id == conv.id}"
+          v-on:click="switchChat">{{
+          showConvName(conv.users) }}</div>
       </div>
       <div class="chat">
+        <div id="chatName">Chat avec {{ showConvName(currentConversation.users) }}</div>
         <div id="chatScroll"
-          class="scrollwindow flex align-self-center flex-col h-full overflow-scroll overflow-x-hidden">
+          class="scrollwindow flex align-self-center flex-col h-full overflow-scroll overflow-x-hidden bg-quartiary">
           <Chat :chats="textChats" :currentUser="currentUser"></Chat>
         </div>
-        <div class="w-auto flex gap-2 items-end">
+        <div class="w-auto flex gap-2 items-center">
           <div contenteditable
             class="messageBox w-full border-tertiary border-solid border-2 rounded-xl p-2 bg-quartiary row-span-1">
           </div>
@@ -169,7 +201,7 @@ function switchChat(e) {
 .chat {
   grid-column: 2;
   display: grid;
-  grid-template-rows: minmax(0, 1fr) min-content;
+  grid-template-rows: min-content minmax(0, 1fr) min-content;
   overflow: hidden;
 }
 
@@ -183,6 +215,13 @@ function switchChat(e) {
   overflow: hidden;
   text-overflow: ellipsis;
   cursor: pointer;
+}
+
+#chatName{
+  background-color: $secondary;
+  color: $tertiary;
+  padding: 10px;
+  background: linear-gradient(0deg, $quartiary 0%, $secondary 100%);
 }
 
 .currentChat {
