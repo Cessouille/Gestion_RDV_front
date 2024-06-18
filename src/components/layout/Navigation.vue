@@ -1,25 +1,26 @@
 <script setup lang="ts">
 import { RouterLink, RouterView } from 'vue-router';
 import { ref, computed, onMounted } from 'vue';
+import { Profile } from '@/models/types';
 import { useUserStore } from '@/stores/user';
 
 const userStore = useUserStore();
 
 const openMenu = ref(false);
 
-onMounted(() => {
-  userStore.getMe();
-})
-
 const connectedUser = computed<Profile>(
   () => userStore.me,
 );
 const notification = ref(0);
+
+onMounted(() => {
+  userStore.getMe();
+});
 </script>
 
 <template>
   <nav class="bg-primary h-[8vh] flex items-center justify-between px-2.5 text-white">
-    <div class="flex items-center space-x-2.5">
+    <div class="flex items-center text-gray-200 space-x-2.5">
       <RouterLink to="/">
         <img
           class="h-[6.5vh]"
@@ -69,3 +70,9 @@ const notification = ref(0);
 
   <RouterView />
 </template>
+
+<style>
+.router-link-active {
+  color: white;
+}
+</style>

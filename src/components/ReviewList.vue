@@ -1,24 +1,21 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import BubbleMessage from '@/components/BubbleMessage.vue';
-import ReplyList from '@/components/ReplyList.vue';
-import { BubbleMessageParam } from '@/models/types';
+import { Post } from '@/models/types';
 
-const test = ref<BubbleMessageParam>({
+const test = ref<Post>({
   name: "Jean MALADE",
   datePubli: new Date("2024/05/27"),
   content: "Je suis malade et j’ai mal au ventre mais mon cousin ma proposer des huiles essentiels. Que faire ?",
-  nbComments: 3,
   nbLike: 50,
   liked: true,
   thumbed: false
 });
 
-const test2 = ref<BubbleMessageParam>({
+const test2 = ref<Post>({
   name: "Jean MALADE",
   datePubli: new Date("2024/05/27"),
   content: "Je suis malade et j’ai mal au ventre mais mon cousin ma proposer des huiles essentiels. Que faire ?",
-  nbComments: 3,
   nbLike: 50,
   liked: true,
   thumbed: null
@@ -26,19 +23,6 @@ const test2 = ref<BubbleMessageParam>({
 
 const reviews = ref([
     test, test2
-]);
-
-const replies = ref([
-    {
-        id: 1,
-        name: "Christien Opticien",
-        description: "En tant qu'opticien, je ne sais pas ..."
-    },
-    {
-        id: 2,
-        name: "Opticien Christien",
-        description: "En tant que christien, je sais !"
-    }
 ]);
 </script>
 
@@ -58,7 +42,6 @@ const replies = ref([
             </div>
             <div>
                 <BubbleMessage :param="review.value" />
-                <ReplyList :replies="replies"/>
             </div>
         </div>
     </div>

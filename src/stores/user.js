@@ -1,4 +1,3 @@
-import { ref, computed } from 'vue';
 import { defineStore } from 'pinia';
 
 export const useUserStore = defineStore('user', {
@@ -12,6 +11,8 @@ export const useUserStore = defineStore('user', {
           name: "Jedan-Michel ZEUB",
           profilePicture: "/src/assets/images/pp.png",
         }
+
+        $cookies.set('userName', this.me.name, '1d');
       } catch (e) {
         console.error(e);
         throw e;
