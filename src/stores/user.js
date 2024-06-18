@@ -1,5 +1,5 @@
-import { ref, computed } from 'vue'
-import { defineStore } from 'pinia'
+import { ref, computed } from 'vue';
+import { defineStore } from 'pinia';
 
 export const useUserStore = defineStore('user', {
   state: () => {
@@ -8,8 +8,9 @@ export const useUserStore = defineStore('user', {
   getters: {
     async getMe() {
       try {
-        me = {
-          name: "Célian CHAUSSON",
+        this.me = {
+          name: "Jedan-Michel ZEUB",
+          profilePicture: "/src/assets/images/pp.png",
         }
       } catch (e) {
         console.error(e);
