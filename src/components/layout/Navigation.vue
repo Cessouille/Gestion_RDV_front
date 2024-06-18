@@ -1,11 +1,15 @@
-<script setup>
-import { RouterLink, RouterView } from 'vue-router'
-import { ref } from 'vue';
+<script setup lang="ts">
+import { RouterLink, RouterView } from 'vue-router';
+import { ref, computed } from 'vue';
+import { useUserStore } from '@/stores/user';
+
+const userStore = useUserStore();
 
 const openMenu = ref(false);
 
-const name = ref('Jedan-Michel ZEUB');
-const profilePicture = ref('/src/assets/images/pp.png')
+const connectedUser = computed<Profile>(
+  () => userStore.me
+);
 const notification = ref(0);
 </script>
 
@@ -14,7 +18,6 @@ const notification = ref(0);
     <div class="flex items-center space-x-2.5">
       <RouterLink to="/">
         <img
-          id="logo"
           class="h-[6.5vh]"
           src="/src/assets/images/logo_full.png"
         >
@@ -32,20 +35,19 @@ const notification = ref(0);
         Historique
       </RouterLink>
     </div>
-    <div class="flex items-center space-x-2.5">
+    <div class="flex items-center space-x-2.5" v-if="connectedUser">
         <img
-          id="pp"
-          :src="profilePicture"
+          :src="connectedUser.profilePicture"
           class="h-[6.5vh] rounded-full"
         >
-        <span class="mr-2.5">{{ name }}</span>
+        <span class="mr-2.5">{{ connectedUser.name }}</span>
         <img
           src="/src/assets/images/arrow_down.png"
           class="mr-2.5 hover:cursor-pointer"
           @click="openMenu = !openMenu"
         >
       </div>
-      <div v-if="openMenu" class="absolute top-[8%] right-0 bg-white w-[225px] z-10 text-black">
+      <div v-if="openMenu" class="absolute top-[8%] right-0 bg-white w-[250px] z-10 text-black">
           <RouterLink to="/notification" class="flex items-center border border-gray-400 p-2" @click="openMenu = false">
             <span class="material-symbols-rounded"> notifications </span> 
             Notifications ({{ notification }})
