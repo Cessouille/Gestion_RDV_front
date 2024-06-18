@@ -25,19 +25,19 @@ interface Reply {
     description: string
 }
 
-interface BubbleMessageParam {
-    name: string;
-    datePubli: Date;
-    content: string;
-    nbLike: number;
-    nbComments: number;
-    liked: boolean;
-    thumbed: boolean | null;
-}
-
 interface Profile {
     name: string;
     profilePicture: string;
 }
 
-export { Disponibilite, User, Reply, BubbleMessageParam, Profile };
+interface Post {
+    id?: number;
+    name: string;
+    datePubli: Date;
+    content: string;
+    nbLike: number;
+    liked: boolean;
+    thumbed: boolean | null;
+}
+
+export { Disponibilite, User, Reply, Profile, Post };
