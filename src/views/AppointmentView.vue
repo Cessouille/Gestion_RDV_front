@@ -20,17 +20,17 @@ const selectedTime = ref(null);
     <div class="grid grid-cols-3 gap-4">
         <div>
             <input type="radio" name="option" id="1" value="1" class="peer hidden" checked v-model="selectedTime" />
-            <label for="1" class="bg-primary text-white font-semibold block border-solid border-5 border-tertiary cursor-pointer select-none rounded-xl p-2 text-center peer-checked:bg-tertiary peer-checked:font-bold peer-checked:text-white">15h - 16h</label>
+            <label for="1" class="bg-tertiary transition-colors duration-300 text-white font-semibold block border-solid border-5 border-tertiary cursor-pointer select-none rounded-xl p-2 text-center peer-checked:bg-primary peer-checked:font-bold peer-checked:text-white">15h - 16h</label>
         </div>
 
         <div>
             <input type="radio" name="option" id="2" value="2" class="peer hidden" v-model="selectedTime" />
-            <label for="2" class="bg-primary text-white font-semibold block cursor-pointer select-none rounded-xl p-2 text-center peer-checked:bg-tertiary peer-checked:font-bold peer-checked:text-white">16h - 17h</label>
+            <label for="2" class="bg-tertiary transition-colors duration-300 text-white font-semibold block cursor-pointer select-none rounded-xl p-2 text-center peer-checked:bg-primary peer-checked:font-bold peer-checked:text-white">16h - 17h</label>
         </div>
 
         <div>
             <input type="radio" name="option" id="3" value="3" class="peer hidden" v-model="selectedTime" />
-            <label for="3" class="bg-primary text-white font-semibold block cursor-pointer select-none rounded-xl p-2 text-center peer-checked:bg-tertiary peer-checked:font-bold peer-checked:text-white">18h - 19h</label>
+            <label for="3" class="bg-tertiary transition-colors duration-300 text-white font-semibold block cursor-pointer select-none rounded-xl p-2 text-center peer-checked:bg-primary peer-checked:font-bold peer-checked:text-white">18h - 19h</label>
         </div>
     </div>
     </div>
@@ -47,7 +47,7 @@ const selectedTime = ref(null);
         <h3 class="text-quartiary text-lg font-semibold text-quartiary rounded-full bg-primary w-fit p-2">Prix de la consultation : 46.72 €</h3>
         </div>
         <!------------------------------ ENVOYER ------------------------------------------------->
-        <button class="bg-tertiary text-white font-semibold block border-solid border-5 border-tertiary cursor-pointer select-none rounded-xl p-2 text-right self-end mt-5">Valider le Rendez-vous</button>
+        <button class="bg-tertiary border-none rounded-lg px-3 py-1 text-white font-bold transition-colors duration-300 cursor-pointer hover:bg-primary w-fit self-end">Valider le Rendez-vous</button>
     </div>
     
   </div>
