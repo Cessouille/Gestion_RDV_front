@@ -41,14 +41,15 @@ function showConvNames(users) {
     return name;
   }
 }
+
 async function LoadChats() {
   error.value = null;
-  await convStore.fetchUserConversations(1);
+  await convStore.fetchUserConversations(1); //set id
   if (convStore.error) {
     error.value = convStore.error;
   } else {
+    currentConversation.value = convStore.conversations[0];
     conversations.value = convStore.conversations;
-    currentConversation.value = conversations.value[0];
   }
 }
 
@@ -120,9 +121,14 @@ function switchChat(e) {
     <div class="chatHolder h-[90vh]">
       <div class="chatPicker">
         <div>Chats :</div>
-        <div v-if="error" class="flex flex-col items-center gap-2"><div id="errMsg"><span class="material-symbols-rounded fill">warning</span>Erreur de connexion</div><button @click="LoadChats" class="flex justify-center gap-2 bg-secondary text-tertiary p-2 rounded w-fit m-0-auto"><span class="material-symbols-rounded fill">refresh</span>Recharger</button></div>
+        <div v-if="error" class="flex flex-col items-center gap-2">
+          <div id="errMsg"><span class="material-symbols-rounded fill">warning</span>Erreur de connexion</div><button
+            @click="LoadChats"
+            class="flex justify-center gap-2 bg-secondary text-tertiary p-2 rounded w-fit m-0-auto"><span
+              class="material-symbols-rounded fill">refresh</span>Recharger</button>
+        </div>
         <div v-else-if="conversations" v-for="conv in conversations" :id="'c' + conv.conversationId"
-          :class="{ chatName: true, currentChat: currentConversation.id == conv.conversationId }"
+          :class="{ chatName: true, currentChat: currentConversation.conversationId == conv.conversationId }"
           v-on:click="switchChat">{{
           conv.conversation.name }}
         </div>
