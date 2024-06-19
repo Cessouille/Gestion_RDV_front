@@ -1,10 +1,25 @@
-<script setup>
-import { ref } from 'vue';
-import VueInlineCalendar from 'vue-inline-calendar';
+<script setup lang="ts">
+import { onMounted, ref, computed } from 'vue';
+import { useRoute } from 'vue-router';
+import VueInlineCalendar from 'vue-inline-calendar'
+import { useAvailabilityStore } from '@/stores/availability';
 import "vue-inline-calendar/dist/style.css";
+
+const route = useRoute();
+const userId = route.params.id;
+
+const availabilityStore = useAvailabilityStore();
 
 const selectedDate = ref(null);
 const selectedTime = ref(null);
+
+const formattedDate = computed(() => {
+  return selectedDate.value ? new Date(selectedDate.value).toLocaleDateString('fr-CA') : '';
+});
+
+onMounted(() => {
+  availabilityStore.fetchAvailabilities(userId);
+});
 
 </script>
 
@@ -13,29 +28,23 @@ const selectedTime = ref(null);
     <h1 class="text-tertiary font-semibold text-3xl self-center">Rendez-Vous avec Philipe LE DOCTEUR</h1>
     <!--------------------------------------- DISPOS ------------------------------------------->
     <h2 class="text-tertiary text-2xl self-center mt-10">Diponibilités :</h2>
-    <vue-inline-calendar @update:selected-date="selectedDate = $event" :spec-min-date="new Date()" locale="fr-FR" :showYear="false" />
+    <vue-inline-calendar @update:selected-date="selectedDate = $event; selectedTime = null" :spec-min-date="new Date()" locale="fr-FR" :showYear="false" />
     <!------------------------------ CRENEAU HORAIRE ------------------------------------------->
-    <div v-if="selectedDate" class="flex flex-col">
-      <h2 class="text-tertiary text-2xl self-center mt-10 mb-5">Sélectionnez un créneau horaire</h2>
     <div class="grid grid-cols-3 gap-4">
-        <div>
-            <input type="radio" name="option" id="1" value="1" class="peer hidden" checked v-model="selectedTime" />
-            <label for="1" class="bg-tertiary transition-colors duration-300 text-white font-semibold block border-solid border-5 border-tertiary cursor-pointer select-none rounded-xl p-2 text-center peer-checked:bg-primary peer-checked:font-bold peer-checked:text-white">15h - 16h</label>
-        </div>
-
-        <div>
-            <input type="radio" name="option" id="2" value="2" class="peer hidden" v-model="selectedTime" />
-            <label for="2" class="bg-tertiary transition-colors duration-300 text-white font-semibold block cursor-pointer select-none rounded-xl p-2 text-center peer-checked:bg-primary peer-checked:font-bold peer-checked:text-white">16h - 17h</label>
-        </div>
-
-        <div>
-            <input type="radio" name="option" id="3" value="3" class="peer hidden" v-model="selectedTime" />
-            <label for="3" class="bg-tertiary transition-colors duration-300 text-white font-semibold block cursor-pointer select-none rounded-xl p-2 text-center peer-checked:bg-primary peer-checked:font-bold peer-checked:text-white">18h - 19h</label>
-        </div>
+  <template v-for="creneau in availabilityStore.availabilities">
+    <div v-if="creneau.startDate == formattedDate" class="col-span-1">
+      <input type="radio" name="option" :id="creneau.availabilityId" :value="creneau.availabilityId" class="peer hidden" v-model="selectedTime" />
+      <label :for="creneau.availabilityId" class="bg-tertiary transition-colors duration-300 text-white font-semibold block border-solid border-5 border-tertiary cursor-pointer select-none rounded-xl p-2 text-center peer-checked:bg-primary peer-checked:font-bold peer-checked:text-white">
+        {{ creneau.startTime }} - {{ creneau.endTime }}
+      </label>
     </div>
+    <div v-else class="col-span-3 flex justify-center items-center text-2xl font-bold text-primary">
+      <div class="text-center">
+        Oups, il n'y a plus de créneau disponible pour cette date, veuillez sélectionnez une autre date.
+      </div>
     </div>
-    
-    
+  </template>
+  </div>
     <!------------------------------ INFOS RDV ------------------------------------------------->
     <div v-if="selectedTime" class="flex flex-col">
         <h2 class="text-tertiary text-2xl self-center mt-10 mb-5">Informations à propos du RDV</h2>
