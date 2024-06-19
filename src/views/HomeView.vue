@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useToast } from 'vue-toast-notification';
-import { Profile, Post } from '@/models/types';
 import { usePostStore } from '@/stores/post';
+import { useDoctorStore } from '@/stores/doctor';
 import BubbleMessage from '@/components/BubbleMessage.vue';
+import DoctorList from '@/components/DoctorList.vue';
 
 const postStore = usePostStore();
+const doctorStore = useDoctorStore();
 
 const $toast = useToast();
 
@@ -14,12 +16,12 @@ const post = ref('');
 
 function newPost() {
   try {
-    if (post.value == '') {
-
+    if (post.value.trim().length === 0) {
       $toast.error('Message requis', {
         position: 'bottom-right',
         duration: 3000,
       });
+
       return;
     }
 
@@ -39,16 +41,20 @@ function newPost() {
 
 onMounted(() => {
   postStore.getPosts();
+  doctorStore.fetchDoctors();
 });
 </script>
 
 <template>
-  <RouterLink to="/user/test">
+  <!-- <RouterLink to="/user/test">
     Test
-  </RouterLink>
+  </RouterLink> -->
 
-  <main class="flex flex-col items-center justify-center mt-10">
-    <h2 v-if="!replying" @click="replying = true"
+  <!-- <main 
+  class="flex flex-col items-center justify-center mt-4"
+  > -->
+  <main>
+    <!-- <h2 v-if="!replying" @click="replying = true"
       class="text-white bg-tertiary p-4 rounded-lg text-center w-1/4 text-xl font-semibold uppercase cursor-pointer transition-colors duration-300 hover:bg-primary">
       Poster
     </h2>
@@ -69,6 +75,7 @@ onMounted(() => {
 
     <div v-for="message in postStore.posts" class="w-3/5">
       <BubbleMessage :param="message" />
-    </div>
+    </div> -->
+    <DoctorList :doctors="doctorStore.doctors" />
   </main>
 </template>
