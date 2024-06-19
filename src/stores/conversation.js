@@ -15,6 +15,15 @@ export const useConversationStore = defineStore('conversation', {
                 console.error(e);
                 throw e;
             }
+        },
+        async fetchUserConversations(userid) {
+            try {
+                var result = await api.get('/Conversations/user/' + userid);
+                this.conversations = result.value;
+            } catch (e) {
+                console.error(e);
+                throw e;
+            }
         }
     },
 });

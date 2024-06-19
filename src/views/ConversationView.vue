@@ -1,20 +1,17 @@
 <script setup>
 import Chat from '../components/chat/Chat.vue';
-import { onMounted, ref } from 'vue'
+import Loader from '../components/loader/Loader.vue';
+import { onMounted, ref } from 'vue';
+import { useConversationStore } from '@/stores/conversation';
 
-onMounted(() => {
-  var scrollWindow = document.querySelector(".scrollwindow");
-  var chatBox = document.querySelector(".messageBox");
-  scrollWindow.scrollTop = scrollWindow.scrollHeight;
+const convStore = useConversationStore();
 
-  const handleSelection = function () {
-    scrollWindow.scrollTop = scrollWindow.scrollHeight;
-  };
+onMounted(async () => {
+  await convStore.fetchUserConversations(1);
+  conversations.value = convStore.conversations;
+  currentConversation.value = conversations.value[0];
+});
 
-  ['mouseup', 'keyup', 'resize'].forEach((e) => {
-    chatBox.addEventListener(e, handleSelection);
-  });
-})
 var currentUser = "Mike";
 var textChats = ref([
   { user: "Other", date: "2024-06-18T06:55:33.558Z", text: "Jordan Cereals" },
@@ -24,16 +21,9 @@ var textChats = ref([
   { user: "Mike", date: new Date(), text: "Il est maintenant" },
 ]);
 
-var conversations = ref([
-  { name: "Mike", users: ["Mike", "Steven"], id: 1 },
-  { name: "Conv name", users: ["Mike", "Opticien"], id: 2 },
-  { name: "Rdv a deux", users: ["Mike", "Steven", "Opticien"], id: 3 },
-  { name: "Conv name", users: ["Mike", "Steven 2"], id: 4 },
-  { name: "Conv name", users: ["Mike", "Steven 2", "Steven", "Michel"], id: 5 },
-])
+var conversations = ref(false)
 
-var currentConversation = ref(conversations.value[0]);
-console.log(currentConversation)
+var currentConversation = ref(false);
 
 function showConvNames(users) {
   if (users.length > 2) {
@@ -62,53 +52,56 @@ function switchChat(e) {
   });
   e.target.classList.add("currentChat");
 
+  var convId = e.target.id.slice(1);
+  currentConversation.value = conversations.value.find(c => c.conversationId == convId);
+
   //get chats from id
 
-  if (e.target.id == "c1") {
-    textChats.value = [
-      { user: "Steven", date: "2024-06-18T06:55:33.558Z", text: "Jordan Cereals" },
-      { user: "Mike", date: new Date(), text: "Il est maintenant" },
-      { user: "Mike", date: new Date(), text: "Il est maintenant" },
-      { user: "Steven", date: "2024-06-18T06:55:33.558Z", text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent ac bibendum massa. Integer metus sem, porttitor ut maximus at, dignissim nec ligula. In hac habitasse platea dictumst. Cras auctor nisl sed efficitur convallis. Nunc vel pellentesque urna. Pellentesque vitae tincidunt tellus. Ut imperdiet ornare semper. Nam lacus urna, tincidunt nec erat at, efficitur pellentesque velit. Aliquam tortor augue, tincidunt ac hendrerit eu, bibendum at erat. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Phasellus tellus metus, venenatis quis tincidunt quis, porttitor malesuada ipsum. Mauris gravida, diam a vehicula consectetur, justo nisi tincidunt neque, quis ornare felis purus a odio. Nam ex nibh, pulvinar nec porttitor et, sollicitudin ut mauris. Integer luctus luctus gravida. Curabitur quis pretium lectus. Etiam sodales fringilla sem at ultrices." },
-      { user: "Mike", date: new Date(), text: "Il est maintenant" },
-    ];
-    currentConversation.value = conversations.value[0];
-  } else if (e.target.id == "c2") {
-    textChats.value = [
-      { user: "Opticien", date: "2024-06-18T06:55:33.558Z", text: "Jordan Cereals pour opticien ?" },
-      { user: "Mike", date: new Date(), text: "Il est maintenant" },
-      { user: "Opticien", date: "2024-06-18T06:55:33.558Z", text: "En tant qu'opticien..." },
-    ];
-    currentConversation.value = conversations.value[1];
-  } else if (e.target.id == "c3") {
-    textChats.value = [
-      { user: "Opticien", date: "2024-06-18T06:55:33.558Z", text: "Jordan Cereals pour opticien ?" },
-      { user: "Stephen", date: "2024-06-18T06:57:33.558Z", text: "Jordan Cereals pour Steven !" },
-      { user: "Mike", date: new Date(), text: "Il est maintenant" },
-      { user: "Opticien", date: "2024-06-18T06:55:33.558Z", text: "En tant qu'opticien..." },
-      { user: "Stephen", date: "2024-06-18T06:57:33.558Z", text: "En tant que Steven..." },
-      { user: "Steven", date: "2024-06-18T06:55:33.558Z", text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent ac bibendum massa. Integer metus sem, porttitor ut maximus at, dignissim nec ligula. In hac habitasse platea dictumst. Cras auctor nisl sed efficitur convallis. Nunc vel pellentesque urna. Pellentesque vitae tincidunt tellus. Ut imperdiet ornare semper. Nam lacus urna, tincidunt nec erat at, efficitur pellentesque velit. Aliquam tortor augue, tincidunt ac hendrerit eu, bibendum at erat. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Phasellus tellus metus, venenatis quis tincidunt quis, porttitor malesuada ipsum. Mauris gravida, diam a vehicula consectetur, justo nisi tincidunt neque, quis ornare felis purus a odio. Nam ex nibh, pulvinar nec porttitor et, sollicitudin ut mauris. Integer luctus luctus gravida. Curabitur quis pretium lectus. Etiam sodales fringilla sem at ultrices." },
+  // if (e.target.id == "c1") {
+  //   textChats.value = [
+  //     { user: "Steven", date: "2024-06-18T06:55:33.558Z", text: "Jordan Cereals" },
+  //     { user: "Mike", date: new Date(), text: "Il est maintenant" },
+  //     { user: "Mike", date: new Date(), text: "Il est maintenant" },
+  //     { user: "Steven", date: "2024-06-18T06:55:33.558Z", text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent ac bibendum massa. Integer metus sem, porttitor ut maximus at, dignissim nec ligula. In hac habitasse platea dictumst. Cras auctor nisl sed efficitur convallis. Nunc vel pellentesque urna. Pellentesque vitae tincidunt tellus. Ut imperdiet ornare semper. Nam lacus urna, tincidunt nec erat at, efficitur pellentesque velit. Aliquam tortor augue, tincidunt ac hendrerit eu, bibendum at erat. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Phasellus tellus metus, venenatis quis tincidunt quis, porttitor malesuada ipsum. Mauris gravida, diam a vehicula consectetur, justo nisi tincidunt neque, quis ornare felis purus a odio. Nam ex nibh, pulvinar nec porttitor et, sollicitudin ut mauris. Integer luctus luctus gravida. Curabitur quis pretium lectus. Etiam sodales fringilla sem at ultrices." },
+  //     { user: "Mike", date: new Date(), text: "Il est maintenant" },
+  //   ];
+  //   currentConversation.value = conversations.value[0];
+  // } else if (e.target.id == "c2") {
+  //   textChats.value = [
+  //     { user: "Opticien", date: "2024-06-18T06:55:33.558Z", text: "Jordan Cereals pour opticien ?" },
+  //     { user: "Mike", date: new Date(), text: "Il est maintenant" },
+  //     { user: "Opticien", date: "2024-06-18T06:55:33.558Z", text: "En tant qu'opticien..." },
+  //   ];
+  //   currentConversation.value = conversations.value[1];
+  // } else if (e.target.id == "c3") {
+  //   textChats.value = [
+  //     { user: "Opticien", date: "2024-06-18T06:55:33.558Z", text: "Jordan Cereals pour opticien ?" },
+  //     { user: "Stephen", date: "2024-06-18T06:57:33.558Z", text: "Jordan Cereals pour Steven !" },
+  //     { user: "Mike", date: new Date(), text: "Il est maintenant" },
+  //     { user: "Opticien", date: "2024-06-18T06:55:33.558Z", text: "En tant qu'opticien..." },
+  //     { user: "Stephen", date: "2024-06-18T06:57:33.558Z", text: "En tant que Steven..." },
+  //     { user: "Steven", date: "2024-06-18T06:55:33.558Z", text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent ac bibendum massa. Integer metus sem, porttitor ut maximus at, dignissim nec ligula. In hac habitasse platea dictumst. Cras auctor nisl sed efficitur convallis. Nunc vel pellentesque urna. Pellentesque vitae tincidunt tellus. Ut imperdiet ornare semper. Nam lacus urna, tincidunt nec erat at, efficitur pellentesque velit. Aliquam tortor augue, tincidunt ac hendrerit eu, bibendum at erat. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Phasellus tellus metus, venenatis quis tincidunt quis, porttitor malesuada ipsum. Mauris gravida, diam a vehicula consectetur, justo nisi tincidunt neque, quis ornare felis purus a odio. Nam ex nibh, pulvinar nec porttitor et, sollicitudin ut mauris. Integer luctus luctus gravida. Curabitur quis pretium lectus. Etiam sodales fringilla sem at ultrices." },
 
-    ];
-    currentConversation.value = conversations.value[2];
-  } else if (e.target.id == "c5") {
-    textChats.value = [
-      { user: "Opticien", date: "2024-06-18T06:55:33.558Z", text: "Jordan Cereals pour opticien ?" },
-      { user: "Stephen", date: "2024-06-18T06:57:33.558Z", text: "Jordan Cereals pour Steven !" },
-      { user: "Mike", date: new Date(), text: "Il est maintenant" },
-      { user: "Opticien", date: "2024-06-18T06:55:33.558Z", text: "En tant qu'opticien..." },
-      { user: "Stephen", date: "2024-06-18T06:57:33.558Z", text: "En tant que Steven..." },
-      { user: "Steven", date: "2024-06-18T06:55:33.558Z", text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent ac bibendum massa. Integer metus sem, porttitor ut maximus at, dignissim nec ligula. In hac habitasse platea dictumst. Cras auctor nisl sed efficitur convallis. Nunc vel pellentesque urna. Pellentesque vitae tincidunt tellus. Ut imperdiet ornare semper. Nam lacus urna, tincidunt nec erat at, efficitur pellentesque velit. Aliquam tortor augue, tincidunt ac hendrerit eu, bibendum at erat. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Phasellus tellus metus, venenatis quis tincidunt quis, porttitor malesuada ipsum. Mauris gravida, diam a vehicula consectetur, justo nisi tincidunt neque, quis ornare felis purus a odio. Nam ex nibh, pulvinar nec porttitor et, sollicitudin ut mauris. Integer luctus luctus gravida. Curabitur quis pretium lectus. Etiam sodales fringilla sem at ultrices." },
+  //   ];
+  //   currentConversation.value = conversations.value[2];
+  // } else if (e.target.id == "c5") {
+  //   textChats.value = [
+  //     { user: "Opticien", date: "2024-06-18T06:55:33.558Z", text: "Jordan Cereals pour opticien ?" },
+  //     { user: "Stephen", date: "2024-06-18T06:57:33.558Z", text: "Jordan Cereals pour Steven !" },
+  //     { user: "Mike", date: new Date(), text: "Il est maintenant" },
+  //     { user: "Opticien", date: "2024-06-18T06:55:33.558Z", text: "En tant qu'opticien..." },
+  //     { user: "Stephen", date: "2024-06-18T06:57:33.558Z", text: "En tant que Steven..." },
+  //     { user: "Steven", date: "2024-06-18T06:55:33.558Z", text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent ac bibendum massa. Integer metus sem, porttitor ut maximus at, dignissim nec ligula. In hac habitasse platea dictumst. Cras auctor nisl sed efficitur convallis. Nunc vel pellentesque urna. Pellentesque vitae tincidunt tellus. Ut imperdiet ornare semper. Nam lacus urna, tincidunt nec erat at, efficitur pellentesque velit. Aliquam tortor augue, tincidunt ac hendrerit eu, bibendum at erat. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Phasellus tellus metus, venenatis quis tincidunt quis, porttitor malesuada ipsum. Mauris gravida, diam a vehicula consectetur, justo nisi tincidunt neque, quis ornare felis purus a odio. Nam ex nibh, pulvinar nec porttitor et, sollicitudin ut mauris. Integer luctus luctus gravida. Curabitur quis pretium lectus. Etiam sodales fringilla sem at ultrices." },
 
-    ];
-    currentConversation.value = conversations.value[4];
-  } else {
-    textChats.value = [
-      { user: "Steven", date: "2024-06-18T06:55:33.558Z", text: "ok." },
-      { user: "Mike", date: new Date(), text: "ok." },
-    ];
-    currentConversation.value = conversations.value[3];
-  }
+  //   ];
+  //   currentConversation.value = conversations.value[4];
+  // } else {
+  //   textChats.value = [
+  //     { user: "Steven", date: "2024-06-18T06:55:33.558Z", text: "ok." },
+  //     { user: "Mike", date: new Date(), text: "ok." },
+  //   ];
+  //   currentConversation.value = conversations.value[3];
+  // }
 
 }
 </script>
@@ -118,14 +111,17 @@ function switchChat(e) {
     <div class="chatHolder h-[90vh]">
       <div class="chatPicker">
         <div>Chats :</div>
-        <div v-for="conv in conversations" :id="'c' + conv.id"
-          :class="{ chatName: true, currentChat: currentConversation.id == conv.id }" v-on:click="switchChat">{{
-          conv.name }}</div>
+        <div v-if="conversations" v-for="conv in conversations" :id="'c' + conv.conversationId"
+          :class="{ chatName: true, currentChat: currentConversation.id == conv.conversationId }"
+          v-on:click="switchChat">{{
+          conv.conversation.name }}
+        </div>
+        <div v-else><Loader message="Chargement des conversations"></Loader></div>
       </div>
       <div class="chat">
-        <div id="chatName">{{ currentConversation.name }}
-          <div class="text-xs text-primary" v-if="currentConversation.users.length > 2">{{
-          showConvNames(currentConversation.users) }}</div>
+        <div v-if="currentConversation" id="chatName">{{ currentConversation.conversation.name }}
+          <div class="text-xs text-primary" v-if="currentConversation.conversation.conversationsUser.length > 2">{{
+          showConvNames(currentConversation.conversation.conversationsUser) }}</div>
         </div>
         <div id="chatScroll"
           class="scrollwindow flex align-self-center flex-col h-full overflow-scroll overflow-x-hidden bg-quartiary">
@@ -149,15 +145,9 @@ function switchChat(e) {
 <style lang="scss">
 @import "../assets/scss/settings.scss";
 
-
 /* width */
 ::-webkit-scrollbar {
   width: 10px;
-}
-
-/* Track */
-::-webkit-scrollbar-track {
-  background: $quartiary;
 }
 
 /* Handle */
