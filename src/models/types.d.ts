@@ -10,13 +10,10 @@ interface User {
     metier: string,
     description: string,
     rating: number,
-    domainePrincipale: string,
+    domainePrincipal: string,
     prixConsultation: number,
-    phone: string,
-    avatar: string,
-    subscribers: number,
-    subscribed: boolean,
-    disponibilites: Disponibilite[]
+    telephone: string,
+    avatar: string
 }
 
 interface Reply {
@@ -40,4 +37,19 @@ interface Post {
     thumbed: boolean | null;
 }
 
-export { Disponibilite, User, Reply, Profile, Post };
+interface Doctor {
+    id: number;
+    name: string;
+    metier: string;
+    domainePrincipal: string;
+    description: string;
+    avatar: string;
+    rating: string;
+}
+
+interface Doctors {
+    name: string;
+    doctors: Doctor[];
+}
+
+export { Disponibilite, User, Reply, Profile, Post, Doctor, Doctors };

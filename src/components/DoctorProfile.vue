@@ -1,15 +1,18 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
 import { Disponibilite, User } from '@/models/types';
 import { useToast } from 'vue-toast-notification';
+import { useDoctorStore } from '@/stores/doctor';
 
-export interface BubbleUserProps {
-    id: number;
-}
-
-const props = defineProps<BubbleUserProps>();
+const route = useRoute();
+const userId = parseInt(route.params.id.toString(), 10);
 
 const $toast = useToast();
+
+const doctorStore = useDoctorStore();
+
+const doctor = ref<User | null>(null);
 
 const dispo: Disponibilite[] = [
     {
@@ -29,30 +32,8 @@ const dispo: Disponibilite[] = [
     },
 ]
 
-const user: User = {
-    id: props.id,
-    name: 'Philippe LE DOCTEUR',
-    metier: 'Dentiste',
-    description: 'Je suis Philipe LE DOCTEUR, suivez moi pour des bon tips !',
-    rating: 4.25,
-    domainePrincipale: 'Dents',
-    prixConsultation: 29.99,
-    phone: '0667788990',
-    avatar: '/src/assets/images/avatar.png',
-    subscribers: 12458,
-    subscribed: true,
-    disponibilites: dispo
-}
 
-const socials = {
-    instagram: 'https://www.instagram.com/jerem.ps/',
-    linkedin: 't',
-    facebook: 't',
-    youtube: 't',
-    twitter: 't'
-}
-
-const subscribed = ref(user.subscribed);
+const subscribed = ref(false);
 const seeAll = ref(true);
 
 function formatSubscribers(number: number) {
@@ -65,28 +46,33 @@ function formatSubscribers(number: number) {
 function changeSubscribe() {
     if (subscribed.value) {
         subscribed.value = false;
-        $toast.default(`Vous n\'êtes plus abonné à ${user.name}`, {
+        $toast.default(`Vous n\'êtes plus abonné à ${doctor.value?.name}`, {
             position: 'bottom-right',
             duration: 3000,
         })
     } else {
         subscribed.value = true;
-        $toast.default(`Vous êtes abonné à ${user.name}`, {
+        $toast.default(`Vous êtes abonné à ${doctor.value?.name}`, {
             position: 'bottom-right',
             duration: 3000,
         })
     }
 }
 
+onMounted(async () => {
+    await doctorStore.fetchDoctor(userId);
+    doctor.value = doctorStore.doctor;
+    console.log(doctor.value)
+});
 </script>
 
 <template>
-    <div class="bg-secondary border-[3px] border-primary rounded-lg p-2 w-full">
+    <div class="bg-secondary border-[3px] border-primary rounded-lg p-2 w-full" v-if="doctor">
         <div class="flex">
-            <img :src="user.avatar" class="border-2 border-primary rounded-lg mr-2 mb-2 w-[10%]" />
+            <img :src="doctor.avatar" class="border-2 border-primary rounded-lg mr-2 mb-2 w-[10%]" />
             <div>
                 <div class="flex items-center">
-                    <h3 class="text-tertiary font-bold text-lg mr-2">{{ user.name }}</h3>
+                    <h3 class="text-tertiary font-bold text-lg mr-2">{{ doctor.name }}</h3>
                     <span v-if="subscribed" class="hover:cursor-pointer">
                         <i class="fa-solid fa-user-check text-tertiary" @click="changeSubscribe"></i>
                     </span>
@@ -94,10 +80,11 @@ function changeSubscribe() {
                         <i class="fa-solid fa-user-plus text-tertiary" @click="changeSubscribe"></i>
                     </span>
                 </div>
-                <p class="text-primary text-sm"> Professionnel : {{ user.metier }} </p>
+                <p class="text-primary text-sm"> <span class="font-semibold">Professionnel :</span> {{ doctor.metier }}
+                </p>
             </div>
-            <div class="ml-auto items-center">
-                <p class="text-sm text-primary text-right">{{ formatSubscribers(user.subscribers) }} abonnés</p>
+            <!-- <div class="ml-auto items-center">
+                <p class="text-sm text-primary text-right">{{ formatSubscribers(doctor.subscribers) }} abonnés</p>
                 <div class="flex gap-1 ml-1.5 text-tertiary">
                     <a :href="socials.instagram" target="ext" v-if="socials.instagram">
                         <i class="fa-brands fa-square-instagram"></i>
@@ -115,26 +102,26 @@ function changeSubscribe() {
                         <i class="fa-brands fa-square-twitter"></i>
                     </a>
                 </div>
-            </div>
+            </div> -->
         </div>
         <div class="text-primary text-sm mb-1.5">
             <p class="mb-1.5">
-                {{ user.description }}
+                {{ doctor.description }}
             </p>
             <p>
-                <span class="font-semibold">Domaine principale :</span> {{ user.domainePrincipale }}
+                <span class="font-semibold">Domaine principale :</span> {{ doctor.domainePrincipal }}
             </p>
             <p>
-                <span class="font-semibold">Prix consultation :</span> {{ user.prixConsultation }}€
+                <span class="font-semibold">Prix consultation :</span> {{ doctor.prixConsultation }}€
             </p>
             <p>
-                <span class="font-semibold">Téléphone :</span> {{ user.phone }}
+                <span class="font-semibold">Téléphone :</span> {{ doctor.telephone }}
             </p>
             <p>
-                <span class="font-semibold">Rating :</span> {{ user.rating }}
+                <span class="font-semibold">Rating :</span> {{ doctor.rating }}
             </p>
         </div>
-        <div class="flex text-primary text-sm">
+        <!-- <div class="flex text-primary text-sm">
             <p class="mr-2">
                 <span class="font-semibold">Disponibilité :</span>
             </p>
@@ -142,19 +129,18 @@ function changeSubscribe() {
                 <p v-for="dispo in user.disponibilites.slice(0, 2)">
                     {{ dispo.date }}, {{ dispo.debut }}h - {{ dispo.fin }}h
                 </p>
-                <p class="text-xs italic hover:cursor-pointer" @click="seeAll = !seeAll">Voir toutes</p>
+                <p class="text-xs italic hover:cursor-pointer" @click="seeAll = false">Voir plus</p>
             </div>
             <div v-else>
                 <p v-for="dispo in user.disponibilites">
                     {{ dispo.date }}, {{ dispo.debut }}h - {{ dispo.fin }}h
                 </p>
-                <p class="text-xs italic hover:cursor-pointer" @click="seeAll = !seeAll">Voir moins</p>
+                <p class="text-xs italic hover:cursor-pointer" @click="seeAll = true">Voir moins</p>
             </div>
-        </div>
+        </div> -->
         <div class="flex">
-            <RouterLink :to="`/user/${user.id}/appointment`"
-                class="bg-tertiary text-white text-center font-bold py-2 px-3 rounded-lg ml-auto text-sm my-1.5 transition-colors duration-300 hover:cursor-pointer hover:bg-primary"
-            >
+            <RouterLink :to="`/user/${doctor.id}/appointment`"
+                class="bg-tertiary text-white text-center font-bold py-2 px-3 rounded-lg ml-auto text-sm my-1.5 transition-colors duration-300 hover:cursor-pointer hover:bg-primary">
                 Prendre rendez-vous
             </RouterLink>
         </div>

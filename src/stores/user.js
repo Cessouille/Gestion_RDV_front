@@ -12,11 +12,14 @@ export const useUserStore = defineStore('user', {
           profilePicture: "/src/assets/images/pp.png",
         }
 
-        $cookies.set('userName', this.me.name, '1d');
+        $cookies.set('me', this.me, '1d');
       } catch (e) {
         console.error(e);
         throw e;
       }
+    },
+    isAuthentificated() {
+      return $cookies.get('me') !== null;
     }
   },
 });
