@@ -62,7 +62,6 @@ function changeSubscribe() {
 onMounted(async () => {
     await doctorStore.fetchDoctor(userId);
     doctor.value = doctorStore.doctor;
-    console.log(doctor.value)
 });
 </script>
 

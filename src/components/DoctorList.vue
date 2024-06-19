@@ -12,7 +12,6 @@ const props = defineProps<DoctorProps>();
 const domaine = ref(props.domaine);
 
 const doctors = computed(() => {
-    console.log(props.doctors)
     return props.doctors.filter(
         (doctor) => doctor.name.includes(domaine.value ?? '')
     );
