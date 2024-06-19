@@ -5,14 +5,16 @@ const api = useApiClient();
 
 export const useConversationStore = defineStore('conversation', {
     state: () => {
-        return { conversations: [] }
+        return { conversations: [], error: null }
     },
     actions: {
         async fetchConversations() {
             try {
                 this.conversations = await api.get('/Conversations');
+                this.error = null;
             } catch (e) {
                 console.error(e);
+                this.error = e;
                 throw e;
             }
         },
@@ -20,9 +22,10 @@ export const useConversationStore = defineStore('conversation', {
             try {
                 var result = await api.get('/Conversations/user/' + userid);
                 this.conversations = result.value;
+                this.error = null;
             } catch (e) {
                 console.error(e);
-                throw e;
+                this.error = e;
             }
         }
     },

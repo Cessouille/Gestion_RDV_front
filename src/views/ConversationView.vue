@@ -7,9 +7,7 @@ import { useConversationStore } from '@/stores/conversation';
 const convStore = useConversationStore();
 
 onMounted(async () => {
-  await convStore.fetchUserConversations(1);
-  conversations.value = convStore.conversations;
-  currentConversation.value = conversations.value[0];
+  await LoadChats();
 });
 
 var currentUser = "Mike";
@@ -20,6 +18,7 @@ var textChats = ref([
   { user: "Other", date: "2024-06-18T06:55:33.558Z", text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent ac bibendum massa. Integer metus sem, porttitor ut maximus at, dignissim nec ligula. In hac habitasse platea dictumst. Cras auctor nisl sed efficitur convallis. Nunc vel pellentesque urna. Pellentesque vitae tincidunt tellus. Ut imperdiet ornare semper. Nam lacus urna, tincidunt nec erat at, efficitur pellentesque velit. Aliquam tortor augue, tincidunt ac hendrerit eu, bibendum at erat. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Phasellus tellus metus, venenatis quis tincidunt quis, porttitor malesuada ipsum. Mauris gravida, diam a vehicula consectetur, justo nisi tincidunt neque, quis ornare felis purus a odio. Nam ex nibh, pulvinar nec porttitor et, sollicitudin ut mauris. Integer luctus luctus gravida. Curabitur quis pretium lectus. Etiam sodales fringilla sem at ultrices." },
   { user: "Mike", date: new Date(), text: "Il est maintenant" },
 ]);
+var error = ref(false);
 
 var conversations = ref(false)
 
@@ -40,6 +39,16 @@ function showConvNames(users) {
   } else {
     var name = users.find(u => u != currentUser);
     return name;
+  }
+}
+async function LoadChats() {
+  error.value = null;
+  await convStore.fetchUserConversations(1);
+  if (convStore.error) {
+    error.value = convStore.error;
+  } else {
+    conversations.value = convStore.conversations;
+    currentConversation.value = conversations.value[0];
   }
 }
 
@@ -111,18 +120,22 @@ function switchChat(e) {
     <div class="chatHolder h-[90vh]">
       <div class="chatPicker">
         <div>Chats :</div>
-        <div v-if="conversations" v-for="conv in conversations" :id="'c' + conv.conversationId"
+        <div v-if="error" class="flex flex-col items-center gap-2"><div id="errMsg"><span class="material-symbols-rounded fill">warning</span>Erreur de connexion</div><button @click="LoadChats" class="flex justify-center gap-2 bg-secondary text-tertiary p-2 rounded w-fit m-0-auto"><span class="material-symbols-rounded fill">refresh</span>Recharger</button></div>
+        <div v-else-if="conversations" v-for="conv in conversations" :id="'c' + conv.conversationId"
           :class="{ chatName: true, currentChat: currentConversation.id == conv.conversationId }"
           v-on:click="switchChat">{{
           conv.conversation.name }}
         </div>
-        <div v-else><Loader message="Chargement des conversations"></Loader></div>
+        <div v-else>
+          <Loader message="Chargement des conversations"></Loader>
+        </div>
       </div>
-      <div class="chat">
+      <div class="chat h-[90vh]">
         <div v-if="currentConversation" id="chatName">{{ currentConversation.conversation.name }}
           <div class="text-xs text-primary" v-if="currentConversation.conversation.conversationsUser.length > 2">{{
           showConvNames(currentConversation.conversation.conversationsUser) }}</div>
         </div>
+        <div v-else id="chatName">Chat</div>
         <div id="chatScroll"
           class="scrollwindow flex align-self-center flex-col h-full overflow-scroll overflow-x-hidden bg-quartiary">
           <Chat :chats="textChats" :currentUser="currentUser"></Chat>
@@ -144,6 +157,24 @@ function switchChat(e) {
 
 <style lang="scss">
 @import "../assets/scss/settings.scss";
+
+#errMsg {
+  background-color: rgba(255, 0, 0, 0.25);
+  color: darkred;
+  font-weight: bold;
+  padding: 5px;
+  border-radius: 5px;
+  margin: 0 auto;
+  margin-top: 10px;
+  width: 80%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  span {
+    padding-right: 5px;
+  }
+}
 
 /* width */
 ::-webkit-scrollbar {

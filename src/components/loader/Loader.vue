@@ -34,7 +34,16 @@ export default {
     width: 10px;
     background-color: $primary;
     height: 0px;
+    border-radius: 2px;
     animation: 1.5s ease infinite grow;
+}
+
+.loaderText {
+    text-align: center;
+}
+
+#bar2 {
+    animation-delay: 0.1s;
 }
 
 #bar2 {
