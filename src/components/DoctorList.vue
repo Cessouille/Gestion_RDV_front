@@ -29,7 +29,7 @@ const doctors = computed(() => {
                 </div>
             </div>
             <div class="flex overflow-x-auto">
-                <RouterLink :to="`/user/${doctor.id}`"
+                <RouterLink :to="`/doctor/${doctor.id}`"
                     class="bg-secondary border-[3px] border-primary rounded-lg flex-shrink-0 p-2 m-2 w-4/12"
                     v-for="doctor in groupDoctor.doctors" :key="doctor.id">
                     <div class="flex">
@@ -47,7 +47,7 @@ const doctors = computed(() => {
                     <div class="text-primary text-sm mb-1.5">
                         <p class="mb-1.5">{{ doctor.description }}</p>
                         <p>
-                            <span class="font-semibold">Rating :</span> {{ doctor.rating }}
+                            <span class="font-semibold">Note :</span> {{ doctor.rating }}
                         </p>
                     </div>
                 </RouterLink>

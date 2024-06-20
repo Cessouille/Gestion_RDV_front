@@ -5,7 +5,7 @@ const api = useApiClient();
 
 export const useConversationStore = defineStore('conversation', {
     state: () => {
-        return { conversations: [], error: null }
+        return { conversations: [], error: null, msgError: null, messages: [] }
     },
     actions: {
         async fetchConversations() {
@@ -15,6 +15,18 @@ export const useConversationStore = defineStore('conversation', {
             } catch (e) {
                 console.error(e);
                 this.error = e;
+                throw e;
+            }
+        },
+        async fetchConversationMessages(userid, convId) {
+            try {
+                var result = await api.get('/Messages/message/' + userid + '/' + convId);
+                this.messages = result.value;
+                this.msgError = null;
+                return;
+            } catch (e) {
+                console.error(e);
+                this.msgError = e;
                 throw e;
             }
         },

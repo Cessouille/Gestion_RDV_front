@@ -24,16 +24,19 @@ onMounted(() => {
       <RouterLink to="/">
         <img class="h-[6.5vh]" src="/src/assets/images/logo_full.png">
       </RouterLink>
-      <RouterLink to="/conversation" class="mr-2.5 hover:cursor-pointer">
+      <RouterLink to="/doctors" class="px-2">
+        Docteurs
+      </RouterLink>
+      <RouterLink to="/conversation" class="px-2">
         Conversation
       </RouterLink>
-      <RouterLink to="/historique" class="mr-2.5 hover:cursor-pointer">
+      <RouterLink to="/historique" class="px-2">
         Historique
       </RouterLink>
     </div>
     <div class="flex items-center space-x-2.5" v-if="connectedUser">
       <img :src="connectedUser.profilePicture" class="h-[6.5vh] rounded-full">
-      <span class="mr-2.5">{{ connectedUser.name }}</span>
+      <span class="mr-2.5">{{ connectedUser.fullname }}</span>
       <img src="/src/assets/images/arrow_down.png" class="mr-2.5 hover:cursor-pointer" @click="openMenu = !openMenu">
     </div>
     <div v-if="openMenu" class="absolute top-[8%] right-0 bg-white w-[250px] z-10 text-black">

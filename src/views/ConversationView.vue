@@ -11,14 +11,9 @@ onMounted(async () => {
 });
 
 var currentUser = "Mike";
-var textChats = ref([
-  { user: "Other", date: "2024-06-18T06:55:33.558Z", text: "Jordan Cereals" },
-  { user: "Mike", date: new Date(), text: "Il est maintenant" },
-  { user: "Mike", date: new Date(), text: "Il est maintenant" },
-  { user: "Other", date: "2024-06-18T06:55:33.558Z", text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent ac bibendum massa. Integer metus sem, porttitor ut maximus at, dignissim nec ligula. In hac habitasse platea dictumst. Cras auctor nisl sed efficitur convallis. Nunc vel pellentesque urna. Pellentesque vitae tincidunt tellus. Ut imperdiet ornare semper. Nam lacus urna, tincidunt nec erat at, efficitur pellentesque velit. Aliquam tortor augue, tincidunt ac hendrerit eu, bibendum at erat. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Phasellus tellus metus, venenatis quis tincidunt quis, porttitor malesuada ipsum. Mauris gravida, diam a vehicula consectetur, justo nisi tincidunt neque, quis ornare felis purus a odio. Nam ex nibh, pulvinar nec porttitor et, sollicitudin ut mauris. Integer luctus luctus gravida. Curabitur quis pretium lectus. Etiam sodales fringilla sem at ultrices." },
-  { user: "Mike", date: new Date(), text: "Il est maintenant" },
-]);
+var textChats = ref(false);
 var error = ref(false);
+var chatError = ref(false);
 
 var conversations = ref(false)
 
@@ -41,18 +36,38 @@ function showConvNames(users) {
     return name;
   }
 }
+
 async function LoadChats() {
   error.value = null;
-  await convStore.fetchUserConversations(1);
+  chatError.value = null;
+  await convStore.fetchUserConversations(1); //set id
   if (convStore.error) {
     error.value = convStore.error;
+    chatError.value = true;
   } else {
+    currentConversation.value = convStore.conversations[0];
     conversations.value = convStore.conversations;
-    currentConversation.value = conversations.value[0];
+    await loadMessages(1, currentConversation.value.conversationId);
   }
+  return;
 }
 
-function switchChat(e) {
+async function loadMessages(userId, convId) {
+  chatError.value = false;
+  textChats.value = false;
+  try {
+    await convStore.fetchConversationMessages(1, convId); //set user id   
+    textChats.value = convStore.messages.map((msg => {
+      return { user: msg.user ? msg.user.firstName + ' ' + msg.user.lastName.toUpperCase() : 'Utilisateur ' + msg.userId, date: msg.created, text: msg.text };
+    })); 
+  } catch (error) {
+    chatError.value = true;
+    textChats.value = false;    
+  }
+  return;
+}
+
+async function switchChat(e) {
   var chats = document.querySelectorAll(".chatName");
   chats.forEach(chat => {
     if (chat.id != e.target.id) {
@@ -63,55 +78,7 @@ function switchChat(e) {
 
   var convId = e.target.id.slice(1);
   currentConversation.value = conversations.value.find(c => c.conversationId == convId);
-
-  //get chats from id
-
-  // if (e.target.id == "c1") {
-  //   textChats.value = [
-  //     { user: "Steven", date: "2024-06-18T06:55:33.558Z", text: "Jordan Cereals" },
-  //     { user: "Mike", date: new Date(), text: "Il est maintenant" },
-  //     { user: "Mike", date: new Date(), text: "Il est maintenant" },
-  //     { user: "Steven", date: "2024-06-18T06:55:33.558Z", text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent ac bibendum massa. Integer metus sem, porttitor ut maximus at, dignissim nec ligula. In hac habitasse platea dictumst. Cras auctor nisl sed efficitur convallis. Nunc vel pellentesque urna. Pellentesque vitae tincidunt tellus. Ut imperdiet ornare semper. Nam lacus urna, tincidunt nec erat at, efficitur pellentesque velit. Aliquam tortor augue, tincidunt ac hendrerit eu, bibendum at erat. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Phasellus tellus metus, venenatis quis tincidunt quis, porttitor malesuada ipsum. Mauris gravida, diam a vehicula consectetur, justo nisi tincidunt neque, quis ornare felis purus a odio. Nam ex nibh, pulvinar nec porttitor et, sollicitudin ut mauris. Integer luctus luctus gravida. Curabitur quis pretium lectus. Etiam sodales fringilla sem at ultrices." },
-  //     { user: "Mike", date: new Date(), text: "Il est maintenant" },
-  //   ];
-  //   currentConversation.value = conversations.value[0];
-  // } else if (e.target.id == "c2") {
-  //   textChats.value = [
-  //     { user: "Opticien", date: "2024-06-18T06:55:33.558Z", text: "Jordan Cereals pour opticien ?" },
-  //     { user: "Mike", date: new Date(), text: "Il est maintenant" },
-  //     { user: "Opticien", date: "2024-06-18T06:55:33.558Z", text: "En tant qu'opticien..." },
-  //   ];
-  //   currentConversation.value = conversations.value[1];
-  // } else if (e.target.id == "c3") {
-  //   textChats.value = [
-  //     { user: "Opticien", date: "2024-06-18T06:55:33.558Z", text: "Jordan Cereals pour opticien ?" },
-  //     { user: "Stephen", date: "2024-06-18T06:57:33.558Z", text: "Jordan Cereals pour Steven !" },
-  //     { user: "Mike", date: new Date(), text: "Il est maintenant" },
-  //     { user: "Opticien", date: "2024-06-18T06:55:33.558Z", text: "En tant qu'opticien..." },
-  //     { user: "Stephen", date: "2024-06-18T06:57:33.558Z", text: "En tant que Steven..." },
-  //     { user: "Steven", date: "2024-06-18T06:55:33.558Z", text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent ac bibendum massa. Integer metus sem, porttitor ut maximus at, dignissim nec ligula. In hac habitasse platea dictumst. Cras auctor nisl sed efficitur convallis. Nunc vel pellentesque urna. Pellentesque vitae tincidunt tellus. Ut imperdiet ornare semper. Nam lacus urna, tincidunt nec erat at, efficitur pellentesque velit. Aliquam tortor augue, tincidunt ac hendrerit eu, bibendum at erat. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Phasellus tellus metus, venenatis quis tincidunt quis, porttitor malesuada ipsum. Mauris gravida, diam a vehicula consectetur, justo nisi tincidunt neque, quis ornare felis purus a odio. Nam ex nibh, pulvinar nec porttitor et, sollicitudin ut mauris. Integer luctus luctus gravida. Curabitur quis pretium lectus. Etiam sodales fringilla sem at ultrices." },
-
-  //   ];
-  //   currentConversation.value = conversations.value[2];
-  // } else if (e.target.id == "c5") {
-  //   textChats.value = [
-  //     { user: "Opticien", date: "2024-06-18T06:55:33.558Z", text: "Jordan Cereals pour opticien ?" },
-  //     { user: "Stephen", date: "2024-06-18T06:57:33.558Z", text: "Jordan Cereals pour Steven !" },
-  //     { user: "Mike", date: new Date(), text: "Il est maintenant" },
-  //     { user: "Opticien", date: "2024-06-18T06:55:33.558Z", text: "En tant qu'opticien..." },
-  //     { user: "Stephen", date: "2024-06-18T06:57:33.558Z", text: "En tant que Steven..." },
-  //     { user: "Steven", date: "2024-06-18T06:55:33.558Z", text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent ac bibendum massa. Integer metus sem, porttitor ut maximus at, dignissim nec ligula. In hac habitasse platea dictumst. Cras auctor nisl sed efficitur convallis. Nunc vel pellentesque urna. Pellentesque vitae tincidunt tellus. Ut imperdiet ornare semper. Nam lacus urna, tincidunt nec erat at, efficitur pellentesque velit. Aliquam tortor augue, tincidunt ac hendrerit eu, bibendum at erat. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Phasellus tellus metus, venenatis quis tincidunt quis, porttitor malesuada ipsum. Mauris gravida, diam a vehicula consectetur, justo nisi tincidunt neque, quis ornare felis purus a odio. Nam ex nibh, pulvinar nec porttitor et, sollicitudin ut mauris. Integer luctus luctus gravida. Curabitur quis pretium lectus. Etiam sodales fringilla sem at ultrices." },
-
-  //   ];
-  //   currentConversation.value = conversations.value[4];
-  // } else {
-  //   textChats.value = [
-  //     { user: "Steven", date: "2024-06-18T06:55:33.558Z", text: "ok." },
-  //     { user: "Mike", date: new Date(), text: "ok." },
-  //   ];
-  //   currentConversation.value = conversations.value[3];
-  // }
-
+  await loadMessages(1, convId);
 }
 </script>
 
@@ -120,9 +87,14 @@ function switchChat(e) {
     <div class="chatHolder h-[90vh]">
       <div class="chatPicker">
         <div>Chats :</div>
-        <div v-if="error" class="flex flex-col items-center gap-2"><div id="errMsg"><span class="material-symbols-rounded fill">warning</span>Erreur de connexion</div><button @click="LoadChats" class="flex justify-center gap-2 bg-secondary text-tertiary p-2 rounded w-fit m-0-auto"><span class="material-symbols-rounded fill">refresh</span>Recharger</button></div>
+        <div v-if="error" class="flex flex-col items-center gap-2">
+          <div id="errMsg"><span class="material-symbols-rounded fill">warning</span>Erreur de connexion</div><button
+            @click="LoadChats"
+            class="flex justify-center gap-2 bg-secondary text-tertiary p-2 rounded w-fit m-0-auto"><span
+              class="material-symbols-rounded fill">refresh</span>Recharger</button>
+        </div>
         <div v-else-if="conversations" v-for="conv in conversations" :id="'c' + conv.conversationId"
-          :class="{ chatName: true, currentChat: currentConversation.id == conv.conversationId }"
+          :class="{ chatName: true, currentChat: currentConversation.conversationId == conv.conversationId }"
           v-on:click="switchChat">{{
           conv.conversation.name }}
         </div>
@@ -136,9 +108,19 @@ function switchChat(e) {
           showConvNames(currentConversation.conversation.conversationsUser) }}</div>
         </div>
         <div v-else id="chatName">Chat</div>
-        <div id="chatScroll"
+        <div v-if="chatError" class="flex flex-col items-center gap-2 bg-quartiary">
+          <div id="errMsg"><span class="material-symbols-rounded fill">warning</span><span v-if="error">Erreur de
+              chargement des conversations</span><span v-else>Erreur de chargement des messages</span></div>
+          <button v-if="!error && chatError" @click="loadMessages(1,currentConversation.conversationId)"
+            class="flex justify-center gap-2 bg-secondary text-tertiary p-2 rounded w-fit m-0-auto"><span
+              class="material-symbols-rounded fill">refresh</span>Recharger</button>
+        </div>
+        <div v-else-if="textChats" id="chatScroll"
           class="scrollwindow flex align-self-center flex-col h-full overflow-scroll overflow-x-hidden bg-quartiary">
           <Chat :chats="textChats" :currentUser="currentUser"></Chat>
+        </div>
+        <div v-else class="bg-quartiary">
+          <Loader message="Chargement des messages"></Loader>
         </div>
         <div class="w-auto flex gap-2 items-center bg-quartiary p-2">
           <div contenteditable
