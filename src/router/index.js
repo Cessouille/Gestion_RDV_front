@@ -9,6 +9,7 @@ import FormTest from "../views/FormTest.vue";
 import AppointmentView from "../views/AppointmentView.vue";
 import UserView from "../views/UserProfileView.vue";
 import DoctorsView from "../views/DoctorsView.vue";
+import PostView from "../views/PostView.vue";
 
 
 const router = createRouter({
@@ -63,6 +64,11 @@ const router = createRouter({
       path: "/doctors",
       name: "doctors",
       component: DoctorsView,
+    },
+    {
+      path: "/post/:id",
+      name: "post",
+      component: PostView,
     },
   ],
 });
