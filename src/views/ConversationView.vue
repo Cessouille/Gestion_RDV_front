@@ -53,16 +53,16 @@ async function LoadChats() {
 }
 
 async function loadMessages(userId, convId) {
-  chatError.value = null;
+  chatError.value = false;
   textChats.value = false;
-  await convStore.fetchConversationMessages(1, convId); //set user id
-  if (convStore.error) {
-    chatError.value = convStore.error;
-    textChats.value = false;
-  } else {
+  try {
+    await convStore.fetchConversationMessages(1, convId); //set user id   
     textChats.value = convStore.messages.map((msg => {
       return { user: msg.user ? msg.user.firstName + ' ' + msg.user.lastName.toUpperCase() : 'Utilisateur ' + msg.userId, date: msg.created, text: msg.text };
-    }));
+    })); 
+  } catch (error) {
+    chatError.value = true;
+    textChats.value = false;    
   }
   return;
 }
@@ -111,7 +111,7 @@ async function switchChat(e) {
         <div v-if="chatError" class="flex flex-col items-center gap-2 bg-quartiary">
           <div id="errMsg"><span class="material-symbols-rounded fill">warning</span><span v-if="error">Erreur de
               chargement des conversations</span><span v-else>Erreur de chargement des messages</span></div>
-          <button v-if="!error && chatError" @click="loadMessages"
+          <button v-if="!error && chatError" @click="loadMessages(1,currentConversation.conversationId)"
             class="flex justify-center gap-2 bg-secondary text-tertiary p-2 rounded w-fit m-0-auto"><span
               class="material-symbols-rounded fill">refresh</span>Recharger</button>
         </div>
