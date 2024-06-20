@@ -44,13 +44,13 @@ const router = createRouter({
       component: LoginView,
     },
     {
-      path: "/user/:id",
-      name: "user",
+      path: "/doctor/:id",
+      name: "doctor",
       component: UserView,
     },
     {
-      path: "/user/:id/appointment",
-      name: "appointment",
+      path: "/doctor/:id/appointement",
+      name: "appointement",
       component: AppointmentView
     },
     {

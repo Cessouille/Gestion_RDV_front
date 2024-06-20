@@ -49,8 +49,6 @@ onMounted(() => {
     <div v-if="selectedTime" class="flex flex-col">
         <h2 class="text-tertiary text-2xl self-center mt-10 mb-5">Informations à propos du RDV</h2>
         <div class="w-3/4 self-center">
-        <label for="name" class="text-tertiary text-lg font-semibold">Sujet du RDV :</label>
-        <input type="text" id="name" class="border-solid border-2 border-primary rounded-xl p-2 w-full" />
         <label for="message" class="text-tertiary text-lg font-semibold">Message :</label>
         <textarea id="message" class="border-solid border-2 border-primary rounded-xl p-2 w-full h-32 resize-none"></textarea>
         <h3 class="text-quartiary text-lg font-semibold text-quartiary rounded-full bg-primary w-fit p-2">Prix de la consultation : 46.72 €</h3>
