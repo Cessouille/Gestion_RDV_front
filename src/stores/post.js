@@ -1,39 +1,66 @@
 import { defineStore } from 'pinia';
-import { useUserStore } from '@/stores/user';
+import { useApiClient } from '../composables/apiClient';
+
+const api = useApiClient();
 
 export const usePostStore = defineStore('post', {
   state: () => {
     return {
-      posts: [],
-      connectedUser: useUserStore().me
+      posts: null
     }
   },
   actions: {
-    async getPosts() {
+    async fetchPosts() {
       try {
-        this.posts = [{
-          name: "Jean MALADE",
-          datePubli: new Date("2024/05/27"),
-          content: "Je suis malade et j’ai mal au ventre mais mon cousin ma proposer des huiles essentiels. Que faire ?",
-          nbLike: 50,
-          liked: true,
-        }];
+        const data = await api.get('/Posts');
+
+        this.posts = data.map(post => ({
+          id: post.postId,
+          name: `${post.user.firstName} ${post.user.lastName.toUpperCase()}`,
+          datePubli: post.date,
+          content: post.text,
+          nbLike: 0,
+          liked: false,
+          nbReplies: post.totalReplies,
+          replies: post.childPosts.map(reply => ({
+            id: reply.postId,
+            name: `${reply.user.firstName} ${reply.user.lastName.toUpperCase()}`,
+            datePubli: reply.date,
+            content: reply.text,
+          })),
+        }));
       } catch (e) {
         console.error(e);
         throw e;
       }
     },
-    async addPost(post) {
+    async add(post) {
       try {
-        this.posts.push({
-          name: $cookies.get('userName'),
-          datePubli: new Date(),
-          content: post,
-          nbLike: 0,
-          liked: false,
-        });
-
-        this.posts.sort((a, b) => new Date(b.datePubli) - new Date(a.datePubli));
+        await api.post('/Posts', {
+          body: {
+            text: post,
+            date: new Date(),
+            type: "text",
+            userId: $cookies.get('me').id,
+            parentPostId: null,
+          }
+        })
+      } catch (e) {
+        console.error(e);
+        throw e;
+      }
+    },
+    async addResponse(reply, postId) {
+      try {
+        await api.post('/Posts', {
+          body: {
+            text: reply,
+            date: new Date(),
+            type: "text",
+            userId: $cookies.get('me').id,
+            parentPostId: postId,
+          }
+        })
       } catch (e) {
         console.error(e);
         throw e;

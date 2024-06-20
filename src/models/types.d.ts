@@ -5,28 +5,29 @@ interface Disponibilite {
 }
 
 interface User {
-    id: number,
-    name: string,
-    metier: string,
-    description: string,
-    rating: number,
-    domainePrincipale: string,
-    prixConsultation: number,
-    phone: string,
-    avatar: string,
-    subscribers: number,
-    subscribed: boolean,
-    disponibilites: Disponibilite[]
+    id: number;
+    name: string;
+    metier: string;
+    description: string;
+    rating: number;
+    domainePrincipal: string;
+    prixConsultation: number;
+    telephone: string;
+    avatar: string;
+    subscribed: boolean;
 }
 
 interface Reply {
     id: number,
     name: string,
-    description: string
+    content: string,
+    datePubli: Date,
 }
 
 interface Profile {
-    name: string;
+    firstname: string;
+    lastname: string;
+    fullname: string;
     profilePicture: string;
 }
 
@@ -37,7 +38,35 @@ interface Post {
     content: string;
     nbLike: number;
     liked: boolean;
+    nbReplies: number;
+    replies: Reply[];
+}
+
+interface Review {
+    id?: number;
+    name: string;
+    datePubli: Date;
+    content: string;
+    rate: number;
     thumbed: boolean | null;
 }
 
-export { Disponibilite, User, Reply, Profile, Post };
+interface Doctor {
+    id: number;
+    name: string;
+    metier: string;
+    description: string;
+    rating: number;
+    domainePrincipal: string;
+    prixConsultation?: number;
+    telephone?: string;
+    avatar: string;
+    subscribed?: boolean;
+}
+
+interface Doctors {
+    name: string;
+    doctors: Doctor[];
+}
+
+export { Disponibilite, User, Reply, Profile, Post, Review, Doctor, Doctors };

@@ -8,6 +8,7 @@ import LoginView from "../views/LoginView.vue";
 import FormTest from "../views/FormTest.vue";
 import AppointmentView from "../views/AppointmentView.vue";
 import UserView from "../views/UserProfileView.vue";
+import DoctorsView from "../views/DoctorsView.vue";
 
 
 const router = createRouter({
@@ -45,7 +46,7 @@ const router = createRouter({
     },
     {
       path: "/doctor/:id",
-      name: "doctor",
+      name: "user",
       component: UserView,
     },
     {
@@ -58,7 +59,11 @@ const router = createRouter({
       name: "form",
       component: FormTest,
     },
-    
+    {
+      path: "/doctors",
+      name: "doctors",
+      component: DoctorsView,
+    },
   ],
 });
 
