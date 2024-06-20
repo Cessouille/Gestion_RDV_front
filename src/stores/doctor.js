@@ -9,6 +9,8 @@ export const useDoctorStore = defineStore('doctor', {
             doctors: [],
             specificDoctors: [],
             doctor: null,
+            subscribed: false,
+            reviews: [],
         }
     },
     actions: {
@@ -40,6 +42,7 @@ export const useDoctorStore = defineStore('doctor', {
         async fetchDoctor(id) {
             try {
                 const data = await api.get(`/Offices/${id}`);
+                this.subscribed = await api.get(`/Subscriptions/${id}/${$cookies.get("me").id}`);
 
                 this.doctor = {
                     id: data.officeId,
@@ -51,11 +54,23 @@ export const useDoctorStore = defineStore('doctor', {
                     prixConsultation: data.prixPCR,
                     telephone: data.telephone,
                     rating: data.rating,
+                    subscribed: this.subscribed,
                 };
             } catch (e) {
                 console.error(e);
                 throw e;
             }
-        }
+        },
+        async fetchReviews(id) {
+            const data = await api.get(`/Reviews/${id}`);
+
+            this.reviews = data.map(review => ({
+                id: review.reviewId,
+                name: `${review.rendezVous.user.firstName} ${review.rendezVous.user.lastName.toUpperCase()}`,
+                datePubli: review.date,
+                content: review.description,
+                rate: review.note,
+            }));
+        },
     },
 });
