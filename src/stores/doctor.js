@@ -6,17 +6,15 @@ const api = useApiClient();
 export const useDoctorStore = defineStore('doctor', {
     state: () => {
         return {
-            doctors: [],
-            specificDoctors: [],
+            doctors: null,
+            specificDoctors: null,
             doctor: null,
             subscribed: false,
-            reviews: [],
+            reviews: null,
         }
     },
     actions: {
         async fetchDoctors() {
-            this.doctors = [];
-
             try {
                 const data = await api.get('/Offices');
 
@@ -32,6 +30,8 @@ export const useDoctorStore = defineStore('doctor', {
 
                 const mentalHealth = dto.filter(doctor => doctor.domainePrincipal === 'Santé mentale');
                 const physicalHealth = dto.filter(doctor => doctor.domainePrincipal === 'Santé physique');
+
+                this.doctors = [];
 
                 this.doctors.push({ name: 'Santé mentale', doctors: mentalHealth }, { name: 'Santé physique', doctors: physicalHealth });
             } catch (e) {

@@ -6,7 +6,7 @@ const api = useApiClient();
 export const usePostStore = defineStore('post', {
   state: () => {
     return {
-      posts: []
+      posts: null
     }
   },
   actions: {
