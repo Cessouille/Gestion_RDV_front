@@ -39,6 +39,9 @@ async function newAnswer() {
         await postStore.addResponse(reply.value, props.post?.id);
         await postStore.fetchPosts();
 
+        reply.value = '';
+        replying.value = false;
+
         $toast.success('Succès lors de l\'ajout du post.', {
             position: 'top',
             duration: 3000,

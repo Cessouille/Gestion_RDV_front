@@ -2,7 +2,7 @@
 import { ref, onMounted } from 'vue';
 import { useToast } from 'vue-toast-notification';
 import { usePostStore } from '@/stores/post';
-import BubbleMessage from "@/components/ReviewMessage.vue";
+import Loader from "@/components/loader/Loader.vue";
 import PostMessage from "@/components/PostMessage.vue";
 
 const postStore = usePostStore();
@@ -46,7 +46,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <main class="flex flex-col items-center justify-center mt-4">
+  <main class="flex flex-col items-center justify-center mt-4" v-if="postStore.posts">
     <h2 v-if="!posting" @click="posting = true"
       class="text-white bg-tertiary p-4 rounded-lg text-center w-1/4 text-xl font-semibold uppercase cursor-pointer transition-colors duration-300 hover:bg-primary">
       Poster
@@ -69,5 +69,9 @@ onMounted(async () => {
     <div v-for="message in postStore.posts" :key="message.id" class="w-3/5">
       <PostMessage :post="message" />
     </div>
+  </main>
+
+  <main v-else>
+    <Loader message="Chargement des posts" class="pt-16" />
   </main>
 </template>

@@ -3,11 +3,11 @@ import { defineProps } from "vue";
 import dayjs from "dayjs";
 import { Review } from "@/models/types";
 
-export interface BubbleMessageProps {
+export interface ReviewMessageProps {
     review: Review;
 }
 
-const props = defineProps<BubbleMessageProps>();
+const props = defineProps<ReviewMessageProps>();
 
 const name = $cookies.get("me").name;
 </script>
