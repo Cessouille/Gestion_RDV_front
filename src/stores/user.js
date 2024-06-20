@@ -1,4 +1,7 @@
 import { defineStore } from 'pinia';
+import { useApiClient } from '../composables/apiClient';
+
+const api = useApiClient();
 
 export const useUserStore = defineStore('user', {
   state: () => {
@@ -13,6 +16,22 @@ export const useUserStore = defineStore('user', {
         }
 
         $cookies.set('me', this.me, '1d');
+      } catch (e) {
+        console.error(e);
+        throw e;
+      }
+    },
+    async SignUp(data) {
+      try {
+        await api.post('/Login/SignIn', { body: data });
+      } catch (e) {
+        console.error(e);
+        throw e;
+      }
+    },
+    async LogIn(data) {
+      try {
+        return await api.post('/Login/Login?email=' + data.email + '&mdp=' + data.password);
       } catch (e) {
         console.error(e);
         throw e;
