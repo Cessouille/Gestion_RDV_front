@@ -6,7 +6,8 @@ const api = useApiClient();
 export const usePostStore = defineStore('post', {
   state: () => {
     return {
-      posts: null
+      posts: null,
+      post: null,
     }
   },
   actions: {
@@ -19,7 +20,7 @@ export const usePostStore = defineStore('post', {
           name: `${post.user.firstName} ${post.user.lastName.toUpperCase()}`,
           datePubli: post.date,
           content: post.text,
-          nbLike: 0,
+          nbLike: post.nbLike,
           liked: false,
           nbReplies: post.totalReplies,
           replies: post.childPosts.map(reply => ({
@@ -29,6 +30,30 @@ export const usePostStore = defineStore('post', {
             content: reply.text,
           })),
         }));
+      } catch (e) {
+        console.error(e);
+        throw e;
+      }
+    },
+    async fetchPost(id) {
+      try {
+        const data = await api.get(`/Posts/${id}`);
+
+        this.post = {
+          id: data.postId,
+          name: `${data.user.firstName} ${data.user.lastName.toUpperCase()}`,
+          datePubli: data.date,
+          content: data.text,
+          nbLike: data.nbLike,
+          liked: false,
+          nbReplies: data.childPosts.length,
+          replies: data.childPosts.map(reply => ({
+            id: reply.postId,
+            name: `${reply.user.firstName} ${reply.user.lastName.toUpperCase()}`,
+            datePubli: reply.date,
+            content: reply.text,
+          })),
+        };
       } catch (e) {
         console.error(e);
         throw e;
