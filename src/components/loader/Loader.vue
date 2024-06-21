@@ -2,18 +2,27 @@
 export default {
     props: {
         message: String,
+        colColor: { type: String, default: "primary" },
     },
+    data() {
+        return {
+            classString: 'bar',
+        }
+    },
+    mounted() {
+        this.classString = 'bar bg-' + this.colColor;
+    }
 }
 </script>
 
 <template>
     <div class="loader">
         <div id="loaderHolder">
-            <div class="bar" id="bar1"></div>
-            <div class="bar" id="bar2"></div>
-            <div class="bar" id="bar3"></div>
-            <div class="bar" id="bar4"></div>
-            <div class="bar" id="bar5"></div>
+            <div :class="classString" id="bar1"></div>
+            <div :class="classString" id="bar2"></div>
+            <div :class="classString" id="bar3"></div>
+            <div :class="classString" id="bar4"></div>
+            <div :class="classString" id="bar5"></div>
         </div>
         <div class="loaderText text-xs text-tertiary">{{ message }}</div>
     </div>

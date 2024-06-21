@@ -11,7 +11,6 @@ import UserView from "../views/UserProfileView.vue";
 import DoctorsView from "../views/DoctorsView.vue";
 import PostView from "../views/PostView.vue";
 
-
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -41,8 +40,8 @@ const router = createRouter({
       component: ProfileView,
     },
     {
-      path: "/logout",
-      name: "logout",
+      path: "/login",
+      name: "login",
       component: LoginView,
     },
     {
