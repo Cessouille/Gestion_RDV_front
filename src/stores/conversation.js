@@ -20,8 +20,39 @@ export const useConversationStore = defineStore('conversation', {
         },
         async fetchConversationMessages(userid, convId) {
             try {
-                var result = await api.get('/Messages/message/' + userid + '/' + convId);
-                this.messages = result.value;
+                var result = await api.get('/Messages/messages/' + convId + '/' + userid);
+                this.messages = result;
+                this.msgError = null;
+                return;
+            } catch (e) {
+                console.error(e);
+                this.msgError = e;
+                throw e;
+            }
+        },
+        async fetchNewMessages(userid, convId, time) {
+            try {
+                var result = await api.get('/Messages/newMessages/' + convId + '/' + userid + '/?since=' + time);
+                this.messages = result;
+                this.msgError = null;
+                return;
+            } catch (e) {
+                console.error(e);
+                this.msgError = e;
+                throw e;
+            }
+        },
+        async sendMessage(userid, convId, message) {
+            try {
+                var result = await api.post('/Messages', {
+                    body: {
+                        "created": new Date().toISOString(),
+                        "text": message,
+                        "userId": userid,
+                        "conversationId": convId
+                    }
+                });
+                this.messages = result;
                 this.msgError = null;
                 return;
             } catch (e) {
