@@ -1,28 +1,35 @@
 <script setup lang="ts">
-import { ref, defineProps } from "vue";
+import { ref, defineProps, onMounted } from "vue";
+import { useRoute } from 'vue-router';
 import dayjs from "dayjs";
 import { useToast } from 'vue-toast-notification';
 import { usePostStore } from '@/stores/post';
 import ReplyList from "@/components/ReplyList.vue";
 import { Post } from "@/models/types";
 
-export interface PostListProps {
+export interface PostMessageProps {
     post: Post;
 }
 
-const props = defineProps<PostListProps>();
+const props = defineProps<PostMessageProps>();
 
 const postStore = usePostStore();
 const $toast = useToast();
+const route = useRoute();
 
 const replying = ref(false);
 const reply = ref('');
 
-const name = $cookies.get("me").name;
-
-function toggleLike(message: Post) {
-    message.liked = !message.liked;
-    message.nbLike += message.liked ? 1 : -1;
+async function toggleLike(message: Post) {
+    try {
+        message.liked ? await postStore.unlikePost(message.id) : await postStore.likePost(message.id);
+        route.params.id ? await postStore.fetchPost(message.id) : await postStore.fetchPosts();
+    } catch (error) {
+        $toast.error('Erreur lors de l\'ajout du j\'aime.', {
+            position: 'top',
+            duration: 3000,
+        });
+    }
 };
 
 async function newAnswer() {
@@ -56,12 +63,11 @@ async function newAnswer() {
 </script>
 
 <template>
-    <!-- <RouterLink :to="`/post/${post.id}`" -->
     <div class="bg-secondary border-[3px] border-primary rounded-tl-lg rounded-tr-lg rounded-br-lg p-2 mt-6">
         <div class="flex justify-between text-primary text-sm">
             <h3>
                 {{
-                    props.post.name += (props.post.name == name
+                    props.post.name += (props.post.name == $cookies.get("me").name
                         ? ' (moi)'
                         : '')
                 }}
@@ -105,5 +111,5 @@ async function newAnswer() {
         </div>
     </div>
     <slot />
-    <ReplyList :id="props.post.id" :replies="props.post.replies" :nb-replies="props.post.nbReplies" />
+    <ReplyList :id="props.post.id ?? 0" :replies="props.post.replies" :nb-replies="props.post.nbReplies" />
 </template>

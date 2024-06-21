@@ -6,8 +6,8 @@ import Loader from '@/components/loader/Loader.vue';
 
 const doctorStore = useDoctorStore();
 
-onMounted(() => {
-    doctorStore.fetchDoctors();
+onMounted(async () => {
+    await doctorStore.fetchDoctors();
 });
 </script>
 

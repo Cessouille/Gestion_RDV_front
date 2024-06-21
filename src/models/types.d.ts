@@ -62,6 +62,8 @@ interface Doctor {
     telephone?: string;
     avatar: string;
     subscribed?: boolean;
+    nbSub: number;
+    socials: Social[];
 }
 
 interface Doctors {
@@ -69,4 +71,9 @@ interface Doctors {
     doctors: Doctor[];
 }
 
-export { Disponibilite, User, Reply, Profile, Post, Review, Doctor, Doctors };
+interface Social {
+    name: string;
+    link: string;
+}
+
+export { Disponibilite, User, Reply, Profile, Post, Review, Doctor, Doctors, Social };

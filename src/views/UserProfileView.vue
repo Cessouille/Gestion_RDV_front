@@ -23,7 +23,7 @@ onMounted(async () => {
             <DoctorProfile :doctor="doctorStore.doctor" />
         </div>
         <div class="w-1/2 px-2 pt-2">
-            <Reviews :reviews="doctorStore.reviews" />
+            <Reviews :reviews="doctorStore.reviews" :doctorId="doctorStore.doctor.id" />
         </div>
     </div>
 
