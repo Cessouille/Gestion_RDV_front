@@ -30,6 +30,18 @@ export const useConversationStore = defineStore('conversation', {
                 throw e;
             }
         },
+        async fetchNewMessages(userid, convId, time) {
+            try {
+                var result = await api.get('/Messages/newMessages/' + convId + '/' + userid + '/?since=' + time);
+                this.messages = result;
+                this.msgError = null;
+                return;
+            } catch (e) {
+                console.error(e);
+                this.msgError = e;
+                throw e;
+            }
+        },
         async sendMessage(userid, convId, message) {
             try {
                 var result = await api.post('/Messages', {
