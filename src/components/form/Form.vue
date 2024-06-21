@@ -1,4 +1,5 @@
 <script>
+import Loader from '../loader/Loader.vue';
 export default {
   props: {
     fields: Array,
@@ -7,6 +8,10 @@ export default {
     errMsg: String,
     errLine: String,
     buttons: Array,
+    loading: Boolean,
+  },
+  components: {
+    Loader
   },
   data() {
     return {
@@ -83,7 +88,8 @@ export default {
       </div>
     </div>
     <div id="formAction">
-      <button @click="submit(null)" class="reply">{{ buttonName }}</button>
+      <div v-if="loading" class="reply"> <Loader colColor="quartiary"></Loader> </div>
+      <button v-else @click="submit(null)" class="reply">{{ buttonName }}</button>
     </div>
   </div>
 </template>
@@ -189,6 +195,7 @@ export default {
     width: 210px;
     grid-row: 1;
     color: $primary;
+    text-align: end;
   }
 
   .erroredLine {

@@ -56,6 +56,7 @@ async function newAnswer() {
 </script>
 
 <template>
+    <!-- <RouterLink :to="`/post/${post.id}`" -->
     <div class="bg-secondary border-[3px] border-primary rounded-tl-lg rounded-tr-lg rounded-br-lg p-2 mt-6">
         <div class="flex justify-between text-primary text-sm">
             <h3>
@@ -104,5 +105,5 @@ async function newAnswer() {
         </div>
     </div>
     <slot />
-    <ReplyList :replies="props.post.replies" />
+    <ReplyList :id="props.post.id" :replies="props.post.replies" :nb-replies="props.post.nbReplies" />
 </template>

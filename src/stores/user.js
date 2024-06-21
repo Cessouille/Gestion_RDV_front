@@ -1,25 +1,63 @@
 import { defineStore } from 'pinia';
+import { useApiClient } from '../composables/apiClient';
+
+const api = useApiClient();
 
 export const useUserStore = defineStore('user', {
   state: () => {
     return { me: null }
   },
   actions: {
-    async getMe() {
+    getMe() {
       try {
-        this.me = {
-          id: 1,
-          firstname: 'Jedan-Michel',
-          lastname: 'Zeub',
-          fullname: "Jedan-Michel ZEUB",
-          profilePicture: "/src/assets/images/pp.png",
+        var cookieMe = $cookies.get('me');
+        if (cookieMe) {
+          this.me = cookieMe;
+          return this.me;
+        } else {
+          return false;
         }
-
-        $cookies.set('me', this.me, '1d');
       } catch (e) {
         console.error(e);
         throw e;
       }
+    },
+    async SignUp(data) {
+      try {
+        await api.post('/Login/SignIn', { body: data });
+      } catch (e) {
+        console.error(e);
+        throw e;
+      }
+    },
+    async LogIn(data) {
+      try {
+        var response = await api.post('/Login/Login', {
+          body: data,
+          async onResponseError({ request, response, options }) {
+            throw { body: response._data, status: response.status };
+          },
+        });
+        this.me = {
+          id: response.userDetails.userId,
+          firstname: response.userDetails.firstName,
+          lastname: response.userDetails.lastName,
+          fullname: response.userDetails.firstName + ' ' + response.userDetails.lastName.toUpperCase(),
+          profilePicture: response.userDetails.avatar,
+        }
+        $cookies.set('me', this.me, '1d');
+        $cookies.set('token', response.token, '1d');
+        const loggedInEvent = new CustomEvent('loggedin::hide');
+        window.dispatchEvent(loggedInEvent);
+        return this.me;
+      } catch (e) {
+        throw e;
+      }
+    },
+    LogOut() {
+      const loggedOutEvent = new CustomEvent('loggedout::hide')
+      window.dispatchEvent(loggedOutEvent);
+      $cookies.remove('me');
     },
     isAuthentificated() {
       return $cookies.get('me') !== null;
