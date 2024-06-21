@@ -1,29 +1,40 @@
 import { defineStore } from 'pinia';
 import { useApiClient } from '../composables/apiClient';
+import { useAvailabilityStore } from './availability';
 
 const api = useApiClient();
 
-export const useAvailabilityStore = defineStore('availability', {
+
+
+export const useAppointementStore = defineStore('appointement', {
     state: () => {
-        return { availabilities: [] }
+        return { 
+            appointement: null
+        }
     },
     actions: {
-        async createAppointement() {
+        async createAppointement(rdv) {
+
+            const availabilityStore = useAvailabilityStore();
+            availabilityStore.getAvailability(rdv.availabilityId);
+
             try {
-                const response = await api.post(`/RendezVous`, {
-                    startDate: 1,
-                    endDate: 1,
-                    description: 'gougougaga',
+                await api.post('/RendezVous', {
+                  body: {
+                    startDate: availabilityStore.availability.startDate,
+                    endDate: availabilityStore.availability.endDate,
+                    description: rdv.description,
+                    prix: rdv.price,
                     fichierJoint: null,
                     userId: 1,
-                    officeId: 1,
-                });
-
-                return response;
-            } catch (e) {
+                    officeId: rdv.officeId
+                  }
+                })
+              } catch (e) {
                 console.error(e);
                 throw e;
             }
+            console.log('YOUPI');
         }
     },
 });

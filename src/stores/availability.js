@@ -5,12 +5,15 @@ const api = useApiClient();
 
 export const useAvailabilityStore = defineStore('availability', {
     state: () => {
-        return { availabilities: [] }
+        return { 
+            availabilities: [],
+            availability: null
+         }
     },
     actions: {
         async fetchAvailabilities(idOffice) {
             try {
-                const response = await api.get(`/Availabilities/${idOffice}`);
+                const response = await api.get(`/Availabilities/GetByOfficeId/${idOffice}`);
 
                 this.availabilities = response.map(availability => {
                     const startDate = new Date(availability.startDate);
@@ -42,6 +45,19 @@ export const useAvailabilityStore = defineStore('availability', {
                 console.error(e);
                 throw e;
             }
-        }
+        },
+        async getAvailability(id) {
+            try {
+                const data = await api.get(`/Availabilities/GetByAvailabilityId/${id}`);
+                this.availability = {
+                    id: data.availabilityId,
+                    startDate: data.startDate,
+                    endDate: data.endDate,
+                }
+            } catch (e) {
+                console.error(e);
+                throw e;
+            }
+        },
     },
 });
