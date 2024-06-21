@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref, computed, reactive, watch } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { useToast } from 'vue-toast-notification';
 import VueInlineCalendar from 'vue-inline-calendar'
 import { useAvailabilityStore } from '@/stores/availability';
@@ -8,10 +8,11 @@ import { useAppointementStore } from '@/stores/appointement';
 import { useDoctorStore } from '@/stores/doctor';
 import "vue-inline-calendar/dist/style.css";
 
-const $toast = useToast();
+const $toast = useToast()
 
 // Get doctor id from route
 const route = useRoute();
+const router = useRouter();
 const doctorId = route.params.id;
 
 // Importing stores
@@ -66,10 +67,21 @@ async function validateAppointement() {
       userId: rdv.userId,
       officeId: rdv.officeId
     });
-    $toast.success('Rendez-vous créé avec succès', {
+    
+    try {
+      await availabilityStore.deleteAvailability(rdv.availabilityId);
+      $toast.success('Rendez-vous créé avec succès', {
       position: 'top',
       duration: 3000,
     });
+    // Redirect to home page
+    router.push('/');
+    } catch (error) {
+      $toast.error('Erreur lors de la suppression', {
+        position: 'top',
+        duration: 3000,
+      });
+    }
   } catch (error) {
     $toast.error('Erreur lors de l\'ajout du post.', {
       position: 'top',

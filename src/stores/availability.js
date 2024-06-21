@@ -59,5 +59,13 @@ export const useAvailabilityStore = defineStore('availability', {
                 throw e;
             }
         },
+        async deleteAvailability(id) {
+            try {
+                await api.delete(`/Availabilities/${id}`);
+            } catch (e) {
+                console.error(e);
+                throw e;
+            }
+        }
     },
 });

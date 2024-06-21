@@ -14,10 +14,8 @@ export const useAppointementStore = defineStore('appointement', {
     },
     actions: {
         async createAppointement(rdv) {
-
             const availabilityStore = useAvailabilityStore();
-            availabilityStore.getAvailability(rdv.availabilityId);
-
+            await availabilityStore.getAvailability(rdv.availabilityId);
             try {
                 await api.post('/RendezVous', {
                   body: {
