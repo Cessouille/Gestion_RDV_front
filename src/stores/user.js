@@ -8,17 +8,15 @@ export const useUserStore = defineStore('user', {
     return { me: null }
   },
   actions: {
-    async getMe() {
+    getMe() {
       try {
-        this.me = {
-          id: 1,
-          firstname: 'Jedan-Michel',
-          lastname: 'Zeub',
-          fullname: "Jedan-Michel ZEUB",
-          profilePicture: "/src/assets/images/pp.png",
+        var cookieMe = $cookies.get('me');
+        if (cookieMe) {
+          this.me = cookieMe;
+          return this.me;
+        } else {
+          return false;
         }
-
-        $cookies.set('me', this.me, '1d');
       } catch (e) {
         console.error(e);
         throw e;
@@ -32,12 +30,12 @@ export const useUserStore = defineStore('user', {
         throw e;
       }
     },
-    async LogIn(data, callback) {
+    async LogIn(data) {
       try {
         var response = await api.post('/Login/Login', {
           body: data,
           async onResponseError({ request, response, options }) {
-            throw response._data;
+            throw { body: response._data, status: response.status };
           },
         });
         this.me = {
@@ -49,11 +47,17 @@ export const useUserStore = defineStore('user', {
         }
         $cookies.set('me', this.me, '1d');
         $cookies.set('token', response.token, '1d');
-        return true;
+        const loggedInEvent = new CustomEvent('loggedin::hide');
+        window.dispatchEvent(loggedInEvent);
+        return this.me;
       } catch (e) {
-        console.error(e.body);
         throw e;
       }
+    },
+    LogOut() {
+      const loggedOutEvent = new CustomEvent('loggedout::hide')
+      window.dispatchEvent(loggedOutEvent);
+      $cookies.remove('me');
     },
     isAuthentificated() {
       return $cookies.get('me') !== null;

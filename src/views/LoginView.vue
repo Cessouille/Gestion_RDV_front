@@ -4,8 +4,10 @@ import Field from '../components/form/Field.js';
 import Loader from '../components/loader/Loader.vue';
 import ButtonField from '../components/form/ButtonField.js';
 import { useUserStore } from '@/stores/user';
+import { useToast } from 'vue-toast-notification';
 
 var emailReg = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
+const $toast = useToast();
 
 export default {
     components: {
@@ -35,14 +37,28 @@ export default {
                 new Field("Professionnel", "checkbox", "ispro"),
             ],
             fields: this.fieldsLog,
-            rdvButtons: [
+            rdvButtonsStore: [
                 new ButtonField("Log In", "login", true),
                 new ButtonField("Sign Up", "signup"),
-            ]
+            ],
+            rdvButtons: this.rdvButtonsStore,
         };
     },
     mounted() {
-        this.fields = this.fieldsLog;
+        var user = this.userStore.getMe();
+        if (user) {
+            this.rdvButtons = null;
+            this.fields = [
+                new Field("Nom d'utilisateur", "info", user.fullname),
+            ];
+            this.formName = "Connecté";
+            this.buttonName = "Déconnexion";
+        } else {
+            this.rdvButtons = this.rdvButtonsStore;
+            this.fields = this.fieldsLog;
+            this.formName = "Log In";
+            this.buttonName = "Connexion";
+        }
     },
     methods: {
         async handleSubmit(data) {
@@ -100,6 +116,11 @@ export default {
                         try {
                             await this.userStore.SignUp(userToCreate);
                             this.submitMessage = null;
+                            $toast.success(`Votre compte à été crée avec succès.`, {
+                                position: 'bottom-right',
+                                duration: 3000,
+                            });
+                            this.changeFields("login");
                         } catch (error) {
                             this.createError = "Erreur lors de la création du compte.";
                             console.log(error);
@@ -131,19 +152,42 @@ export default {
                             password: hashedPwd,
                         }
 
-                        function updateErrorMessage(msg) {
-                            this.createError = msg;
-                        }
-
                         try {
-                            var result = await this.userStore.LogIn(login, updateErrorMessage);
+                            var result = await this.userStore.LogIn(login);
+                            $toast.success(`Vous êtes connectez en tant que ${this.userStore.me.fullname}`, {
+                                position: 'bottom-right',
+                                duration: 3000,
+                            });
                             this.submitMessage = null;
+                            this.createError = null;
+                            this.rdvButtons = null;
+                            this.fields = [
+                                new Field("Nom d'utilisateur", "info", result.fullname),
+                            ];
+                            this.formName = "Connecté";
+                            this.buttonName = "Déconnexion";
                         } catch (error) {
-                            this.createError = error;
+                            console.log(error);
+                            if (error.status == 401) {
+                                this.createError = error.body;
+                            } else {
+                                this.createError = "Erreur de connexion";
+                            }
                         }
                         this.formLoading = false;
 
                     }
+                    break;
+                case "Connecté":
+                    this.userStore.LogOut();
+                    this.fields = this.fieldsLog;
+                    this.formName = "Log In";
+                    this.buttonName = "Connection";
+                    this.rdvButtons = this.rdvButtonsStore;
+                    $toast.success(`Vous êtes déconnectés`, {
+                        position: 'bottom-right',
+                        duration: 3000,
+                    });
                     break;
             }
         },

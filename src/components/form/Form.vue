@@ -195,6 +195,7 @@ export default {
     width: 210px;
     grid-row: 1;
     color: $primary;
+    text-align: end;
   }
 
   .erroredLine {
