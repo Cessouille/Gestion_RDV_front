@@ -20,8 +20,8 @@ export const useConversationStore = defineStore('conversation', {
         },
         async fetchConversationMessages(userid, convId) {
             try {
-                var result = await api.get('/Messages/message/' + userid + '/' + convId);
-                this.messages = result.value;
+                var result = await api.get('/Messages/messages/' + convId + '/' + userid);
+                this.messages = result;
                 this.msgError = null;
                 return;
             } catch (e) {

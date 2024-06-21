@@ -56,7 +56,7 @@ async function loadMessages(userId, convId) {
   chatError.value = false;
   textChats.value = false;
   try {
-    await convStore.fetchConversationMessages(1, convId); //set user id   
+    await convStore.fetchConversationMessages(1, convId); //set user id 
     textChats.value = convStore.messages.map((msg => {
       return { user: msg.user ? msg.user.firstName + ' ' + msg.user.lastName.toUpperCase() : 'Utilisateur ' + msg.userId, date: msg.created, text: msg.text };
     })); 
