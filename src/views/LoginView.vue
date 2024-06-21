@@ -1,6 +1,7 @@
 <script>
 import Form from '../components/form/Form.vue';
 import Field from '../components/form/Field.js';
+import Loader from '../components/loader/Loader.vue';
 import ButtonField from '../components/form/ButtonField.js';
 import { useUserStore } from '@/stores/user';
 
@@ -9,9 +10,12 @@ var emailReg = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
 export default {
     components: {
         Form,
+        Loader,
     },
     data() {
         return {
+            formLoading: false,
+            submitMessage: null,
             userStore: useUserStore(),
             createError: null,
             errField: null,
@@ -42,8 +46,18 @@ export default {
     },
     methods: {
         async handleSubmit(data) {
+            this.createError = false;
+
+            async function digestMessage(message) {
+                const msgUint8 = new TextEncoder().encode(message);                           // encode as (utf-8) Uint8Array
+                const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);           // hash the message
+                const hashArray = Array.from(new Uint8Array(hashBuffer));                     // convert buffer to byte array
+                const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join(''); // convert bytes to hex string
+                return hashHex;
+            };
+
             this.errField = null;
-            this.errMsg = null;
+            this.createError = null;
             switch (data.title) {
                 case "Sign Up":
                     var mailCheck = emailReg.test(data.mail);
@@ -68,12 +82,15 @@ export default {
                         this.createError = "Confirmation du mot de passe incorrecte.";
                         this.errField = "mdpconf";
                     } else {
+                        this.submitMessage = "Création du compte";
+                        this.formLoading = true;
                         this.createError = null;
                         this.errField = null;
+                        const hashedPwd = await digestMessage(data.mdpcreate);
 
                         var userToCreate = {
                             email: data.mail,
-                            password: data.mdpcreate,
+                            password: hashedPwd,
                             birthDate: data.date,
                             firstName: data.name,
                             lastName: data.lastname,
@@ -82,9 +99,12 @@ export default {
 
                         try {
                             await this.userStore.SignUp(userToCreate);
+                            this.submitMessage = null;
                         } catch (error) {
+                            this.createError = "Erreur lors de la création du compte.";
                             console.log(error);
                         }
+                        this.formLoading = false;
                     }
                     break;
                 case "Log In":
@@ -99,22 +119,29 @@ export default {
                         this.createError = "Le mot de passe doit être renseigné.";
                         this.errField = "password";
                     } else {
+                        this.submitMessage = "Connexion en cours";
+                        this.formLoading = true;
                         this.createError = null;
                         this.errField = null;
 
+                        const hashedPwd = await digestMessage(data.password);
+
                         var login = {
                             email: data.mail,
-                            password: data.password,
+                            password: hashedPwd,
                         }
 
-                        //hash
+                        function updateErrorMessage(msg) {
+                            this.createError = msg;
+                        }
 
                         try {
-                            var result = await this.userStore.LogIn(login);
-                            console.log(result);
+                            var result = await this.userStore.LogIn(login, updateErrorMessage);
+                            this.submitMessage = null;
                         } catch (error) {
-                            console.log(error);
+                            this.createError = error;
                         }
+                        this.formLoading = false;
 
                     }
                     break;
@@ -145,8 +172,19 @@ export default {
 </script>
 
 <template>
-    <Form :fields=fields :name=formName @submit="handleSubmit" :buttonName="buttonName" :errMsg="createError"
-        :errLine="errField" :buttons="rdvButtons" @choiceButton="changeFields"></Form>
+    <Form :loading="formLoading" :fields=fields :name=formName @submit="handleSubmit" :buttonName="buttonName"
+        :errMsg="createError" :errLine="errField" :buttons="rdvButtons" @choiceButton="changeFields"></Form>
 </template>
 
-<style></style>
+<style lang="scss">
+@import "../assets/scss/settings.scss";
+
+#formBubble {
+    background-color: $secondary;
+    border: 3px solid $primary;
+    border-radius: 15px;
+    padding: 7px;
+    width: 500px;
+    margin: 20px auto;
+}
+</style>

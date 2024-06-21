@@ -32,11 +32,26 @@ export const useUserStore = defineStore('user', {
         throw e;
       }
     },
-    async LogIn(data) {
+    async LogIn(data, callback) {
       try {
-        return await api.post('/Login/Login?email=' + data.email + '&mdp=' + data.password);
+        var response = await api.post('/Login/Login', {
+          body: data,
+          async onResponseError({ request, response, options }) {
+            throw response._data;
+          },
+        });
+        this.me = {
+          id: response.userDetails.userId,
+          firstname: response.userDetails.firstName,
+          lastname: response.userDetails.lastName,
+          fullname: response.userDetails.firstName + ' ' + response.userDetails.lastName.toUpperCase(),
+          profilePicture: response.userDetails.avatar,
+        }
+        $cookies.set('me', this.me, '1d');
+        $cookies.set('token', response.token, '1d');
+        return true;
       } catch (e) {
-        console.error(e);
+        console.error(e.body);
         throw e;
       }
     },

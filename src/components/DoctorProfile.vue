@@ -2,9 +2,10 @@
 import { ref, defineProps } from 'vue';
 import { Doctor } from '@/models/types';
 import { useToast } from 'vue-toast-notification';
+import Loader from '@/components/loader/Loader.vue';
 
 export interface DoctorProfileProps {
-    param: Doctor | null;
+    doctor: Doctor | null;
 }
 
 const props = defineProps<DoctorProfileProps>();
@@ -36,21 +37,21 @@ function changeSubscribe(doctor: Doctor) {
 </script>
 
 <template>
-    <div class="bg-secondary border-[3px] border-primary rounded-lg p-2 w-full" v-if="props.param">
+    <div class="bg-secondary border-[3px] border-primary rounded-lg p-2 w-full" v-if="props.doctor">
         <div class="flex">
-            <img :src="props.param.avatar" class="border-2 border-primary rounded-lg mr-2 mb-2 w-[10%]" />
+            <img :src="props.doctor.avatar" class="border-2 border-primary rounded-lg mr-2 mb-2 w-[10%]" />
             <div>
                 <div class="flex items-center">
-                    <h3 class="text-tertiary font-bold text-lg mr-2">{{ props.param.name }}</h3>
-                    <span v-if="props.param.subscribed" class="hover:cursor-pointer">
-                        <i class="fa-solid fa-user-check text-tertiary" @click="changeSubscribe(props.param)"></i>
+                    <h3 class="text-tertiary font-bold text-lg mr-2">{{ props.doctor.name }}</h3>
+                    <span v-if="props.doctor.subscribed" class="hover:cursor-pointer">
+                        <i class="fa-solid fa-user-check text-tertiary" @click="changeSubscribe(props.doctor)"></i>
                     </span>
                     <span v-else class="hover:cursor-pointer">
-                        <i class="fa-solid fa-user-plus text-tertiary" @click="changeSubscribe(props.param)"></i>
+                        <i class="fa-solid fa-user-plus text-tertiary" @click="changeSubscribe(props.doctor)"></i>
                     </span>
                 </div>
                 <p class="text-primary text-sm"> <span class="font-semibold">Professionnel :</span> {{
-                    props.param.metier }}
+                    props.doctor.metier }}
                 </p>
             </div>
             <!-- <div class="ml-auto items-center">
@@ -76,19 +77,19 @@ function changeSubscribe(doctor: Doctor) {
         </div>
         <div class="text-primary text-sm mb-1.5">
             <p class="mb-1.5">
-                {{ props.param.description }}
+                {{ props.doctor.description }}
             </p>
             <p>
-                <span class="font-semibold">Domaine principale :</span> {{ props.param.domainePrincipal }}
+                <span class="font-semibold">Domaine principale :</span> {{ props.doctor.domainePrincipal }}
             </p>
             <p>
-                <span class="font-semibold">Prix consultation :</span> {{ props.param.prixConsultation }}€
+                <span class="font-semibold">Prix consultation :</span> {{ props.doctor.prixConsultation }}€
             </p>
             <p>
-                <span class="font-semibold">Téléphone :</span> {{ props.param.telephone }}
+                <span class="font-semibold">Téléphone :</span> {{ props.doctor.telephone }}
             </p>
             <p>
-                <span class="font-semibold">Note :</span> {{ props.param.rating }}
+                <span class="font-semibold">Note :</span> {{ props.doctor.rating }}
             </p>
         </div>
         <!-- <div class="flex text-primary text-sm">
@@ -109,7 +110,7 @@ function changeSubscribe(doctor: Doctor) {
             </div>
         </div> -->
         <div class="flex">
-            <RouterLink :to="`/user/${props.param.id}/appointment`"
+            <RouterLink :to="`/user/${props.doctor.id}/appointment`"
                 class="bg-tertiary text-white text-center font-bold py-2 px-3 rounded-lg ml-auto text-sm my-1.5 transition-colors duration-300 hover:cursor-pointer hover:bg-primary">
                 Prendre rendez-vous
             </RouterLink>

@@ -48,7 +48,7 @@ onMounted(() => {
         <span class="material-symbols-rounded"> account_circle </span>
         Profil
       </RouterLink>
-      <RouterLink to="/logout" class="flex items-center border border-gray-400 p-2" @click="openMenu = false">
+      <RouterLink to="/login" class="flex items-center border border-gray-400 p-2" @click="openMenu = false">
         <span class="material-symbols-rounded"> logout </span>
         Déconnexion
       </RouterLink>
