@@ -110,7 +110,7 @@ function changeSubscribe(doctor: Doctor) {
             </div>
         </div> -->
         <div class="flex">
-            <RouterLink :to="`/user/${props.doctor.id}/appointment`"
+            <RouterLink :to="`/doctor/${props.doctor.id}/appointement`"
                 class="bg-tertiary text-white text-center font-bold py-2 px-3 rounded-lg ml-auto text-sm my-1.5 transition-colors duration-300 hover:cursor-pointer hover:bg-primary">
                 Prendre rendez-vous
             </RouterLink>

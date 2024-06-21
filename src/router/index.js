@@ -50,8 +50,8 @@ const router = createRouter({
       component: UserView,
     },
     {
-      path: "/user/:id/appointment",
-      name: "appointment",
+      path: "/doctor/:id/appointement",
+      name: "appointement",
       component: AppointmentView
     },
     {
