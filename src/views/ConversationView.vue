@@ -16,8 +16,9 @@ var currentUser = ref(userStore.getMe());
 var textChats = ref(false);
 var error = ref(false);
 var chatError = ref(false);
-
-var conversations = ref(false)
+var shifted = ref(false);
+var conversations = ref(false);
+var sending = ref(false);
 
 var currentConversation = ref(false);
 
@@ -26,11 +27,9 @@ function showConvNames(users) {
     var userString = "";
     users.forEach(function callback(value, index) {
       var fullname = value.firstName + ' ' + value.lastName.toUpperCase();
-      if (value != currentUser.value.fullname) {
-        userString += fullname;
-        if (index < users.length - 1) {
-          userString += ", ";
-        }
+      userString += fullname + (fullname != currentUser.value.fullname ? "" : " (Vous)");
+      if (index < users.length - 1) {
+        userString += ", ";
       }
     });
     return userString;
@@ -43,14 +42,14 @@ function showConvNames(users) {
 async function LoadChats() {
   error.value = null;
   chatError.value = null;
-  await convStore.fetchUserConversations(1); //set i
+  await convStore.fetchUserConversations(currentUser.value.id); //set i
   if (convStore.error) {
     error.value = convStore.error;
     chatError.value = true;
   } else {
     currentConversation.value = convStore.conversations[0];
     conversations.value = convStore.conversations;
-    await loadMessages(1, currentConversation.value.conversationId);
+    await loadMessages(currentUser.value.id, currentConversation.value.conversationId);
   }
   return;
 }
@@ -59,17 +58,36 @@ async function loadMessages(userId, convId) {
   chatError.value = false;
   textChats.value = false;
   try {
-    await convStore.fetchConversationMessages(1, convId); //set user id
+    await convStore.fetchConversationMessages(userId, convId); // set user id
     textChats.value = convStore.messages.map((msg => {
-      return { user: msg.user ? msg.user.firstName + ' ' + msg.user.lastName.toUpperCase() : 'Utilisateur ' + msg.userId, date: msg.created, text: msg.text };
+      return { user: msg.user ? msg.user.firstName + ' ' + msg.user.lastName.toUpperCase() : 'Utilisateur ' + msg.userId, date: msg.created, text: msg.text.replace(/\n/g, '<br />') };
     }));
   } catch (error) {
+    console.log(error)
     chatError.value = true;
     textChats.value = false;
   }
   return;
 }
-
+async function sendMsg(e) {
+  if (!shifted.value) {
+    var message = e.target.innerText;
+    sending.value = true;
+    try {
+      await convStore.sendMessage(currentUser.value.id, currentConversation.value.conversationId, message);
+      await loadMessages(currentUser.value.id, currentConversation.value.conversationId);
+      sending.value = false
+    } catch (error) {
+      chatError.value = true;
+    }
+    e.target.innerText = "";
+  }
+}
+function stopBadLines(e) {
+  if (!shifted.value) {
+    e.preventDefault();
+  }
+}
 async function switchChat(e) {
   var chats = document.querySelectorAll(".chatName");
   chats.forEach(chat => {
@@ -81,7 +99,7 @@ async function switchChat(e) {
 
   var convId = e.target.id.slice(1);
   currentConversation.value = conversations.value.find(c => c.conversationId == convId);
-  await loadMessages(1, convId);
+  await loadMessages(currentUser.value.id, convId);
 }
 </script>
 
@@ -114,7 +132,7 @@ async function switchChat(e) {
         <div v-if="chatError" class="flex flex-col items-center gap-2 bg-quartiary">
           <div id="errMsg"><span class="material-symbols-rounded fill">warning</span><span v-if="error">Erreur de
               chargement des conversations</span><span v-else>Erreur de chargement des messages</span></div>
-          <button v-if="!error && chatError" @click="loadMessages(1, currentConversation.conversationId)"
+          <button v-if="!error && chatError" @click="loadMessages(currentUser.id, currentConversation.conversationId)"
             class="flex justify-center gap-2 bg-secondary text-tertiary p-2 rounded w-fit m-0-auto"><span
               class="material-symbols-rounded fill">refresh</span>Recharger</button>
         </div>
@@ -127,15 +145,16 @@ async function switchChat(e) {
         </div>
         <div class="w-auto flex gap-2 items-center bg-quartiary p-2">
           <div contenteditable
-            class="messageBox w-full border-tertiary border-solid border-2 rounded-xl p-2 bg-quartiary row-span-1">
+            class="messageBox w-full border-tertiary border-solid border-2 rounded-xl p-2 bg-quartiary row-span-1"
+            v-on:keyup.enter="sendMsg" v-on:keydown.enter="stopBadLines" v-on:keydown.shift="shifted = true"
+            v-on:keyup.shift="shifted = false">
           </div>
-          <button class="w-[60px] bg-tertiary rounded-xl p-2 row-span-1 text-white"><i
-              class="fa-solid fa-paper-plane"></i></button>
+          <button class="w-[60px] bg-tertiary rounded-xl p-2 row-span-1 text-white">
+            <i v-if="!sending" class="fa-solid fa-paper-plane"></i>
+            <Loader v-else colColor="quartiary"></Loader>
+          </button>
         </div>
-
       </div>
-
-
     </div>
   </main>
 </template>
@@ -170,10 +189,6 @@ async function switchChat(e) {
 ::-webkit-scrollbar-thumb {
   background: $primary;
   border-radius: 5px;
-}
-
-.scrollwindow {
-  scroll-behavior: smooth;
 }
 
 .rightBubble::after {
