@@ -72,7 +72,7 @@ async function validateAppointement() {
     });
     
     try {
-      await availabilityStore.deleteAvailability(rdv.availabilityId);
+      await availabilityStore.reserveAvailability(rdv.availabilityId);
       $toast.success('Rendez-vous créé avec succès', {
       position: 'top',
       duration: 3000,
