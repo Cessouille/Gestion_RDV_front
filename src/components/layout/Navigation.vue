@@ -37,10 +37,10 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <nav class="bg-primary h-[8vh] flex items-center justify-between px-2.5 text-white">
+  <nav class="bg-primary h-16 flex items-center justify-between px-2.5 text-white">
     <div class="flex items-center text-gray-200 space-x-2.5">
       <RouterLink to="/">
-        <img class="h-[6.5vh]" src="/src/assets/images/logo_full.png">
+        <img class="h-12" src="/src/assets/images/logo_full.png">
       </RouterLink>
       <RouterLink to="/doctors" class="px-2 plainLink">
         Docteurs
@@ -57,7 +57,7 @@ onUnmounted(() => {
       </RouterLink>
     </div>
     <div class="flex items-center space-x-2.5 hover:cursor-pointer" v-if="logged" @click="openMenu = !openMenu">
-      <img :src="connectedUser.profilePicture" class="h-[6.5vh] rounded-full">
+      <img :src="connectedUser.profilePicture" class="h-12 w-12 rounded-full">
       <span class="mr-2.5">{{ connectedUser.fullname }}</span>
       <img src="/src/assets/images/arrow_down.png" :class="{ navArrow: true, unfolded: openMenu }">
     </div>

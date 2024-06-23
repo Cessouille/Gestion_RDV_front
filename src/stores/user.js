@@ -48,6 +48,7 @@ export const useUserStore = defineStore('user', {
         });
         this.me = {
           id: response.userDetails.userId,
+          officeId: response.userDetails.office.officeId,
           firstname: response.userDetails.firstName,
           lastname: response.userDetails.lastName,
           fullname: response.userDetails.firstName + ' ' + response.userDetails.lastName.toUpperCase(),
@@ -74,7 +75,7 @@ export const useUserStore = defineStore('user', {
         return;
       }
 
-      const data = await api.get(`/RendezVous/16`);
+      const data = await api.get(`/RendezVous/${$cookies.get('me').officeId}`);
 
       this.appointments = data.map(rdv => ({
         id: rdv.rendezVousId,

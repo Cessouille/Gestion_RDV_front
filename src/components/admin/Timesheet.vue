@@ -20,12 +20,6 @@ const groupedAppointments = computed(() => {
         return acc;
     }, {});
 
-    Object.keys(grouped).forEach(date => {
-        grouped[date] = grouped[date].sort((a, b) => {
-            return dayjs(a.startDate).unix() - dayjs(b.startDate).unix();
-        });
-    });
-
     return grouped;
 });
 
