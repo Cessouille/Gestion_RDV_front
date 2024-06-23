@@ -1,10 +1,11 @@
-<script setup lang="ts">
+<script setup>
 import { onMounted, ref, computed, reactive, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useToast } from 'vue-toast-notification';
 import VueInlineCalendar from 'vue-inline-calendar'
 import { useAvailabilityStore } from '@/stores/availability';
 import { useAppointementStore } from '@/stores/appointement';
+import { useUserStore } from '@/stores/user';
 import { useDoctorStore } from '@/stores/doctor';
 import "vue-inline-calendar/dist/style.css";
 
@@ -19,6 +20,7 @@ const doctorId = route.params.id;
 const doctorStore = useDoctorStore();
 const availabilityStore = useAvailabilityStore();
 const appointementStore = useAppointementStore();
+const userStore = useUserStore();
 
 // Date & Time selection
 const selectedDate = ref(null);
@@ -30,6 +32,7 @@ const formattedDate = computed(() => {
 onMounted(async () => {
   await doctorStore.fetchDoctor(doctorId);
   await availabilityStore.fetchAvailabilities(doctorId);
+  await userStore.getMe();
 });
 
 const rdvDescription = ref(null);
@@ -37,7 +40,7 @@ const rdv = reactive({
   availabilityId: selectedTime,
   description: null,
   price: doctorStore.doctor.prixConsultation,
-  userId: 1,
+  userId: userStore.me.id,
   officeId: doctorId
 });
 
@@ -69,7 +72,7 @@ async function validateAppointement() {
     });
     
     try {
-      await availabilityStore.deleteAvailability(rdv.availabilityId);
+      await availabilityStore.reserveAvailability(rdv.availabilityId);
       $toast.success('Rendez-vous créé avec succès', {
       position: 'top',
       duration: 3000,
@@ -92,7 +95,6 @@ async function validateAppointement() {
 </script>
 
 <template>
-  <h1>{{ selectedTime }}</h1>
   <div class="border-solid border-4 border-primary rounded-xl p-5 mt-10 mb-10 bg-secondary flex flex-col w-3/4 m-auto">
     <h1 class="text-tertiary font-semibold text-3xl self-center">Rendez-Vous avec {{ doctorStore.doctor.name }}</h1>
     <!--------------------------------------- DISPOS ------------------------------------------->
