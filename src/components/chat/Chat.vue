@@ -27,7 +27,7 @@ export default {
 </script>
 
 <template>
-  <div v-for="chat in chats" class="w-auto flex flex-col gap-3 p-3">
+  <div v-for="chat in chats" class="w-auto flex flex-col gap-3 p-3 py-1">
     <div v-if="chat.user == currentUser" class="w-auto flex flex-col">
       <div class="w-auto flex flex-col">
         <div class="w-auto self-end p-3 bg-primary text-white rounded-lg rightBubble" :id="computedSlide(chat.justSent)"

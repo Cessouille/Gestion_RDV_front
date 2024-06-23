@@ -10,9 +10,6 @@ const userStore = useUserStore();
 
 onMounted(async () => {
   await LoadChats();
-  setInterval(function () {
-    getNewMessages(currentUser.value.id, currentConversation.value.conversationId);
-  }, 1000);
 });
 
 var currentUser = ref(userStore.getMe());
@@ -22,6 +19,7 @@ var chatError = ref(false);
 var conversations = ref(false);
 var sending = ref(false);
 var lastTime = ref(null);
+var intervalId = ref(null)
 
 var currentConversation = ref(false);
 
@@ -45,14 +43,16 @@ function showConvNames(users) {
 async function LoadChats() {
   error.value = null;
   chatError.value = null;
-  await convStore.fetchUserConversations(currentUser.value.id); //set i
+  await convStore.fetchUserConversations(currentUser.value.id);
   if (convStore.error) {
     error.value = convStore.error;
     chatError.value = true;
   } else {
-    currentConversation.value = convStore.conversations[0];
-    conversations.value = convStore.conversations;
-    await loadMessages(currentUser.value.id, currentConversation.value.conversationId);
+      currentConversation.value = convStore.conversations[0];
+      conversations.value = convStore.conversations;
+    if (convStore.conversations.length > 0) {
+      await loadMessages(currentUser.value.id, currentConversation.value.conversationId);
+    }
   }
   return;
 }
@@ -66,6 +66,9 @@ async function loadMessages(userId, convId) {
       return { user: msg.user ? msg.user.firstName + ' ' + msg.user.lastName.toUpperCase() : 'Utilisateur ' + msg.userId, date: msg.created, text: msg.text.replace(/\n/g, '<br />') };
     }));
     lastTime.value = textChats.value[textChats.value.length - 1].date;
+    intervalId.value = setInterval(function () {
+      getNewMessages(currentUser.value.id, currentConversation.value.conversationId);
+    }, 1000);
   } catch (error) {
     console.log(error)
     chatError.value = true;
@@ -77,7 +80,7 @@ async function loadMessages(userId, convId) {
 async function getNewMessages(userId, convId, fromSubmit = false) {
   chatError.value = false;
   try {
-    if (textChats) {
+    if (textChats.value) {
       var lastChatIndex = textChats.value.findIndex(msg => msg.date == lastTime.value);
       await convStore.fetchNewMessages(userId, convId, textChats.value[lastChatIndex].date);
       var newMessages = convStore.messages.map((msg => {
@@ -90,29 +93,32 @@ async function getNewMessages(userId, convId, fromSubmit = false) {
         textChats.value.push(element)
       });
       lastTime.value = textChats.value[textChats.value.length - 1].date;
+    } else {
+      throw "No chats to load";
     }
     return;
   } catch (error) {
-    console.log(error)
+    clearInterval(intervalId.value);
     chatError.value = true;
     textChats.value = false;
   }
   return;
 }
 async function sendMsg() {
-  var message = document.querySelector("#messageBox").innerText;
-  if (message) {
-    sending.value = true;
-    try {
-      lastTime.value = textChats.value[textChats.value.length - 1].date;
-      await convStore.sendMessage(currentUser.value.id, currentConversation.value.conversationId, message);
-      await getNewMessages(currentUser.value.id, currentConversation.value.conversationId, true);
-      sending.value = false
-    } catch (error) {
-      chatError.value = true;
+  if (currentConversation.value) {
+    var message = document.querySelector("#messageBox").innerText;
+    if (message) {
+      sending.value = true;
+      try {
+        lastTime.value = textChats.value[textChats.value.length - 1].date;
+        await convStore.sendMessage(currentUser.value.id, currentConversation.value.conversationId, message);
+        await getNewMessages(currentUser.value.id, currentConversation.value.conversationId, true);
+        sending.value = false
+      } catch (error) {
+        chatError.value = true;
+      }
+      document.querySelector("#messageBox").innerText = "";
     }
-    document.querySelector("#messageBox").innerText = "";
-
   }
 }
 function stopBadLines(e) {
@@ -135,7 +141,8 @@ async function switchChat(e) {
 
 <template>
   <main class="flex w-full place-content-center pt-2">
-    <div class="chatHolder h-[90vh]">
+    <div v-if="!currentUser">Connectez vous pour acceder aux conversations</div>
+    <div v-else class="chatHolder h-[90vh]">
       <div class="chatPicker">
         <div>Chats :</div>
         <div v-if="error" class="flex flex-col items-center gap-2">
@@ -144,10 +151,14 @@ async function switchChat(e) {
             class="flex justify-center gap-2 bg-secondary text-tertiary p-2 rounded w-fit m-0-auto"><span
               class="material-symbols-rounded fill">refresh</span>Recharger</button>
         </div>
-        <div v-else-if="conversations" v-for="conv in conversations" :id="'c' + conv.conversationId"
+        <div v-else-if="conversations && conversations.length > 0" v-for="conv in conversations"
+          :id="'c' + conv.conversationId"
           :class="{ chatName: true, currentChat: currentConversation.conversationId == conv.conversationId }"
           v-on:click="switchChat">{{
-          conv.conversationName }}
+      conv.conversationName }}
+        </div>
+        <div v-else-if="conversations.length == 0" class="flex justify-center text-primary text-xs text-center">
+          Vous n'êtes dans aucune conversations.
         </div>
         <div v-else>
           <Loader message="Chargement des conversations"></Loader>
@@ -156,7 +167,7 @@ async function switchChat(e) {
       <div class="chat h-[90vh]">
         <div v-if="currentConversation" id="chatName">{{ currentConversation.conversationName }}
           <div class="text-xs text-primary" v-if="currentConversation.users.length > 2">{{
-          showConvNames(currentConversation.users) }}</div>
+      showConvNames(currentConversation.users) }}</div>
         </div>
         <div v-else id="chatName">Chat</div>
         <div v-if="chatError" class="flex flex-col items-center gap-2 bg-quartiary">
@@ -170,8 +181,11 @@ async function switchChat(e) {
           class="scrollwindow flex align-self-center flex-col h-full overflow-scroll overflow-x-hidden bg-quartiary">
           <Chat :chats="textChats" :currentUser="currentUser.fullname"></Chat>
         </div>
-        <div v-else class="bg-quartiary">
+        <div v-else-if="conversations.length > 0" class="bg-quartiary">
           <Loader message="Chargement des messages"></Loader>
+        </div>
+        <div v-else class="bg-quartiary">
+          <div class="flex justify-center text-primary">Aucun messages à montrer.</div>
         </div>
         <div class="w-auto flex gap-2 items-center bg-quartiary p-2">
           <div contenteditable id="messageBox"
