@@ -1,3 +1,7 @@
+<script setup>
+import DoctorProfile from '@/components/DoctorProfile.vue'
+</script>
+
 <template>
-    <h1>Profil</h1>
+    <DoctorProfile />
 </template>
