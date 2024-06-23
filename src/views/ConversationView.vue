@@ -188,7 +188,6 @@ async function loadShowAddConvForm() {
 
 async function sendMsg() {
   try {
-    console.log(currentConversation.value)
     if (currentConversation.value) {
       var message = document.querySelector("#messageBox").innerText;
       if (message) {

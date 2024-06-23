@@ -36,9 +36,9 @@ export default {
     },
     computedSlide(chat) {
       if (chat.justSent) {
-        return "slideIn " + "c-" + chat.id;
+        return "w-auto self-end p-3 bg-primary text-white rounded-lg rightBubble slideIn";
       } else {
-        return "c-" + chat.id;
+        return "w-auto self-end p-3 bg-primary text-white rounded-lg rightBubble";
       }
     },
   },
@@ -72,7 +72,7 @@ export default {
   <div v-for="chat in  chats " class="w-auto flex flex-col gap-3 p-3 py-1">
     <div v-if="chat.user == currentUser" class="chat w-auto flex flex-col">
       <div class="w-auto flex flex-col">
-        <div class="w-auto self-end p-3 bg-primary text-white rounded-lg rightBubble" :id="computedSlide(chat)"
+        <div :class="computedSlide(chat)" :id="'c-' + chat.id"
           v-html="chat.text"></div>
       </div>
       <div class="w-auto self-end text-primary text-xs pt-1">{{ getDateString(chat.date) }}
@@ -89,7 +89,7 @@ export default {
 <style lang="scss">
 @import "../../assets/scss/settings.scss";
 
-#slideIn {
+.slideIn {
   animation: 0.5s ease-in-out appear;
 }
 
