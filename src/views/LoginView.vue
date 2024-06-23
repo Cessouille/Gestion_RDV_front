@@ -22,7 +22,7 @@ export default {
             createError: null,
             errField: null,
             formName: "Log In",
-            buttonName: "Connection",
+            buttonName: "Connexion",
             fieldsLog: [
                 new Field("E-mail", "text", "mail"),
                 new Field("Mot de Passe", "password", "password"),
@@ -110,7 +110,7 @@ export default {
                             birthDate: data.date,
                             firstName: data.name,
                             lastName: data.lastname,
-                            role: data.ispro ? "pro" : "user"
+                            role: data.ispro ? 1 : 0
                         }
 
                         try {
@@ -182,7 +182,7 @@ export default {
                     this.userStore.LogOut();
                     this.fields = this.fieldsLog;
                     this.formName = "Log In";
-                    this.buttonName = "Connection";
+                    this.buttonName = "Connexion";
                     this.rdvButtons = this.rdvButtonsStore;
                     $toast.success(`Vous êtes déconnectés`, {
                         position: 'bottom-right',
@@ -205,7 +205,7 @@ export default {
             this.formName = clickedButton.text;
             if (clickedButton.text == "Log In") {
                 this.fields = this.fieldsLog;
-                this.buttonName = "Connection";
+                this.buttonName = "Connexion";
             } else {
                 this.fields = this.fieldsCreate;
                 this.buttonName = "Créer un Compte";

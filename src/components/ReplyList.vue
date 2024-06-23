@@ -11,7 +11,8 @@ export interface ReplyListProps {
 
 const props = defineProps<ReplyListProps>();
 
-const moreReplies = ref(props.nbReplies - props.replies.length);
+const nbMoreReplies = ref(props.replies ? props.nbReplies - props.replies.length : 0);
+const moreReplies = ref(props.replies ? props.nbReplies > props.replies.length : false)
 </script>
 
 <template>
@@ -21,10 +22,10 @@ const moreReplies = ref(props.nbReplies - props.replies.length);
             <p class="text-xs italic">{{ dayjs(reply.datePubli).format("DD/MM/YYYY") }}</p>
         </div>
         <RouterLink :to="`/post/${props.id}`">
-            <i class="px-2 text-sm" v-if="props.nbReplies > props.replies.length">
-                {{ moreReplies > 1
-                    ? `${moreReplies} autres réponses ...`
-                    : `${moreReplies} autre réponse ...` }} <!-- Afficher ... autre(s) réponse(s) ? -->
+            <i class="px-2 text-sm" v-if="moreReplies">
+                {{ nbMoreReplies > 1
+                    ? `${nbMoreReplies} autres réponses ...`
+                    : `${nbMoreReplies} autre réponse ...` }} <!-- Afficher ... autre(s) réponse(s) ? -->
             </i>
         </RouterLink>
     </div>

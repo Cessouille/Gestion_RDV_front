@@ -17,19 +17,23 @@ export const usePostStore = defineStore('post', {
 
         this.posts = data.map(post => ({
           id: post.postId,
+          userId: post.user.userId,
           name: `${post.user.firstName} ${post.user.lastName.toUpperCase()}`,
           datePubli: post.date,
           content: post.text,
           nbLike: post.nbLike,
-          liked: false,
+          liked: null,
           nbReplies: post.totalReplies,
           replies: post.childPosts.map(reply => ({
             id: reply.postId,
+            userId: reply.user.userId,
             name: `${reply.user.firstName} ${reply.user.lastName.toUpperCase()}`,
             datePubli: reply.date,
             content: reply.text,
           })),
         }));
+
+        this.posts.forEach(async post => post.liked = await this.isLiked(post.id));
       } catch (e) {
         console.error(e);
         throw e;
@@ -45,7 +49,7 @@ export const usePostStore = defineStore('post', {
           datePubli: data.date,
           content: data.text,
           nbLike: data.nbLike,
-          liked: false,
+          liked: null,
           nbReplies: data.childPosts.length,
           replies: data.childPosts.map(reply => ({
             id: reply.postId,
@@ -54,6 +58,16 @@ export const usePostStore = defineStore('post', {
             content: reply.text,
           })),
         };
+
+        this.post.liked = await this.isLiked(this.post.id)
+      } catch (e) {
+        console.error(e);
+        throw e;
+      }
+    },
+    async isLiked(id) {
+      try {
+        return await api.get(`LikePosts/exists/${$cookies.get('me').id}/${id}`);
       } catch (e) {
         console.error(e);
         throw e;
@@ -75,7 +89,7 @@ export const usePostStore = defineStore('post', {
         throw e;
       }
     },
-    async addResponse(reply, postId) {
+    async addResponse(reply, id) {
       try {
         await api.post('/Posts', {
           body: {
@@ -83,13 +97,34 @@ export const usePostStore = defineStore('post', {
             date: new Date(),
             type: "text",
             userId: $cookies.get('me').id,
-            parentPostId: postId,
+            parentPostId: id,
           }
         })
       } catch (e) {
         console.error(e);
         throw e;
       }
-    }
+    },
+    async likePost(id) {
+      try {
+        await api.post('LikePosts', {
+          body: {
+            userId: $cookies.get('me').id,
+            postId: id,
+          }
+        })
+      } catch (e) {
+        console.error(e);
+        throw e;
+      }
+    },
+    async unlikePost(id) {
+      try {
+        await api.delete(`LikePosts/${$cookies.get('me').id}/${id}`)
+      } catch (e) {
+        console.error(e);
+        throw e;
+      }
+    },
   },
 });

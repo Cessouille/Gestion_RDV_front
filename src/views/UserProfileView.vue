@@ -18,12 +18,12 @@ onMounted(async () => {
 </script>
 
 <template>
-    <div class="flex px-2 py-3" v-if="doctorStore.doctor">
-        <div class="w-1/2 px-2 pt-4">
+    <div class="px-2 py-3 lg:flex" v-if="doctorStore.doctor">
+        <div class="px-2 pt-4 lg:w-1/2">
             <DoctorProfile :doctor="doctorStore.doctor" />
         </div>
-        <div class="w-1/2 px-2 pt-2">
-            <Reviews :reviews="doctorStore.reviews" />
+        <div class="px-2 pt-4 lg:w-1/2">
+            <Reviews :reviews="doctorStore.reviews" :doctorId="doctorStore.doctor.id" />
         </div>
     </div>
 

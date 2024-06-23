@@ -1,21 +1,5 @@
 <script setup>
 import Navigation from './components/layout/Navigation.vue';
-import { useUserStore } from '@/stores/user';
-
-const userStore = useUserStore();
-
-const test = {
-  name: "Jean MALADE",
-  datePubli: new Date("2024/05/27"),
-  content: "Je suis malade et j’ai mal au ventre mais mon cousin ma proposer des huiles essentiels. Que faire ?",
-  nbComments: 3,
-  nbLike: 50,
-  liked: true
-}
-
-const user = {
-  id: 1,
-}
 </script>
 
 <template>

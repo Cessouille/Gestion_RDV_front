@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { useApiClient } from '../composables/apiClient';
+import { useUserStore } from '@/stores/user';
 
 const api = useApiClient();
 
@@ -7,10 +8,9 @@ export const useDoctorStore = defineStore('doctor', {
     state: () => {
         return {
             doctors: null,
-            specificDoctors: null,
             doctor: null,
-            subscribed: false,
             reviews: null,
+            userStore: useUserStore(),
         }
     },
     actions: {
@@ -42,7 +42,6 @@ export const useDoctorStore = defineStore('doctor', {
         async fetchDoctor(id) {
             try {
                 const data = await api.get(`/Offices/${id}`);
-                this.subscribed = await api.get(`/Subscriptions/${id}/${$cookies.get("me").id}`);
 
                 this.doctor = {
                     id: data.officeId,
@@ -54,8 +53,17 @@ export const useDoctorStore = defineStore('doctor', {
                     prixConsultation: data.prixPCR,
                     telephone: data.telephone,
                     rating: data.rating,
-                    subscribed: this.subscribed,
+                    subscribed: null,
+                    nbSub: data.nbSub,
+                    socials: data.socials.map(social => ({
+                        name: social.platform,
+                        link: social.url,
+                    })),
                 };
+
+                if (this.userStore.isAuthentificated) {
+                    this.doctor.subscribed = await api.get(`/Subscriptions/${$cookies.get("me").id}/${id}`);
+                }
             } catch (e) {
                 console.error(e);
                 throw e;
@@ -70,7 +78,77 @@ export const useDoctorStore = defineStore('doctor', {
                 datePubli: review.date,
                 content: review.description,
                 rate: review.note,
+                thumbed: null,
             }));
+
+            if (this.userStore.isAuthentificated) {
+                this.reviews.forEach(async review => review.thumbed = await this.isThumbed(review.id));
+            }
+        },
+        async isThumbed(id) {
+            try {
+                return await api.get(`LikeReviews/IsLiked/${$cookies.get('me').id}/${id}`);
+            } catch (e) {
+                console.error(e);
+                throw e;
+            }
+        },
+        async thumbUpReview(id) {
+            try {
+                await api.post('LikeReviews', {
+                    body: {
+                        userId: $cookies.get('me').id,
+                        reviewId: id,
+                        isLiked: true,
+                    }
+                });
+            } catch (e) {
+                console.error(e);
+                throw e;
+            }
+        },
+        async thumbDownReview(id) {
+            try {
+                await api.post('LikeReviews', {
+                    body: {
+                        userId: $cookies.get('me').id,
+                        reviewId: id,
+                        isLiked: false,
+                    }
+                });
+            } catch (e) {
+                console.error(e);
+                throw e;
+            }
+        },
+        async removeThumbReview(id) {
+            try {
+                await api.delete(`LikeReviews/${$cookies.get('me').id}/${id}`)
+            } catch (e) {
+                console.error(e);
+                throw e;
+            }
+        },
+        async subscribe(id) {
+            try {
+                await api.post('Subscriptions', {
+                    body: {
+                        userId: $cookies.get('me').id,
+                        officeId: id,
+                    }
+                });
+            } catch (e) {
+                console.error(e);
+                throw e;
+            }
+        },
+        async unsubscribe(id) {
+            try {
+                await api.delete(`Subscriptions/${$cookies.get('me').id}/${id}`)
+            } catch (e) {
+                console.error(e);
+                throw e;
+            }
         },
     },
 });
