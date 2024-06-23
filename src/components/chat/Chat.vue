@@ -69,8 +69,8 @@ export default {
       messages sont chargés</div>
   </button>
   <Loader v-else message="Chargement des messages"></Loader>
-  <div v-for="chat in  chats " class="w-auto flex flex-col gap-3 p-3 py-1">
-    <div v-if="chat.user == currentUser" class="chat w-auto flex flex-col">
+  <div v-for="chat in chats" class="w-auto flex flex-col gap-3 p-3 py-1">
+    <div v-if="chat.user == currentUser" class="w-auto flex flex-col">
       <div class="w-auto flex flex-col">
         <div :class="computedSlide(chat)" :id="'c-' + chat.id"
           v-html="chat.text"></div>
@@ -78,7 +78,7 @@ export default {
       <div class="w-auto self-end text-primary text-xs pt-1">{{ getDateString(chat.date) }}
       </div>
     </div>
-    <div v-else class="chat w-auto flex flex-col h-full">
+    <div v-else class="w-auto flex flex-col h-full">
       <div class="w-auto self-start p-3 bg-secondary text-tertiary rounded-lg leftBubble justify-end"
         :id="'c-' + chat.id" v-html="chat.text"></div>
       <div class="w-auto self-start text-primary text-xs pt-1">{{ chat.user }} · {{ getDateString(chat.date) }}</div>
@@ -91,10 +91,6 @@ export default {
 
 .slideIn {
   animation: 0.5s ease-in-out appear;
-}
-
-.chat {
-  scroll-margin: 100px;
 }
 
 @keyframes appear {
