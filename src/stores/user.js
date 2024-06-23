@@ -5,7 +5,10 @@ const api = useApiClient();
 
 export const useUserStore = defineStore('user', {
   state: () => {
-    return { me: null }
+    return {
+      me: null,
+      appointments: null
+    }
   },
   getters: {
     isAuthentificated() {
@@ -66,8 +69,23 @@ export const useUserStore = defineStore('user', {
       window.dispatchEvent(loggedOutEvent);
       $cookies.remove('me');
     },
-    fetchTimesheet() {
+    async fetchAppointments() {
+      if ($cookies.get('me').role !== 'pro') {
+        return;
+      }
 
+      const data = await api.get(`/RendezVous/16`);
+
+      this.appointments = data.map(rdv => ({
+        id: rdv.rendezVousId,
+        userId: rdv.user.userId,
+        name: `${rdv.user.firstName} ${rdv.user.lastName.toUpperCase()}`,
+        description: rdv.description,
+        startDate: new Date(rdv.startDate),
+        endDate: new Date(rdv.endDate),
+        price: rdv.prix,
+        file: rdv.fichierJoint,
+      }));
     },
     getRole(roleId) {
       switch (roleId) {

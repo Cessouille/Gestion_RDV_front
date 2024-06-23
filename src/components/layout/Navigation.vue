@@ -29,6 +29,7 @@ onMounted(() => {
   window.addEventListener('loggedout::hide', () => { logged.value = false; });
   window.addEventListener('loggedin::hide', () => { logged.value = true; });
 });
+
 onUnmounted(() => {
   window.removeEventListener('loggedout::hide', () => { logged.value = false; });
   window.removeEventListener('loggedin::hide', () => { logged.value = true; });
@@ -50,6 +51,10 @@ onUnmounted(() => {
       <RouterLink to="/historique" class="px-2 plainLink">
         Historique
       </RouterLink>
+      <RouterLink to="/administration" class="px-2 plainLink"
+        v-if="$cookies.get('me') && $cookies.get('me').role === 'pro'">
+        Administration
+      </RouterLink>
     </div>
     <div class="flex items-center space-x-2.5 hover:cursor-pointer" v-if="logged" @click="openMenu = !openMenu">
       <img :src="connectedUser.profilePicture" class="h-[6.5vh] rounded-full">
@@ -57,7 +62,8 @@ onUnmounted(() => {
       <img src="/src/assets/images/arrow_down.png" :class="{ navArrow: true, unfolded: openMenu }">
     </div>
     <div class="flex items-center space-x-2.5" v-else>
-      <RouterLink to="/login" class="flex gap-2 items-center p-2 bg-tertiary rounded-md border-quartiary-400 border" @click="openMenu = false">
+      <RouterLink to="/login" class="flex gap-2 items-center p-2 bg-tertiary rounded-md border-quartiary-400 border"
+        @click="openMenu = false">
         Se connecter
         <span class="material-symbols-rounded"> login </span>
       </RouterLink>
@@ -91,8 +97,8 @@ onUnmounted(() => {
 @import "../../assets/scss/settings.scss";
 
 .router-link-active {
-    color: $quartiary !important;
-    background-color: $primary !important;
+  color: $quartiary !important;
+  background-color: $primary !important;
 
 }
 
