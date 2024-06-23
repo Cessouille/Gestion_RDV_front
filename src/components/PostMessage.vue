@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, defineProps, onMounted } from "vue";
+import { ref, defineProps } from "vue";
 import { useRoute } from 'vue-router';
 import dayjs from "dayjs";
 import { useToast } from 'vue-toast-notification';
@@ -54,7 +54,7 @@ async function newAnswer() {
             duration: 3000,
         });
     } catch (error) {
-        $toast.error('Erreur lors de l\'ajout de la réponse.', {
+        $toast.error('Erreur lors de l\'ajout du post.', {
             position: 'top',
             duration: 3000,
         });
@@ -67,9 +67,9 @@ async function newAnswer() {
         <div class="flex justify-between text-primary text-sm">
             <h3>
                 {{
-                    props.post.name += (props.post.name == $cookies.get("me").name
-                        ? ' (moi)'
-                        : '')
+                    props.post.userId == $cookies.get("me").id
+                        ? `${props.post.name} (moi)`
+                        : props.post.name
                 }}
             </h3>
             <h3>{{ dayjs(props.post.datePubli).format("DD/MM/YYYY") }}</h3>

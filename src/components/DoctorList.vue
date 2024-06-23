@@ -62,7 +62,7 @@ const doctors = computed(() => {
                 </div>
             </div>
             <div class="flex flex-wrap flex-row">
-                <RouterLink :to="`/user/${doctor.id}`"
+                <RouterLink :to="`/doctor/${doctor.id}`"
                     class="bg-secondary border-[3px] border-primary rounded-lg p-2 m-2 w-3/12 flex-auto"
                     v-for="doctor in groupDoctor.doctors" :key="doctor.id">
                     <div class="flex">

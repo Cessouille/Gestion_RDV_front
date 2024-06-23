@@ -17,6 +17,7 @@ export const usePostStore = defineStore('post', {
 
         this.posts = data.map(post => ({
           id: post.postId,
+          userId: post.user.userId,
           name: `${post.user.firstName} ${post.user.lastName.toUpperCase()}`,
           datePubli: post.date,
           content: post.text,
@@ -25,6 +26,7 @@ export const usePostStore = defineStore('post', {
           nbReplies: post.totalReplies,
           replies: post.childPosts.map(reply => ({
             id: reply.postId,
+            userId: reply.user.userId,
             name: `${reply.user.firstName} ${reply.user.lastName.toUpperCase()}`,
             datePubli: reply.date,
             content: reply.text,

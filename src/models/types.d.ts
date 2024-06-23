@@ -18,21 +18,25 @@ interface User {
 }
 
 interface Reply {
-    id: number,
-    name: string,
-    content: string,
-    datePubli: Date,
+    id: number;
+    userId: number;
+    name: string;
+    content: string;
+    datePubli: Date;
 }
 
 interface Profile {
+    id: number;
     firstname: string;
     lastname: string;
     fullname: string;
     profilePicture: string;
+    role: string;
 }
 
 interface Post {
     id?: number;
+    userId: number;
     name: string;
     datePubli: Date;
     content: string;
