@@ -19,7 +19,10 @@ var chatError = ref(false);
 var conversations = ref(false);
 var sending = ref(false);
 var lastTime = ref(null);
-var intervalId = ref(null)
+var intervalId = ref(null);
+var currentMsgPage = ref(0);
+var messageNumber = ref(0);
+var allOlderLoaded = ref(false);
 
 var currentConversation = ref(false);
 
@@ -48,9 +51,10 @@ async function LoadChats() {
     error.value = convStore.error;
     chatError.value = true;
   } else {
-      currentConversation.value = convStore.conversations[0];
-      conversations.value = convStore.conversations;
+    currentConversation.value = convStore.conversations[0];
+    conversations.value = convStore.conversations;
     if (convStore.conversations.length > 0) {
+      currentMsgPage.value = 0;
       await loadMessages(currentUser.value.id, currentConversation.value.conversationId);
     }
   }
@@ -61,14 +65,40 @@ async function loadMessages(userId, convId) {
   chatError.value = false;
   textChats.value = false;
   try {
-    await convStore.fetchConversationMessages(userId, convId);
+    await convStore.fetchPaginatedMessages(userId, convId, 0);
+    if (convStore.messages.length < 10) {
+      allOlderLoaded.value = true;
+    }
     textChats.value = convStore.messages.map((msg => {
-      return { user: msg.user ? msg.user.firstName + ' ' + msg.user.lastName.toUpperCase() : 'Utilisateur ' + msg.userId, date: msg.created, text: msg.text.replace(/\n/g, '<br />') };
+      return { user: msg.user ? msg.user.firstName + ' ' + msg.user.lastName.toUpperCase() : 'Utilisateur ' + msg.userId, date: msg.created, text: msg.text.replace(/\n/g, '<br />'), id: messageNumber.value++ };
     }));
     lastTime.value = textChats.value[textChats.value.length - 1].date;
     intervalId.value = setInterval(function () {
       getNewMessages(currentUser.value.id, currentConversation.value.conversationId);
     }, 1000);
+  } catch (error) {
+    console.log(error)
+    chatError.value = true;
+    textChats.value = false;
+  }
+  return;
+}
+
+async function loadOlderMessages(userId, convId) {
+  chatError.value = false;
+  try {
+    await convStore.fetchPaginatedMessages(userId, convId, currentMsgPage.value + 1);
+    currentMsgPage.value++;
+    if (convStore.messages.length < 10) {
+      allOlderLoaded.value = true;
+    }
+    var olderChats = convStore.messages.map((msg => {
+      return { user: msg.user ? msg.user.firstName + ' ' + msg.user.lastName.toUpperCase() : 'Utilisateur ' + msg.userId, date: msg.created, text: msg.text.replace(/\n/g, '<br />'), id: messageNumber.value++ };
+    }));
+    olderChats.forEach(msg => {
+      textChats.value.unshift(msg);
+    });
+    lastTime.value = textChats.value[textChats.value.length - 1].date;
   } catch (error) {
     console.log(error)
     chatError.value = true;
@@ -84,7 +114,7 @@ async function getNewMessages(userId, convId, fromSubmit = false) {
       var lastChatIndex = textChats.value.findIndex(msg => msg.date == lastTime.value);
       await convStore.fetchNewMessages(userId, convId, textChats.value[lastChatIndex].date);
       var newMessages = convStore.messages.map((msg => {
-        return { user: msg.user ? msg.user.firstName + ' ' + msg.user.lastName.toUpperCase() : 'Utilisateur ' + msg.userId, date: msg.created, text: msg.text.replace(/\n/g, '<br />') };
+        return { user: msg.user ? msg.user.firstName + ' ' + msg.user.lastName.toUpperCase() : 'Utilisateur ' + msg.userId, date: msg.created, text: msg.text.replace(/\n/g, '<br />'), id: messageNumber.value++ };
       }));
       if (fromSubmit) {
         newMessages[newMessages.length - 1].justSent = true;
@@ -104,6 +134,7 @@ async function getNewMessages(userId, convId, fromSubmit = false) {
   }
   return;
 }
+
 async function sendMsg() {
   if (currentConversation.value) {
     var message = document.querySelector("#messageBox").innerText;
@@ -124,7 +155,9 @@ async function sendMsg() {
 function stopBadLines(e) {
   e.preventDefault();
 }
+
 async function switchChat(e) {
+  allOlderLoaded.value = false;
   var chats = document.querySelectorAll(".chatName");
   chats.forEach(chat => {
     if (chat.id != e.target.id) {
@@ -179,7 +212,8 @@ async function switchChat(e) {
         </div>
         <div v-else-if="textChats" id="chatScroll"
           class="scrollwindow flex align-self-center flex-col h-full overflow-scroll overflow-x-hidden bg-quartiary">
-          <Chat :chats="textChats" :currentUser="currentUser.fullname"></Chat>
+          <Chat @loadMore="loadOlderMessages(currentUser.id, currentConversation.conversationId)" :chats="textChats"
+            :currentUser="currentUser.fullname" :currentPage="currentMsgPage" :allLoaded="allOlderLoaded"></Chat>
         </div>
         <div v-else-if="conversations.length > 0" class="bg-quartiary">
           <Loader message="Chargement des messages"></Loader>
@@ -308,4 +342,5 @@ async function switchChat(e) {
   background-color: $primary;
   color: $quartiary;
 }
+
 </style>

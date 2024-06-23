@@ -30,6 +30,18 @@ export const useConversationStore = defineStore('conversation', {
                 throw e;
             }
         },
+        async fetchPaginatedMessages(userid, convId, page) {
+            try {
+                var result = await api.get('/Messages/messagesPaged/' + convId + '/' + userid + '/?pageIndex=' + page + '&pageSize=10');
+                this.messages = result.reverse();
+                this.msgError = null;
+                return;
+            } catch (e) {
+                console.error(e);
+                this.msgError = e;
+                throw e;
+            }
+        },
         async fetchNewMessages(userid, convId, time) {
             try {
                 var result = await api.get('/Messages/newMessages/' + convId + '/' + userid + '/?since=' + time);
