@@ -65,7 +65,7 @@ export default {
     class="bg-quartiary border-secondary border-solid border-2 text-tertiary p-2 rounded w-fit my-[10px] mx-[auto]">
     <div v-if="!allLoaded" class="flex justify-center gap-2"><span
         class="material-symbols-rounded fill">refresh</span>Charger plus de messages</div>
-    <div v-else class="flex justify-center gap-2"><span class="material-symbols-rounded fill">check</span>Tout les
+    <div v-else class="flex justify-center gap-2"><span class="material-symbols-rounded fill">check</span>Tous les
       messages sont chargés</div>
   </button>
   <Loader v-else message="Chargement des messages"></Loader>
