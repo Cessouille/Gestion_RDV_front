@@ -19,6 +19,13 @@ export default {
   },
   emits: ['loadMore'],
   methods: {
+    getDateString(date) {
+      if (new Date().toDateString() === new Date(date).toDateString()) {
+        return new Date(date).toLocaleTimeString();
+      } else {
+        return new Date(date).toLocaleDateString();
+      }
+    },
     fetchingMore() {
       if (!this.allLoaded) {
         this.dontScroll = true;
@@ -43,9 +50,9 @@ export default {
       document.querySelector("#chatScroll").scrollTop = document.querySelector("#chatScroll").scrollHeight;
     } else if (document.getElementById("c-" + (this.currentPage - 1) * 10)) {
       if (this.currentPage == 1) {
-        document.getElementById("c-0").scrollIntoView();
+        document.getElementById("c-0").scrollIntoView({ offset: { top: -100 } });
       } else {
-        document.getElementById("c-" + (((this.currentPage - 1) * 10) + 9)).scrollIntoView();
+        document.getElementById("c-" + (((this.currentPage - 1) * 10) + 9)).scrollIntoView({ offset: { top: -100 } });
       }
     }
     this.loadingMore = false;
@@ -63,19 +70,18 @@ export default {
   </button>
   <Loader v-else message="Chargement des messages"></Loader>
   <div v-for="chat in  chats " class="w-auto flex flex-col gap-3 p-3 py-1">
-    <div v-if="chat.user == currentUser" class="w-auto flex flex-col">
+    <div v-if="chat.user == currentUser" class="chat w-auto flex flex-col">
       <div class="w-auto flex flex-col">
         <div class="w-auto self-end p-3 bg-primary text-white rounded-lg rightBubble" :id="computedSlide(chat)"
           v-html="chat.text"></div>
       </div>
-      <div class="w-auto self-end text-primary text-xs pt-1">{{ new Date(chat.date).toLocaleTimeString() }}
+      <div class="w-auto self-end text-primary text-xs pt-1">{{ getDateString(chat.date) }}
       </div>
     </div>
-    <div v-else class="w-auto flex flex-col h-full">
+    <div v-else class="chat w-auto flex flex-col h-full">
       <div class="w-auto self-start p-3 bg-secondary text-tertiary rounded-lg leftBubble justify-end"
         :id="'c-' + chat.id" v-html="chat.text"></div>
-      <div class="w-auto self-start text-primary text-xs pt-1">{{ chat.user }} · {{ new
-    Date(chat.date).toLocaleTimeString() }}</div>
+      <div class="w-auto self-start text-primary text-xs pt-1">{{ chat.user }} · {{ getDateString(chat.date) }}</div>
     </div>
   </div>
 </template>
@@ -85,6 +91,10 @@ export default {
 
 #slideIn {
   animation: 0.5s ease-in-out appear;
+}
+
+.chat {
+  scroll-margin: 100px;
 }
 
 @keyframes appear {

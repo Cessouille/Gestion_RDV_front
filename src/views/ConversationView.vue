@@ -26,21 +26,19 @@ var allOlderLoaded = ref(false);
 
 var currentConversation = ref(false);
 
+var firstTime = ref(null);
+var nothingToShow = ref(true);
+
 function showConvNames(users) {
-  if (users.length > 2) {
-    var userString = "";
-    users.forEach(function callback(value, index) {
-      var fullname = value.firstName + ' ' + value.lastName.toUpperCase();
-      userString += fullname + (fullname != currentUser.value.fullname ? "" : " (Vous)");
-      if (index < users.length - 1) {
-        userString += ", ";
-      }
-    });
-    return userString;
-  } else {
-    var name = users.find(u => u.userId != currentUser.value.id);
-    return name;
-  }
+  var userString = "";
+  users.forEach(function callback(value, index) {
+    var fullname = value.firstName + ' ' + value.lastName.toUpperCase();
+    userString += fullname + (fullname != currentUser.value.fullname ? "" : " (Vous)");
+    if (index < users.length - 1) {
+      userString += ", ";
+    }
+  });
+  return userString;
 }
 
 async function LoadChats() {
@@ -61,7 +59,7 @@ async function LoadChats() {
   return;
 }
 
-async function loadMessages(userId, convId) {
+async function loadMessages(userId, convId, relaunch = true) {
   chatError.value = false;
   textChats.value = false;
   try {
@@ -72,10 +70,15 @@ async function loadMessages(userId, convId) {
     textChats.value = convStore.messages.map((msg => {
       return { user: msg.user ? msg.user.firstName + ' ' + msg.user.lastName.toUpperCase() : 'Utilisateur ' + msg.userId, date: msg.created, text: msg.text.replace(/\n/g, '<br />'), id: messageNumber.value++ };
     }));
-    lastTime.value = textChats.value[textChats.value.length - 1].date;
-    intervalId.value = setInterval(function () {
-      getNewMessages(currentUser.value.id, currentConversation.value.conversationId);
-    }, 1000);
+    if (convStore.messages.length > 0) {
+      lastTime.value = textChats.value[textChats.value.length - 1].date;
+      firstTime.value = lastTime.value;
+    }
+    if (relaunch) {
+      intervalId.value = setInterval(function () {
+        getNewMessages(currentUser.value.id, currentConversation.value.conversationId);
+      }, 1000);
+    }
   } catch (error) {
     console.log(error)
     chatError.value = true;
@@ -87,7 +90,7 @@ async function loadMessages(userId, convId) {
 async function loadOlderMessages(userId, convId) {
   chatError.value = false;
   try {
-    await convStore.fetchPaginatedMessages(userId, convId, currentMsgPage.value + 1);
+    await convStore.fetchPaginatedMessages(userId, convId, currentMsgPage.value + 1, firstTime.value);
     currentMsgPage.value++;
     if (convStore.messages.length < 10) {
       allOlderLoaded.value = true;
@@ -110,7 +113,7 @@ async function loadOlderMessages(userId, convId) {
 async function getNewMessages(userId, convId, fromSubmit = false) {
   chatError.value = false;
   try {
-    if (textChats.value) {
+    if (textChats.value.length > 0) {
       var lastChatIndex = textChats.value.findIndex(msg => msg.date == lastTime.value);
       await convStore.fetchNewMessages(userId, convId, textChats.value[lastChatIndex].date);
       var newMessages = convStore.messages.map((msg => {
@@ -122,12 +125,16 @@ async function getNewMessages(userId, convId, fromSubmit = false) {
       newMessages.forEach(element => {
         textChats.value.push(element)
       });
-      lastTime.value = textChats.value[textChats.value.length - 1].date;
+      if (textChats.value.length > 0) {
+        lastTime.value = textChats.value[textChats.value.length - 1].date;
+      }
     } else {
-      throw "No chats to load";
+      clearInterval(intervalId.value);
+      await loadMessages(currentUser.value.id, currentConversation.value.conversationId, false);
     }
     return;
   } catch (error) {
+    console.log(error)
     clearInterval(intervalId.value);
     chatError.value = true;
     textChats.value = false;
@@ -136,20 +143,27 @@ async function getNewMessages(userId, convId, fromSubmit = false) {
 }
 
 async function sendMsg() {
-  if (currentConversation.value) {
-    var message = document.querySelector("#messageBox").innerText;
-    if (message) {
-      sending.value = true;
-      try {
-        lastTime.value = textChats.value[textChats.value.length - 1].date;
-        await convStore.sendMessage(currentUser.value.id, currentConversation.value.conversationId, message);
-        await getNewMessages(currentUser.value.id, currentConversation.value.conversationId, true);
-        sending.value = false
-      } catch (error) {
-        chatError.value = true;
+  try {
+    console.log(currentConversation.value)
+    if (currentConversation.value) {
+      var message = document.querySelector("#messageBox").innerText;
+      if (message) {
+        sending.value = true;
+        try {
+          if(textChats.value.length > 0) {
+            lastTime.value = textChats.value[textChats.value.length - 1].date;
+          }
+          await convStore.sendMessage(currentUser.value.id, currentConversation.value.conversationId, message);
+          await getNewMessages(currentUser.value.id, currentConversation.value.conversationId, true);
+          sending.value = false
+        } catch (error) {
+          chatError.value = true;
+        }
+        document.querySelector("#messageBox").innerText = "";
       }
-      document.querySelector("#messageBox").innerText = "";
     }
+  } catch (e) {
+    console.log(e)
   }
 }
 function stopBadLines(e) {
@@ -158,6 +172,8 @@ function stopBadLines(e) {
 
 async function switchChat(e) {
   allOlderLoaded.value = false;
+  currentMsgPage.value = 0;
+  messageNumber.value = 0;
   var chats = document.querySelectorAll(".chatName");
   chats.forEach(chat => {
     if (chat.id != e.target.id) {
@@ -188,7 +204,7 @@ async function switchChat(e) {
           :id="'c' + conv.conversationId"
           :class="{ chatName: true, currentChat: currentConversation.conversationId == conv.conversationId }"
           v-on:click="switchChat">{{
-      conv.conversationName }}
+      conv.name }}
         </div>
         <div v-else-if="conversations.length == 0" class="flex justify-center text-primary text-xs text-center">
           Vous n'êtes dans aucune conversations.
@@ -198,8 +214,8 @@ async function switchChat(e) {
         </div>
       </div>
       <div class="chat h-[90vh]">
-        <div v-if="currentConversation" id="chatName">{{ currentConversation.conversationName }}
-          <div class="text-xs text-primary" v-if="currentConversation.users.length > 2">{{
+        <div v-if="currentConversation" id="chatName">{{ currentConversation.name }}
+          <div class="text-xs text-primary">{{
       showConvNames(currentConversation.users) }}</div>
         </div>
         <div v-else id="chatName">Chat</div>
@@ -210,12 +226,12 @@ async function switchChat(e) {
             class="flex justify-center gap-2 bg-secondary text-tertiary p-2 rounded w-fit m-0-auto"><span
               class="material-symbols-rounded fill">refresh</span>Recharger</button>
         </div>
-        <div v-else-if="textChats" id="chatScroll"
+        <div v-else-if="textChats.length > 0" id="chatScroll"
           class="scrollwindow flex align-self-center flex-col h-full overflow-scroll overflow-x-hidden bg-quartiary">
           <Chat @loadMore="loadOlderMessages(currentUser.id, currentConversation.conversationId)" :chats="textChats"
             :currentUser="currentUser.fullname" :currentPage="currentMsgPage" :allLoaded="allOlderLoaded"></Chat>
         </div>
-        <div v-else-if="conversations.length > 0" class="bg-quartiary">
+        <div v-else-if="conversations.length > 0 || !nothingToShow" class="bg-quartiary">
           <Loader message="Chargement des messages"></Loader>
         </div>
         <div v-else class="bg-quartiary">
@@ -342,5 +358,4 @@ async function switchChat(e) {
   background-color: $primary;
   color: $quartiary;
 }
-
 </style>

@@ -34,6 +34,7 @@ export default {
                 new Field("Date de naissance", "date", "date"),
                 new Field("Mot de Passe", "password", "mdpcreate"),
                 new Field("Confirmer", "password", "mdpconf"),
+                new Field("Sexe", "select", "sex", ["Homme", "Femme", "Autre"]),
                 new Field("Professionnel", "checkbox", "ispro"),
             ],
             fields: this.fieldsLog,
@@ -76,6 +77,7 @@ export default {
             this.createError = null;
             switch (data.title) {
                 case "Sign Up":
+                    console.log(data)
                     var mailCheck = emailReg.test(data.mail);
                     if (!mailCheck) {
                         this.createError = "Erreur de format d'adresse mail.";
@@ -97,6 +99,9 @@ export default {
                     } else if (data.mdpcreate != data.mdpconf) {
                         this.createError = "Confirmation du mot de passe incorrecte.";
                         this.errField = "mdpconf";
+                    } else if (!data.sex) {
+                        this.createError = "Le sexe doit être renseigné.";
+                        this.errField = "sex";
                     } else {
                         this.submitMessage = "Création du compte";
                         this.formLoading = true;
@@ -110,7 +115,8 @@ export default {
                             birthDate: data.date,
                             firstName: data.name,
                             lastName: data.lastname,
-                            role: data.ispro ? 1 : 0
+                            role: data.ispro ? 1 : 0,
+                            sexe: data.sex == 'Autre' ? 'Other' : data.sex == 'Femme' ? 'Femmale ': 'Male',
                         }
 
                         try {

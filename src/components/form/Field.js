@@ -3,7 +3,7 @@ class Field {
         this.title = title;
         this.type = type;
         this.ref = ref;
-        if (type == "choice") {
+        if (type == "choice" || type == "select") {
             this.values = values;
         }
     }

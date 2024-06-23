@@ -30,10 +30,14 @@ export const useConversationStore = defineStore('conversation', {
                 throw e;
             }
         },
-        async fetchPaginatedMessages(userid, convId, page) {
+        async fetchPaginatedMessages(userid, convId, page, time = null) {
             try {
-                var result = await api.get('/Messages/messagesPaged/' + convId + '/' + userid + '/?pageIndex=' + page + '&pageSize=10');
-                this.messages = result.reverse();
+                var result = await api.get('/Messages/messagesPaged/' + convId + '/' + userid + '/?pageIndex=' + page + '&pageSize=10' + (time ? ('&beforeDate=' + time) : ''));
+                if(time) {
+                    this.messages = result;
+                } else {
+                    this.messages = result.reverse();
+                }
                 this.msgError = null;
                 return;
             } catch (e) {

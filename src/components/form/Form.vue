@@ -19,7 +19,7 @@ export default {
       passScore: 0,
     };
   },
-  emits: ['submit','choiceButton'],
+  emits: ['submit', 'choiceButton'],
   methods: {
     strengthChecker(event) {
       var pass = event.target.value;
@@ -57,13 +57,19 @@ export default {
         <button v-for="button in buttons" @click="submit(button.callback)"
           :class="{ choiceButton: true, selectedChoice: button.selected }">{{ button.text }}</button>
       </div>
-      <div v-for="field in fields" class="formLine">
+      <div v-for="field in  fields " class="formLine">
         <template v-if="field.type != 'info'">
           <div class="inputTitle">{{ field.title }} :</div>
           <input v-if="field.ref == 'mdpcreate'" @keyup="strengthChecker" v-model="form[field.ref]" :type=field.type
             class="inputBox"></input>
+          <select v-else-if="field.type == 'select'" :name="field.title"
+            :class="{ inputBox: true, erroredLine: errLine == field.ref }" v-model="form[field.ref]">
+            <option selected disabled value>Choisir une option</option>
+            <option v-if="field.type == 'select'" v-for=" option  in  field.values ">{{ option }}</option>
+          </select>
           <input v-else v-model="form[field.ref]" :type=field.type
             :class="{ inputBox: true, erroredLine: errLine == field.ref }"></input>
+
           <div v-if="field.ref == 'mdpcreate' && form['mdpcreate'] != null && form['mdpcreate'] != ''" id="passRow">
             <div>Sécurité : </div>
             <div class="strengthBar"
@@ -81,6 +87,7 @@ export default {
             <div class="strengthBar" :style="[passScore >= 4 ? 'background-color: green' : '']"></div>
           </div>
         </template>
+
         <template v-else>
           <div class="inputTitle">{{ field.title }} :</div>
           <div class="infoText">{{ field.ref }}</div>
@@ -88,7 +95,9 @@ export default {
       </div>
     </div>
     <div id="formAction">
-      <div v-if="loading" class="reply"> <Loader colColor="quartiary"></Loader> </div>
+      <div v-if="loading" class="reply">
+        <Loader colColor="quartiary"></Loader>
+      </div>
       <button v-else @click="submit(null)" class="reply">{{ buttonName }}</button>
     </div>
   </div>
