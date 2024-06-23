@@ -7,6 +7,11 @@ export const useUserStore = defineStore('user', {
   state: () => {
     return { me: null }
   },
+  getters: {
+    isAuthentificated() {
+      return $cookies.get('me') !== null;
+    }
+  },
   actions: {
     getMe() {
       try {
@@ -43,8 +48,10 @@ export const useUserStore = defineStore('user', {
           firstname: response.userDetails.firstName,
           lastname: response.userDetails.lastName,
           fullname: response.userDetails.firstName + ' ' + response.userDetails.lastName.toUpperCase(),
-          profilePicture: response.userDetails.avatar,
+          profilePicture: response.userDetails.avatar ? response.userDetails.avatar : '/src/assets/images/avatar.png',
+          role: this.getRole(response.userDetails.role),
         }
+
         $cookies.set('me', this.me, '1d');
         $cookies.set('token', response.token, '1d');
         const loggedInEvent = new CustomEvent('loggedin::hide');
@@ -59,8 +66,20 @@ export const useUserStore = defineStore('user', {
       window.dispatchEvent(loggedOutEvent);
       $cookies.remove('me');
     },
-    isAuthentificated() {
-      return $cookies.get('me') !== null;
-    }
+    fetchTimesheet() {
+
+    },
+    getRole(roleId) {
+      switch (roleId) {
+        case 0:
+          return 'user';
+        case 1:
+          return 'pro';
+        case 2:
+          return 'admin';
+        default:
+          throw 'Erreur';
+      }
+    },
   },
 });

@@ -40,7 +40,7 @@ async function changeSubscribe(doctor: Doctor) {
 <template>
     <div class="bg-secondary border-[3px] border-primary rounded-lg p-2 w-full" v-if="props.doctor">
         <div class="flex">
-            <img :src="props.doctor.avatar" class="border-2 border-primary rounded-lg mr-2 mb-2 w-[10%]" />
+            <img :src="props.doctor.avatar" class="border-2 border-primary rounded-lg mr-2 mb-2 w-16" />
             <div>
                 <div class="flex items-center">
                     <h3 class="text-tertiary font-bold text-lg mr-2">{{ props.doctor.name }}</h3>

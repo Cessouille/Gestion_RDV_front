@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { useApiClient } from '../composables/apiClient';
+import { useUserStore } from '@/stores/user';
 
 const api = useApiClient();
 
@@ -7,9 +8,9 @@ export const useDoctorStore = defineStore('doctor', {
     state: () => {
         return {
             doctors: null,
-            specificDoctors: null,
             doctor: null,
             reviews: null,
+            userStore: useUserStore(),
         }
     },
     actions: {
@@ -60,7 +61,9 @@ export const useDoctorStore = defineStore('doctor', {
                     })),
                 };
 
-                this.doctor.subscribed = await api.get(`/Subscriptions/${$cookies.get("me").id}/${id}`);
+                if (this.userStore.isAuthentificated) {
+                    this.doctor.subscribed = await api.get(`/Subscriptions/${$cookies.get("me").id}/${id}`);
+                }
             } catch (e) {
                 console.error(e);
                 throw e;
@@ -78,7 +81,9 @@ export const useDoctorStore = defineStore('doctor', {
                 thumbed: null,
             }));
 
-            this.reviews.forEach(async review => review.thumbed = await this.isThumbed(review.id));
+            if (this.userStore.isAuthentificated) {
+                this.reviews.forEach(async review => review.thumbed = await this.isThumbed(review.id));
+            }
         },
         async isThumbed(id) {
             try {
@@ -88,7 +93,7 @@ export const useDoctorStore = defineStore('doctor', {
                 throw e;
             }
         },
-        async thumbUp(id) {
+        async thumbUpReview(id) {
             try {
                 await api.post('LikeReviews', {
                     body: {
@@ -102,7 +107,7 @@ export const useDoctorStore = defineStore('doctor', {
                 throw e;
             }
         },
-        async thumbDown(id) {
+        async thumbDownReview(id) {
             try {
                 await api.post('LikeReviews', {
                     body: {
@@ -116,7 +121,7 @@ export const useDoctorStore = defineStore('doctor', {
                 throw e;
             }
         },
-        async removeThumb(id) {
+        async removeThumbReview(id) {
             try {
                 await api.delete(`LikeReviews/${$cookies.get('me').id}/${id}`)
             } catch (e) {
