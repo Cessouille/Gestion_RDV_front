@@ -1,5 +1,6 @@
 <script>
 import Loader from '../loader/Loader.vue';
+import Multiselect from 'vue-multiselect'
 export default {
   props: {
     fields: Array,
@@ -11,7 +12,8 @@ export default {
     loading: Boolean,
   },
   components: {
-    Loader
+    Loader,
+    Multiselect
   },
   data() {
     return {
@@ -63,10 +65,14 @@ export default {
           <input v-if="field.ref == 'mdpcreate'" @keyup="strengthChecker" v-model="form[field.ref]" :type=field.type
             class="inputBox"></input>
           <select v-else-if="field.type == 'select'" :name="field.title"
-            :class="{ inputBox: true, erroredLine: errLine == field.ref }" v-model="form[field.ref]">
+            :class="{ inputBox: true, erroredLine: errLine == field.ref }" v-model="form[field.ref]"
+            :multiple="field.type == 'select-m'">
             <option selected disabled value>Choisir une option</option>
             <option v-if="field.type == 'select'" v-for=" option  in  field.values ">{{ option }}</option>
           </select>
+          <Multiselect v-else-if="field.type == 'select-m'"
+            :class="{ inputBox: true, erroredLine: errLine == field.ref }" v-model="form[field.ref]" multiple
+            :options="field.values" group-values="doctors" group-label="name" track-by="id" label="name"></Multiselect>
           <input v-else v-model="form[field.ref]" :type=field.type
             :class="{ inputBox: true, erroredLine: errLine == field.ref }"></input>
 
@@ -105,6 +111,27 @@ export default {
 
 <style lang="scss">
 @import "../../assets/scss/settings.scss";
+@import "../../../node_modules/vue-multiselect/dist/vue-multiselect.css";
+
+// MultiSelect Re Skin
+.multiselect__tags {
+  background-color: $quartiary;
+}
+
+.multiselect__tag {
+  background: $primary;
+}
+
+.multiselect__option--highlight::after,
+.multiselect__option--selected::after,
+.multiselect__option--selected.multiselect__option--highlight::after,
+.multiselect__option--group-selected.multiselect__option--highlight::after {
+  content: "";
+}
+
+.multiselect__option--highlight {
+  background: $primary;
+}
 
 #formBubble {
   background-color: $secondary;
