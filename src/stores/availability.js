@@ -5,10 +5,10 @@ const api = useApiClient();
 
 export const useAvailabilityStore = defineStore('availability', {
     state: () => {
-        return { 
+        return {
             availabilities: [],
             availability: null
-         }
+        }
     },
     actions: {
         async fetchAvailabilities(idOffice) {
@@ -24,7 +24,7 @@ export const useAvailabilityStore = defineStore('availability', {
                         const minutes = date.getMinutes();
                         return `${hours}:${minutes.toString().padStart(2, '0')}`;
                     };
-                    
+
                     const formatDate = date => {
                         const year = date.getFullYear();
                         const month = (date.getMonth() + 1).toString().padStart(2, '0');
@@ -54,6 +54,16 @@ export const useAvailabilityStore = defineStore('availability', {
                     startDate: data.startDate,
                     endDate: data.endDate,
                 }
+            } catch (e) {
+                console.error(e);
+                throw e;
+            }
+        },
+        async add(availability) {
+            try {
+                await api.post('/Availabilities', {
+                    body: availability,
+                });
             } catch (e) {
                 console.error(e);
                 throw e;
