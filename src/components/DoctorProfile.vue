@@ -93,25 +93,8 @@ async function changeSubscribe(doctor: Doctor) {
                 <span class="font-semibold">Note :</span> {{ props.doctor.rating }}
             </p>
         </div>
-        <!-- <div class="flex text-primary text-sm">
-            <p class="mr-2">
-                <span class="font-semibold">Disponibilité :</span>
-            </p>
-            <div v-if="seeAll">
-                <p v-for="dispo in user.disponibilites.slice(0, 2)">
-                    {{ dispo.date }}, {{ dispo.debut }}h - {{ dispo.fin }}h
-                </p>
-                <p class="text-xs italic hover:cursor-pointer" @click="seeAll = false">Voir plus</p>
-            </div>
-            <div v-else>
-                <p v-for="dispo in user.disponibilites">
-                    {{ dispo.date }}, {{ dispo.debut }}h - {{ dispo.fin }}h
-                </p>
-                <p class="text-xs italic hover:cursor-pointer" @click="seeAll = true">Voir moins</p>
-            </div>
-        </div> -->
         <div class="flex">
-            <RouterLink :to="`/doctor/${props.doctor.id}/appointement`"
+            <RouterLink :to="`/doctor/${props.doctor.id}/appointment`"
                 class="bg-tertiary text-white text-center font-bold py-2 px-3 rounded-lg ml-auto text-sm my-1.5 transition-colors duration-300 hover:cursor-pointer hover:bg-primary">
                 Prendre rendez-vous
             </RouterLink>

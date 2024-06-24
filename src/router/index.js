@@ -52,8 +52,8 @@ const router = createRouter({
       component: UserView,
     },
     {
-      path: "/doctor/:id/appointement",
-      name: "appointement",
+      path: "/doctor/:id/appointment",
+      name: "appointment",
       component: AppointmentView
     },
     {
