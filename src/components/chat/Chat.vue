@@ -36,6 +36,7 @@ export default {
     },
     computedSlide(chat) {
       if (chat.justSent) {
+        setTimeout(() => { this.chats[this.chats.findIndex(c => c == chat)].justSent = false; }, 1000);
         return "w-auto self-end p-3 bg-primary text-white rounded-lg rightBubble slideIn";
       } else {
         return "w-auto self-end p-3 bg-primary text-white rounded-lg rightBubble";
@@ -46,7 +47,7 @@ export default {
     document.querySelector("#chatScroll").scrollTop = document.querySelector("#chatScroll").scrollHeight;
   },
   updated() {
-    if (!this.dontScroll) {
+    if (!this.dontScroll || this.chats.find(c => c.justSent)) {
       document.querySelector("#chatScroll").scrollTop = document.querySelector("#chatScroll").scrollHeight;
     } else if (document.getElementById("c-" + (this.currentPage - 1) * 10)) {
       if (this.currentPage == 1) {
