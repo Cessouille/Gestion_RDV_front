@@ -69,6 +69,15 @@ export const useDoctorStore = defineStore('doctor', {
                 throw e;
             }
         },
+        async fetchDoctorStats(id) {
+            try {
+                const data = await api.get(`/Offices/DataOffice/${id}`);
+                return data;
+            } catch (e) {
+                console.error(e);
+                throw e;
+            }
+        },
         async getDoctorUserId(id) {
             try {
                 const data = await api.get(`/Offices/${id}`);
