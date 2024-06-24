@@ -6,7 +6,7 @@ const api = useApiClient();
 export const useAvailabilityStore = defineStore('availability', {
     state: () => {
         return {
-            availabilities: [],
+            availabilities: null,
             availability: null
         }
     },

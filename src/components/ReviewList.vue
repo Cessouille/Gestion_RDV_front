@@ -54,6 +54,5 @@ async function toggleThumb(review: Review, thumbUp: boolean) {
         <div v-else>
             <Loader message="Chargement des reviews" class="pt-16" />
         </div>
-
     </div>
 </template>

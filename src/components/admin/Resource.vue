@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue';
 import dayjs from 'dayjs';
 import { useToast } from 'vue-toast-notification';
 import { useResourceStore } from '@/stores/resource';
+import Loader from '../loader/Loader.vue';
 
 const $toast = useToast();
 const resourceStore = useResourceStore();
@@ -28,14 +29,14 @@ async function newResource() {
         }
 
         const newResource = {
+            equipmentId: null,
             officeId: $cookies.get('me').officeId,
-            name: resource.value.name,
-            lastUpdate: resource.value.lastUpdate,
-            nextUpdate: resource.value.nextUpdate,
-            state: resource.value.state,
+            lastUpdate: new Date(resource.value.lastUpdate),
+            futureUpdate: new Date(resource.value.nextUpdate),
+            etat: resource.value.state,
         };
 
-        await resourceStore.add(newResource);
+        await resourceStore.add(newResource, resource.value.name);
         await resourceStore.fetchResources($cookies.get('me').officeId);
 
         $toast.success('Succès lors de l\'ajout de la ressource', {
@@ -147,7 +148,8 @@ onMounted(async () => {
 <template>
     <div class="flex flex-col items-center">
         <h2 class="text-tertiary font-bold text-center text-xl uppercase">Gestion des ressources</h2>
-        <div class="bg-secondary border-[3px] border-primary rounded-[15px] p-[7px] w-2/5 mx-auto my-[20px]">
+        <div class="bg-secondary border-[3px] border-primary rounded-[15px] p-[7px] w-2/5 mx-auto my-[20px]"
+            v-if="resourceStore.resources">
             <div class="flex justify-around text-tertiary text-medium font-bold hover:cursor-pointer"
                 @click="adding = !adding">
                 Ajouter une ressource
@@ -225,6 +227,10 @@ onMounted(async () => {
                     </button>
                 </div>
             </div>
+        </div>
+
+        <div v-else>
+            <Loader message="Chargement des ressources" class="pt-16" />
         </div>
     </div>
 </template>
