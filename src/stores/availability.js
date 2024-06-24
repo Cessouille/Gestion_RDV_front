@@ -70,6 +70,15 @@ export const useAvailabilityStore = defineStore('availability', {
                 throw e;
             }
         },
+        async unreserveAvailability(id) {
+            try {
+                const response = await api.put(`/Availabilities/${id}?reserve=false`);
+                console.log(response);
+            } catch (e) {
+                console.error(e);
+                throw e;
+            }
+        },
         async add(availability) {
             try {
                 await api.post('/Availabilities', {
