@@ -16,7 +16,8 @@ import Navigation from './components/layout/Navigation.vue';
   padding: 0;
 }
 
-html, body {
+html,
+body {
   font-family: 'Inter', sans-serif;
   font-size: 16px;
   color: #333;

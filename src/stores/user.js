@@ -7,6 +7,7 @@ export const useUserStore = defineStore('user', {
   state: () => {
     return {
       me: null,
+      user: null,
       userSelected: null,
       appointments: null
     }
@@ -14,7 +15,10 @@ export const useUserStore = defineStore('user', {
   getters: {
     isAuthentificated() {
       return $cookies.get('me') !== null;
-    }
+    },
+    isActivated() {
+      return $cookies.get('me').activated;
+    },
   },
   actions: {
     getMe() {
@@ -40,7 +44,7 @@ export const useUserStore = defineStore('user', {
         throw e;
       }
     },
-    async SignUp(data) {
+    async signUp(data) {
       try {
         await api.post('/Login/SignIn', { body: data });
       } catch (e) {
@@ -48,7 +52,7 @@ export const useUserStore = defineStore('user', {
         throw e;
       }
     },
-    async LogIn(data) {
+    async logIn(data) {
       try {
         var response = await api.post('/Login/Login', {
           body: data,
@@ -64,6 +68,11 @@ export const useUserStore = defineStore('user', {
           fullname: response.userDetails.firstName + ' ' + response.userDetails.lastName.toUpperCase(),
           profilePicture: response.userDetails.avatar ? response.userDetails.avatar : '/src/assets/images/avatar.png',
           role: this.getRole(response.userDetails.role),
+          activated: response.userDetails.activated,
+        }
+
+        if (!response.userDetails.activated) {
+          await this.sendValidationEmail(response.userDetails.userId);
         }
 
         $cookies.set('me', this.me, '1d');
@@ -75,7 +84,7 @@ export const useUserStore = defineStore('user', {
         throw e;
       }
     },
-    LogOut() {
+    logOut() {
       const loggedOutEvent = new CustomEvent('loggedout::hide')
       window.dispatchEvent(loggedOutEvent);
       $cookies.remove('me');
@@ -97,6 +106,28 @@ export const useUserStore = defineStore('user', {
         price: rdv.prix,
         file: rdv.fichierJoint,
       }));
+    },
+    async sendValidationEmail(id) {
+      try {
+        this.user = await api.get(`/Users/${id}`);
+        await api.post(`/Login/SendConfirmationEmail/${this.user.email}`);
+      } catch (e) {
+        console.error(e);
+        throw e;
+      }
+    },
+    async validateEmail(id, token) {
+      try {
+        await api.post(`/Login/VerifyEmail/${id}/${token}`);
+
+        const cookies = $cookies.get('me');
+        cookies.activated = true;
+
+        $cookies.set('me', cookies, '1d');
+      } catch (e) {
+        console.error(e);
+        throw e;
+      }
     },
     getRole(roleId) {
       switch (roleId) {

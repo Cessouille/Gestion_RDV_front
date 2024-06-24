@@ -60,6 +60,23 @@ async function newAnswer() {
         });
     }
 }
+
+async function deletePost(postId) {
+    try {
+        await postStore.delete(postId);
+        await postStore.fetchPosts();
+
+        $toast.success('Succès lors de la suppression du post.', {
+            position: 'top',
+            duration: 3000,
+        });
+    } catch (error) {
+        $toast.error('Erreur lors de la suppression du post.', {
+            position: 'top',
+            duration: 3000,
+        });
+    }
+}
 </script>
 
 <template>
@@ -105,6 +122,10 @@ async function newAnswer() {
                         <i v-else class="fa-regular fa-heart mx-1.5 cursor-pointer text-xl"
                             @click="toggleLike(props.post)"></i>
                         <h4>{{ props.post.nbLike }}</h4>
+                    </div>
+                    <div class="flex items-center ml-2.5" @click="deletePost(props.post.id)">
+                        <i v-if="props.post.userId === $cookies.get('me').id"
+                            class="fa-regular fa-trash-can text-xl text-red-600 hover:cursor-pointer"></i>
                     </div>
                 </div>
             </div>

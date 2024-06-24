@@ -5,6 +5,7 @@ import Loader from '../components/loader/Loader.vue';
 import ButtonField from '../components/form/ButtonField.js';
 import { useUserStore } from '@/stores/user';
 import { useToast } from 'vue-toast-notification';
+import { useRouter } from 'vue-router';
 
 var emailReg = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
 const $toast = useToast();
@@ -19,6 +20,7 @@ export default {
             formLoading: false,
             submitMessage: null,
             userStore: useUserStore(),
+            router: useRouter(),
             createError: null,
             errField: null,
             formName: "Log In",
@@ -116,11 +118,11 @@ export default {
                             firstName: data.name,
                             lastName: data.lastname,
                             role: data.ispro ? 1 : 0,
-                            sexe: data.sex == 'Autre' ? 'Other' : data.sex == 'Femme' ? 'Femmale ': 'Male',
+                            sexe: data.sex == 'Autre' ? 'Other' : data.sex == 'Femme' ? 'Femmale ' : 'Male',
                         }
 
                         try {
-                            await this.userStore.SignUp(userToCreate);
+                            await this.userStore.signUp(userToCreate);
                             this.submitMessage = null;
                             $toast.success(`Votre compte à été crée avec succès.`, {
                                 position: 'bottom-right',
@@ -159,8 +161,13 @@ export default {
                         }
 
                         try {
-                            var result = await this.userStore.LogIn(login);
-                            $toast.success(`Vous êtes connectez en tant que ${this.userStore.me.fullname}`, {
+                            var result = await this.userStore.logIn(login);
+
+                            if (!this.userStore.isActivated) {
+                                this.router.push({ path: '/validation' });
+                            }
+
+                            $toast.success(`Vous êtes connecté en tant que ${this.userStore.me.fullname}`, {
                                 position: 'bottom-right',
                                 duration: 3000,
                             });
@@ -185,7 +192,7 @@ export default {
                     }
                     break;
                 case "Connecté":
-                    this.userStore.LogOut();
+                    this.userStore.logOut();
                     this.fields = this.fieldsLog;
                     this.formName = "Log In";
                     this.buttonName = "Connexion";

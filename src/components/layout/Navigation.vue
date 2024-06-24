@@ -42,13 +42,13 @@ onUnmounted(() => {
       <RouterLink to="/">
         <img class="h-12" src="/src/assets/images/logo_full.png">
       </RouterLink>
-      <RouterLink to="/doctors" class="px-2 plainLink">
+      <RouterLink to="/doctors" class="px-2 plainLink" v-if="logged">
         Docteurs
       </RouterLink>
-      <RouterLink to="/conversation" class="px-2 plainLink">
+      <RouterLink to="/conversation" class="px-2 plainLink" v-if="logged">
         Conversation
       </RouterLink>
-      <RouterLink to="/historique" class="px-2 plainLink">
+      <RouterLink to="/historique" class="px-2 plainLink" v-if="logged">
         Historique
       </RouterLink>
       <RouterLink to="/administration" class="px-2 plainLink"

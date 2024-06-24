@@ -83,7 +83,7 @@ export const usePostStore = defineStore('post', {
             userId: $cookies.get('me').id,
             parentPostId: null,
           }
-        })
+        });
       } catch (e) {
         console.error(e);
         throw e;
@@ -99,7 +99,15 @@ export const usePostStore = defineStore('post', {
             userId: $cookies.get('me').id,
             parentPostId: id,
           }
-        })
+        });
+      } catch (e) {
+        console.error(e);
+        throw e;
+      }
+    },
+    async delete(id) {
+      try {
+        await api.delete(`/Posts/${id}`);
       } catch (e) {
         console.error(e);
         throw e;
@@ -112,7 +120,7 @@ export const usePostStore = defineStore('post', {
             userId: $cookies.get('me').id,
             postId: id,
           }
-        })
+        });
       } catch (e) {
         console.error(e);
         throw e;

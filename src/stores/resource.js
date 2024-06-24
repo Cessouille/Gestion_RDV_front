@@ -22,8 +22,16 @@ export const useResourceStore = defineStore('resource', {
                 nextUpdate: equipment.futureUpdate,
             }));
         },
-        async add(resource) {
+        async add(resource, name) {
             try {
+                const data = await api.post('/Equipments', {
+                    body: {
+                        name: name,
+                    }
+                });
+
+                resource.equipmentId = data.equipmentId
+
                 await api.post('/OfficeEquipments', {
                     body: resource,
                 });

@@ -3,6 +3,7 @@ import { ref, computed, onMounted } from 'vue';
 import dayjs from 'dayjs';
 import { useToast } from 'vue-toast-notification';
 import { useAvailabilityStore } from '@/stores/availability';
+import Loader from '@/components/loader/Loader.vue';
 
 const availabilityStore = useAvailabilityStore();
 const $toast = useToast();
@@ -192,7 +193,8 @@ onMounted(async () => {
 <template>
     <div class="flex flex-col items-center">
         <h2 class="text-tertiary font-bold text-center text-xl uppercase">Mes disponibilités</h2>
-        <div class="bg-secondary border-[3px] border-primary rounded-[15px] p-[7px] w-2/5 mx-auto my-[20px]">
+        <div class="bg-secondary border-[3px] border-primary rounded-[15px] p-[7px] w-2/5 mx-auto my-[20px]"
+            v-if="availabilityStore.availabilities">
             <div class="flex justify-around text-tertiary text-medium font-bold hover:cursor-pointer"
                 @click="adding = !adding">
                 Ajouter une disponibilité
@@ -301,6 +303,10 @@ onMounted(async () => {
                     </div>
                 </div>
             </div>
+        </div>
+
+        <div v-else>
+            <Loader message="Chargement des disponibilités" class="pt-16" />
         </div>
     </div>
 </template>

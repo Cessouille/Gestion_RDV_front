@@ -11,6 +11,7 @@ import UserView from "../views/UserProfileView.vue";
 import DoctorsView from "../views/DoctorsView.vue";
 import PostView from "../views/PostView.vue";
 import AdministrationView from "../views/AdministrationView.vue";
+import MailValidationView from "../views/MailValidationView.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -51,8 +52,8 @@ const router = createRouter({
       component: UserView,
     },
     {
-      path: "/doctor/:id/appointement",
-      name: "appointement",
+      path: "/doctor/:id/appointment",
+      name: "appointment",
       component: AppointmentView
     },
     {
@@ -75,7 +76,28 @@ const router = createRouter({
       name: "administration",
       component: AdministrationView,
     },
+    {
+      path: "/validation",
+      name: "validation",
+      component: MailValidationView,
+    },
   ],
+});
+
+router.beforeEach((to, from, next) => {
+  const me = $cookies.get('me');
+
+  if (!me && to.path !== '/doctors' && to.name !== 'user' && to.path !== '/login') {
+    next({ path: '/doctors' });
+  } else {
+    next();
+  }
+
+  if (me && me.activated === false && to.path !== '/validation' && to.path !== '/login') {
+    next({ path: '/validation' });
+  } else {
+    next();
+  }
 });
 
 export default router;
