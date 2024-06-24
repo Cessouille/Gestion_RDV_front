@@ -73,7 +73,26 @@ export const useAppointementStore = defineStore('appointement', {
         },
         async downloadDiagnosisPdf(id) {
             try {
-                await api.get(`/Diagnoses/generate-pdf/${id}`);
+                const response = await api.get(`/Diagnoses/generate-pdf/${id}`, {
+                    responseType: 'blob',
+                });
+
+                const blob = new Blob([response.data], { type: 'application/pdf' });
+
+                const link = document.createElement('a');
+
+                const url = URL.createObjectURL(blob);
+
+                link.href = url;
+                link.download = 'Prescrption_8.pdf';
+
+                document.body.appendChild(link);
+
+                link.click();
+
+                document.body.removeChild(link);
+
+                URL.revokeObjectURL(url);
             } catch (e) {
                 console.error(e);
                 throw e;
@@ -82,6 +101,7 @@ export const useAppointementStore = defineStore('appointement', {
         async createAppointement(rdv) {
             const availabilityStore = useAvailabilityStore();
             await availabilityStore.getAvailability(rdv.availabilityId);
+
             try {
                 await api.post('/RendezVous', {
                     body: {
@@ -102,7 +122,7 @@ export const useAppointementStore = defineStore('appointement', {
                     body: {
                         to: user.email,
                         subject: 'Confirmation rendez-vous',
-                        body: `Votre rendez-vous pour le ${dayjs(rdv.startDate).format('DD/MM/YYYY')} est confirmé.<br><br>
+                        body: `Votre rendez-vous pour le ${dayjs(availabilityStore.availability.startDate).format('DD/MM/YYYY')} est confirmé.<br><br>
                         Motif : ${rdv.description}.`,
                     }
                 });
