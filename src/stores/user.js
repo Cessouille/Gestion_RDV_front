@@ -7,6 +7,7 @@ export const useUserStore = defineStore('user', {
   state: () => {
     return {
       me: null,
+      userSelected: null,
       appointments: null
     }
   },
@@ -30,6 +31,15 @@ export const useUserStore = defineStore('user', {
         throw e;
       }
     },
+    async getUserById(userId) {
+      try {
+        this.userSelected = await api.get(`/Users/${userId}`);
+        return this.userSelected;
+      } catch (e) {
+        console.error(e);
+        throw e;
+      }
+    },
     async SignUp(data) {
       try {
         await api.post('/Login/SignIn', { body: data });
@@ -48,7 +58,7 @@ export const useUserStore = defineStore('user', {
         });
         this.me = {
           id: response.userDetails.userId,
-          officeId: response.userDetails.office.officeId,
+          officeId: response.userDetails.office ? response.userDetails.office.officeId : null,
           firstname: response.userDetails.firstName,
           lastname: response.userDetails.lastName,
           fullname: response.userDetails.firstName + ' ' + response.userDetails.lastName.toUpperCase(),

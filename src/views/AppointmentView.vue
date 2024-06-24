@@ -53,6 +53,19 @@ watch(selectedTime, (newVal) => {
   rdv.availabilityId = newVal;
 });
 
+function nextAvailableDate() {
+  const today = new Date();
+  const availableDates = availabilityStore.availabilities
+    .filter(creneau => new Date(creneau.startDate) > today)
+    .sort((a, b) => new Date(a.startDate) - new Date(b.startDate));
+  if (availableDates.length > 0) {
+    const nextDate = new Date(availableDates[0].startDate);
+    return nextDate.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+  } else {
+    return 'Aucune date disponible';
+  }
+}
+
 async function validateAppointement() {
   try {
     if (!rdv.description) {
@@ -97,8 +110,12 @@ async function validateAppointement() {
 <template>
   <div class="border-solid border-4 border-primary rounded-xl p-5 mt-10 mb-10 bg-secondary flex flex-col w-3/4 m-auto">
     <h1 class="text-tertiary font-semibold text-3xl self-center">Rendez-Vous avec {{ doctorStore.doctor.name }}</h1>
-    <!--------------------------------------- DISPOS ------------------------------------------->
-    <h2 class="text-tertiary text-2xl self-center mt-10">Diponibilités :</h2>
+    <template v-if="availabilityStore.availabilities.length === 0">
+      <h2 class="text-tertiary text-lg text-center mt-5">Ce docteur n'a pas de rendez-vous a proposer, consultez un autre docteur.</h2>
+    </template>
+    <template v-else>
+<!--------------------------------------- DISPOS ------------------------------------------->
+<h2 class="text-tertiary text-2xl self-center mt-10">Diponibilités :</h2>
     <vue-inline-calendar @update:selected-date="selectedDate = $event; selectedTime = null" :spec-min-date="new Date()" locale="fr-FR" :showYear="false" />
     <!------------------------------ CRENEAU HORAIRE ------------------------------------------->
     <div class="grid grid-cols-3 gap-4">
@@ -111,7 +128,7 @@ async function validateAppointement() {
         </div>
         <div v-else class="col-span-3 flex justify-center items-center text-2xl font-bold text-primary">
           <div class="text-center">
-            Oups, il n'y a plus de créneau disponible pour cette date, veuillez sélectionnez une autre date.
+            Oups, il n'y a plus de créneau disponible pour cette date, La prochaine date disponible est le <span class="text-tertiary">{{ nextAvailableDate() }}</span>.
           </div>
         </div>
       </template>
@@ -127,5 +144,7 @@ async function validateAppointement() {
       <!------------------------------ ENVOYER ------------------------------------------------->
       <button class="bg-tertiary border-none rounded-lg px-3 py-1 text-white font-bold transition-colors duration-300 cursor-pointer hover:bg-primary w-fit self-end" @click="validateAppointement">Valider le Rendez-vous</button>
     </div>
+    </template>
+    
   </div>
 </template>

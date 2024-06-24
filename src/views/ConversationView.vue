@@ -304,7 +304,7 @@ async function switchChat(e) {
 
 </template>
 
-<style lang="scss">
+<style lang="scss" scoped>
 @import "../assets/scss/settings.scss";
 
 .erroredLine:after {
@@ -321,14 +321,6 @@ async function switchChat(e) {
   transition: all ease-in-out 0.1s;
   cursor: pointer;
   margin: 0 auto;
-}
-
-.inputBox {
-  width: 50% !important;
-}
-
-.formLine {
-  display: flex !important;
 }
 
 .formModal {
