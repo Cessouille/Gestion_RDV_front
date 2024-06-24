@@ -110,7 +110,6 @@ export const useAppointementStore = defineStore('appointement', {
                 console.error(e);
                 throw e;
             }
-            console.log('YOUPI');
         },
         async deleteAppointement(id) {
             try {

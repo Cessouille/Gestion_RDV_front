@@ -79,7 +79,6 @@ export default {
             this.createError = null;
             switch (data.title) {
                 case "Sign Up":
-                    console.log(data)
                     var mailCheck = emailReg.test(data.mail);
                     if (!mailCheck) {
                         this.createError = "Erreur de format d'adresse mail.";
@@ -131,7 +130,7 @@ export default {
                             this.changeFields("login");
                         } catch (error) {
                             this.createError = "Erreur lors de la création du compte.";
-                            console.log(error);
+                            console.error(error);
                         }
                         this.formLoading = false;
                     }
@@ -180,7 +179,7 @@ export default {
                             this.formName = "Connecté";
                             this.buttonName = "Déconnexion";
                         } catch (error) {
-                            console.log(error);
+                            console.error(error);
                             if (error.status == 401) {
                                 this.createError = error.body;
                             } else {

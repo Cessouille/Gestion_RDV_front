@@ -116,7 +116,7 @@ async function loadMessages(userId, convId, relaunch = true) {
       }, 1000);
     }
   } catch (error) {
-    console.log(error)
+    console.error(error)
     chatError.value = true;
     textChats.value = false;
   }
@@ -139,7 +139,7 @@ async function loadOlderMessages(userId, convId) {
     });
     lastTime.value = textChats.value[textChats.value.length - 1].date;
   } catch (error) {
-    console.log(error)
+    console.error(error)
     chatError.value = true;
     textChats.value = false;
   }
@@ -171,7 +171,7 @@ async function getNewMessages(userId, convId, fromSubmit = false) {
     }
     return;
   } catch (error) {
-    console.log(error)
+    console.error(error)
     clearInterval(intervalId.value);
     chatError.value = true;
     textChats.value = false;
@@ -206,7 +206,7 @@ async function sendMsg() {
       }
     }
   } catch (e) {
-    console.log(e)
+    console.error(e)
   }
 }
 function stopBadLines(e) {
@@ -247,7 +247,7 @@ async function switchChat(e) {
           :id="'c' + conv.conversationId"
           :class="{ chatName: true, currentChat: currentConversation.conversationId == conv.conversationId }"
           v-on:click="switchChat">{{
-      conv.name }}
+            conv.name }}
         </div>
         <div v-else-if="conversations.length == 0" class="flex justify-center text-primary text-xs text-center">
           Vous n'êtes dans aucune conversations.
@@ -262,7 +262,7 @@ async function switchChat(e) {
       <div class="chat h-[90vh]">
         <div v-if="currentConversation" id="chatName">{{ currentConversation.name }}
           <div class="text-xs text-primary">{{
-      showConvNames(currentConversation.users) }}</div>
+            showConvNames(currentConversation.users) }}</div>
         </div>
         <div v-else id="chatName">Chat</div>
         <div v-if="chatError" class="flex flex-col items-center gap-2 bg-quartiary">
