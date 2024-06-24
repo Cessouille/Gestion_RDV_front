@@ -72,8 +72,7 @@ export default {
   <div v-for="chat in chats" class="w-auto flex flex-col gap-3 p-3 py-1">
     <div v-if="chat.user == currentUser" class="w-auto flex flex-col">
       <div class="w-auto flex flex-col">
-        <div :class="computedSlide(chat)" :id="'c-' + chat.id"
-          v-html="chat.text"></div>
+        <div :class="computedSlide(chat)" :id="'c-' + chat.id" v-html="chat.text"></div>
       </div>
       <div class="w-auto self-end text-primary text-xs pt-1">{{ getDateString(chat.date) }}
       </div>
@@ -92,6 +91,39 @@ export default {
 .slideIn {
   animation: 0.5s ease-in-out appear;
 }
+
+.rightBubble::after {
+  content: "";
+  border-width: 18px 0 0 12px;
+  border-color: $primary;
+  border-top-color: transparent !important;
+  border-right-color: transparent !important;
+  border-bottom-color: transparent !important;
+  right: -6px;
+  bottom: 0;
+  position: absolute;
+}
+
+.rightBubble {
+  position: relative;
+}
+
+.leftBubble::after {
+  content: "";
+  border-width: 18px 12px 0 0;
+  border-color: $secondary;
+  border-left-color: transparent !important;
+  border-top-color: transparent !important;
+  border-bottom-color: transparent !important;
+  left: -6px;
+  bottom: 0;
+  position: absolute;
+}
+
+.leftBubble {
+  position: relative;
+}
+
 
 @keyframes appear {
   0% {
