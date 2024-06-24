@@ -18,21 +18,25 @@ interface User {
 }
 
 interface Reply {
-    id: number,
-    name: string,
-    content: string,
-    datePubli: Date,
+    id: number;
+    userId: number;
+    name: string;
+    content: string;
+    datePubli: Date;
 }
 
 interface Profile {
+    id: number;
     firstname: string;
     lastname: string;
     fullname: string;
     profilePicture: string;
+    role: string;
 }
 
 interface Post {
     id?: number;
+    userId: number;
     name: string;
     datePubli: Date;
     content: string;
@@ -62,6 +66,8 @@ interface Doctor {
     telephone?: string;
     avatar: string;
     subscribed?: boolean;
+    nbSub: number;
+    socials: Social[];
 }
 
 interface Doctors {
@@ -69,4 +75,9 @@ interface Doctors {
     doctors: Doctor[];
 }
 
-export { Disponibilite, User, Reply, Profile, Post, Review, Doctor, Doctors };
+interface Social {
+    name: string;
+    link: string;
+}
+
+export { Disponibilite, User, Reply, Profile, Post, Review, Doctor, Doctors, Social };

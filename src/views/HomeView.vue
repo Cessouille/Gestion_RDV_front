@@ -1,12 +1,17 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import { useToast } from 'vue-toast-notification';
 import { usePostStore } from '@/stores/post';
+import { useUserStore } from '@/stores/user';
 import Loader from "@/components/loader/Loader.vue";
 import PostMessage from "@/components/PostMessage.vue";
 
-const postStore = usePostStore();
 const $toast = useToast();
+const router = useRouter();
+
+const postStore = usePostStore();
+const userStore = useUserStore();
 
 const posting = ref(false);
 const post = ref('');
@@ -41,7 +46,11 @@ async function newPost() {
 }
 
 onMounted(async () => {
-  await postStore.fetchPosts();
+  if (!userStore.isAuthentificated) {
+    router.push({ path: '/doctors' });
+  } else {
+    await postStore.fetchPosts();
+  }
 });
 </script>
 

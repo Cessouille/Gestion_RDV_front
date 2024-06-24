@@ -9,6 +9,8 @@ import FormTest from "../views/FormTest.vue";
 import AppointmentView from "../views/AppointmentView.vue";
 import UserView from "../views/UserProfileView.vue";
 import DoctorsView from "../views/DoctorsView.vue";
+import PostView from "../views/PostView.vue";
+import AdministrationView from "../views/AdministrationView.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -49,8 +51,8 @@ const router = createRouter({
       component: UserView,
     },
     {
-      path: "/user/:id/appointment",
-      name: "appointment",
+      path: "/doctor/:id/appointement",
+      name: "appointement",
       component: AppointmentView
     },
     {
@@ -62,6 +64,16 @@ const router = createRouter({
       path: "/doctors",
       name: "doctors",
       component: DoctorsView,
+    },
+    {
+      path: "/post/:id",
+      name: "post",
+      component: PostView,
+    },
+    {
+      path: "/administration",
+      name: "administration",
+      component: AdministrationView,
     },
   ],
 });

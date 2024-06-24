@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { defineProps } from "vue";
 import dayjs from "dayjs";
+import { useUserStore } from '@/stores/user';
 import { Review } from "@/models/types";
 
 export interface ReviewMessageProps {
@@ -9,7 +10,9 @@ export interface ReviewMessageProps {
 
 const props = defineProps<ReviewMessageProps>();
 
-const name = $cookies.get("me").name;
+const userStore = useUserStore();
+
+const name = (userStore.isAuthentificated ? $cookies.get("me").name : '');
 </script>
 
 <template>

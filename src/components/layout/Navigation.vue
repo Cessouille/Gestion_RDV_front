@@ -29,6 +29,7 @@ onMounted(() => {
   window.addEventListener('loggedout::hide', () => { logged.value = false; });
   window.addEventListener('loggedin::hide', () => { logged.value = true; });
 });
+
 onUnmounted(() => {
   window.removeEventListener('loggedout::hide', () => { logged.value = false; });
   window.removeEventListener('loggedin::hide', () => { logged.value = true; });
@@ -36,47 +37,52 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <nav class="bg-primary h-[8vh] flex items-center justify-between px-2.5 text-white">
+  <nav class="bg-primary h-16 flex items-center justify-between px-2.5 text-white">
     <div class="flex items-center text-gray-200 space-x-2.5">
       <RouterLink to="/">
-        <img class="h-[6.5vh]" src="/src/assets/images/logo_full.png">
+        <img class="h-12" src="/src/assets/images/logo_full.png">
       </RouterLink>
-      <RouterLink to="/doctors" class="px-2">
+      <RouterLink to="/doctors" class="px-2 plainLink">
         Docteurs
       </RouterLink>
-      <RouterLink to="/conversation" class="px-2">
+      <RouterLink to="/conversation" class="px-2 plainLink">
         Conversation
       </RouterLink>
-      <RouterLink to="/historique" class="px-2">
+      <RouterLink to="/historique" class="px-2 plainLink">
         Historique
+      </RouterLink>
+      <RouterLink to="/administration" class="px-2 plainLink"
+        v-if="$cookies.get('me') && $cookies.get('me').role === 'pro'">
+        Administration
       </RouterLink>
     </div>
     <div class="flex items-center space-x-2.5 hover:cursor-pointer" v-if="logged" @click="openMenu = !openMenu">
-      <img :src="connectedUser.profilePicture" class="h-[6.5vh] rounded-full">
+      <img :src="connectedUser.profilePicture" class="h-12 w-12 rounded-full">
       <span class="mr-2.5">{{ connectedUser.fullname }}</span>
       <img src="/src/assets/images/arrow_down.png" :class="{ navArrow: true, unfolded: openMenu }">
     </div>
     <div class="flex items-center space-x-2.5" v-else>
-      <RouterLink to="/login" class="flex gap-2 items-center p-2 bg-tertiary rounded-md" @click="openMenu = false">
+      <RouterLink to="/login" class="flex gap-2 items-center p-2 bg-tertiary rounded-md border-quartiary-400 border"
+        @click="openMenu = false">
         Se connecter
         <span class="material-symbols-rounded"> login </span>
       </RouterLink>
     </div>
     <div v-if="openMenu" class="absolute top-[8%] right-0 bg-white w-[250px] z-10 text-black">
       <RouterLink to="/notification"
-        class="flex items-center border text-tertiary rounded bg-quartiary border-tertiary-400 p-2"
+        class="flex items-center border text-tertiary rounded bg-quartiary border-tertiary-400 p-2 dropdownSelector"
         @click="openMenu = false">
         <span class="material-symbols-rounded"> notifications </span>
         Notifications ({{ notification }})
       </RouterLink>
       <RouterLink to="/profile"
-        class="flex items-center border text-tertiary rounded bg-quartiary border-tertiary-400 p-2"
+        class="flex items-center border text-tertiary rounded bg-quartiary border-tertiary-400 p-2 dropdownSelector"
         @click="openMenu = false">
         <span class="material-symbols-rounded"> account_circle </span>
         Profil
       </RouterLink>
       <RouterLink to="/login"
-        class="flex items-center border text-tertiary rounded border-tertiary-400 p-2 bg-quartiary"
+        class="flex items-center border text-tertiary rounded border-tertiary-400 p-2 bg-quartiary dropdownSelector"
         @click="openMenu = false">
         <span class="material-symbols-rounded"> logout </span>
         Déconnexion
@@ -92,7 +98,8 @@ onUnmounted(() => {
 
 .router-link-active {
   color: $quartiary !important;
-  background-color: $tertiary !important;
+  background-color: $primary !important;
+
 }
 
 .navArrow {
