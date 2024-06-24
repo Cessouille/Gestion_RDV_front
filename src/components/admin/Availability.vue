@@ -186,7 +186,7 @@ const groupedAvailabilities = computed(() => {
 });
 
 onMounted(async () => {
-    await availabilityStore.fetchAvailabilities($cookies.get('me').officeId);
+    await availabilityStore.fetchAvailabilitiesWithoutFilter($cookies.get('me').officeId);
 });
 </script>
 
