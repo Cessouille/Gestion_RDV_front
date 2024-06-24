@@ -137,8 +137,37 @@ async function switchChat(e) {
   </main>
 </template>
 
-<style lang="scss">
+<style lang="scss" scoped>
 @import "../assets/scss/settings.scss";
+
+.erroredLine:after {
+  box-shadow: none !important;
+}
+
+.reply {
+  background: rgb(230, 28, 28);
+  border: none;
+  border-radius: 8px;
+  padding: 5px 10px 5px 10px;
+  color: white;
+  font-weight: 700;
+  transition: all ease-in-out 0.1s;
+  cursor: pointer;
+  margin: 0 auto;
+}
+
+.formModal {
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  background: #fdfdfd54;
+}
 
 #errMsg {
   background-color: rgba(255, 0, 0, 0.25);

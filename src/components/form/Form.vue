@@ -96,6 +96,37 @@ export default {
 
 <style lang="scss">
 @import "../../assets/scss/settings.scss";
+@import "../../../node_modules/vue-multiselect/dist/vue-multiselect.css";
+
+
+
+.multiselect.inputBox {
+  width: 50% !important;
+}
+
+.formLine:has(>.multiselect) {
+  display: flex !important;
+}
+
+// MultiSelect Re Skin
+.multiselect__tags {
+  background-color: $quartiary;
+}
+
+.multiselect__tag {
+  background: $primary;
+}
+
+.multiselect__option--highlight::after,
+.multiselect__option--selected::after,
+.multiselect__option--selected.multiselect__option--highlight::after,
+.multiselect__option--group-selected.multiselect__option--highlight::after {
+  content: "";
+}
+
+.multiselect__option--highlight {
+  background: $primary;
+}
 
 #formBubble {
   background-color: $secondary;
