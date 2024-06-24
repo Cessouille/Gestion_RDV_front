@@ -1,63 +1,92 @@
-<script setup>
-    import { RouterLink, RouterView } from 'vue-router'
-    import { ref } from 'vue';
+<script setup lang="ts">
+import { RouterLink, RouterView } from 'vue-router';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { Profile } from '@/models/types';
+import { useUserStore } from '@/stores/user';
 
-    const openMenu = ref(false);
+const userStore = useUserStore();
 
-    const name = ref('Jedan-Michel ZEUB');
-    const profilePicture = ref('/src/assets/images/pp.png')
-    const notification = ref(0);
+const openMenu = ref(false);
+
+const connectedUser = computed<Profile>(
+  () => userStore.me,
+);
+
+var logged = ref(false);
+
+const notification = ref(0);
+
+function logout() {
+  logged.value = false;
+}
+
+onMounted(() => {
+  if (userStore.getMe()) {
+    logged.value = true;
+  } else {
+    logged.value = false;
+  }
+  window.addEventListener('loggedout::hide', () => { logged.value = false; });
+  window.addEventListener('loggedin::hide', () => { logged.value = true; });
+});
+
+onUnmounted(() => {
+  window.removeEventListener('loggedout::hide', () => { logged.value = false; });
+  window.removeEventListener('loggedin::hide', () => { logged.value = true; });
+})
 </script>
 
 <template>
-  <nav>
-    <div class="nav">
+  <nav class="bg-primary h-16 flex items-center justify-between px-2.5 text-white">
+    <div class="flex items-center text-gray-200 space-x-2.5">
       <RouterLink to="/">
-        <img
-          id="logo"
-          class="image"
-          src="/src/assets/images/logo_full.png"
-        >
+        <img class="h-12" src="/src/assets/images/logo_full.png">
       </RouterLink>
-      <RouterLink
-        to="/conversation"
-        class="item"
-      >
+      <RouterLink to="/doctors" class="px-2 plainLink" v-if="logged">
+        Docteurs
+      </RouterLink>
+      <RouterLink to="/conversation" class="px-2 plainLink" v-if="logged">
         Conversation
       </RouterLink>
-      <RouterLink
-        to="/historique"
-        class="item"
-      >
+      <RouterLink to="/historique" class="px-2 plainLink" v-if="logged">
         Historique
       </RouterLink>
+      <RouterLink to="/administration" class="px-2 plainLink"
+        v-if="$cookies.get('me') && $cookies.get('me').role === 'pro'">
+        Administration
+      </RouterLink>
     </div>
-    <div class="nav">
-        <img
-          id="pp"
-          :src="profilePicture"
-          class="image"
-        >
-        <span class="item">{{ name }}</span>
-        <img
-          src="/src/assets/images/arrow_down.png"
-          class="item arrow"
-          @click="openMenu = !openMenu"
-        >
-      </div>
-      <div v-if="openMenu" class="menu">
-          <RouterLink to="/notification" class="menuItem" @click="openMenu = false">
-            <span class="material-symbols-rounded"> notifications </span> 
-            Notifications ({{ notification }})
-          </RouterLink>
-          <RouterLink to="/profile" class="menuItem" @click="openMenu = false">
-            <span class="material-symbols-rounded"> account_circle </span>
-            Profil
-          </RouterLink>
-          <RouterLink to="/logout" class="menuItem" @click="openMenu = false">
-            <span class="material-symbols-rounded"> logout </span>
-            Déconnexion
-          </RouterLink>
+    <div class="flex items-center space-x-2.5 hover:cursor-pointer" v-if="logged" @click="openMenu = !openMenu">
+      <img :src="connectedUser.profilePicture" class="h-12 w-12 rounded-full">
+      <span class="mr-2.5">{{ connectedUser.fullname }}</span>
+      <img src="/src/assets/images/arrow_down.png" :class="{ navArrow: true, unfolded: openMenu }">
+    </div>
+    <div class="flex items-center space-x-2.5" v-else>
+      <RouterLink to="/login" class="flex gap-2 items-center p-2 bg-tertiary rounded-md border-quartiary-400 border"
+        @click="openMenu = false">
+        Se connecter
+        <span class="material-symbols-rounded"> login </span>
+      </RouterLink>
+    </div>
+    <div v-if="openMenu" class="absolute top-[8%] right-0 bg-white w-[250px] z-10 text-black">
+      <RouterLink to="/notification"
+        class="flex items-center border text-tertiary rounded bg-quartiary border-tertiary-400 p-2 dropdownSelector"
+        @click="openMenu = false">
+        <span class="material-symbols-rounded"> notifications </span>
+        Notifications ({{ notification }})
+      </RouterLink>
+      <RouterLink to="/profile"
+        class="flex items-center border text-tertiary rounded bg-quartiary border-tertiary-400 p-2 dropdownSelector"
+        @click="openMenu = false">
+        <span class="material-symbols-rounded"> account_circle </span>
+        Profil
+      </RouterLink>
+      <RouterLink to="/login"
+        class="flex items-center border text-tertiary rounded border-tertiary-400 p-2 bg-quartiary dropdownSelector"
+        @click="openMenu = false">
+        <span class="material-symbols-rounded"> logout </span>
+        Déconnexion
+      </RouterLink>
     </div>
   </nav>
 
@@ -67,76 +96,18 @@
 <style lang="scss">
 @import "../../assets/scss/settings.scss";
 
-nav {
-    background-color: $primary;
-    height: 8vh;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 5px 10px 0 10px;
-    color: white;
+.router-link-active {
+  color: $quartiary !important;
+  background-color: $primary !important;
+
 }
 
-.nav {
-    display: flex;
-    align-items: center;
-    width: auto;
+.navArrow {
+  transform: rotateZ(-90deg);
+  transition: all ease 0.2s;
 }
 
-.menu {
-    color: black;
-    position: absolute;
-    top: 8.5%;
-    right: 0;
-    background-color: white;
-    width: 250px;
-    z-index: 1;
+.unfolded {
+  transform: rotateZ(0deg);
 }
-
-.image {
-    height: 6.5vh;
-}
-
-#pp {
-    border-radius: 100%;
-}
-
-.item {
-    margin: 0 10px;
-}
-
-.item:hover {
-    cursor: pointer;
-}
-
-nav a {
-    color: #efeded;
-    text-decoration: none;
-}
-
-nav a.router-link-exact-active {
-    color: white;
-}
-nav a.router-link-exact-active:hover {
-  background-color: transparent;
-  cursor: pointer;
-}
-
-.menuItem {
-  color: black;
-  display: flex;
-  align-items: center;
-  border: solid #A4A4A4;
-  border-width: 2px;
-  padding: 2px;
-}
-
-.menuItem.router-link-exact-active {
-  color: black;
-}
-
-.menuItem span {
-  margin: 0 5px;
-}
-
 </style>
