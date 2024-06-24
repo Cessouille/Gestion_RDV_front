@@ -35,7 +35,6 @@ export default {
       }
     },
     computedSlide(chat) {
-      console.log(chat)
       if (chat.justSent) {
         setTimeout(() => { this.chats[this.chats.findIndex(c => c == chat)].justSent = false; }, 1000);
         return "w-auto self-end p-3 bg-primary text-white rounded-lg rightBubble slideIn";
