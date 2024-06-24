@@ -10,10 +10,12 @@ import 'vue-toast-notification/dist/theme-bootstrap.css';
 import dayjs from 'dayjs';
 import 'dayjs/locale/fr';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
+import utc from 'dayjs/plugin/utc';
 
 const app = createApp(App);
 
 dayjs.extend(customParseFormat);
+dayjs.extend(utc);
 dayjs.locale('fr');
 
 app.use(createPinia());

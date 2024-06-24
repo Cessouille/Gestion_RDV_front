@@ -31,7 +31,7 @@ onMounted(async () => {
 <template>
     <div class="flex flex-col items-center">
         <h2 class="text-tertiary font-bold text-center text-xl uppercase">Mon emploi du temps</h2>
-        <div v-if="userStore.appointments">
+        <div v-if="userStore.appointments" class="w-2/5">
             <div v-if="Object.keys(groupedAppointments).length === 0">
                 Vous n'avez aucun rendez-vous prévu.
             </div>
