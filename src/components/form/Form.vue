@@ -113,6 +113,16 @@ export default {
 @import "../../assets/scss/settings.scss";
 @import "../../../node_modules/vue-multiselect/dist/vue-multiselect.css";
 
+
+
+.multiselect.inputBox {
+  width: 50% !important;
+}
+
+.formLine:has(>.multiselect) {
+  display: flex !important;
+}
+
 // MultiSelect Re Skin
 .multiselect__tags {
   background-color: $quartiary;
