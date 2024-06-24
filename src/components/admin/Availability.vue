@@ -44,7 +44,9 @@ async function newAvailability() {
             return;
         }
 
-        availabilities.forEach(async availability => await availabilityStore.add(availability));
+        for (const availability of availabilities) {
+            await availabilityStore.add(availability);
+        }
         await availabilityStore.fetchAvailabilities($cookies.get('me').officeId);
 
         adding.value = false;
@@ -132,18 +134,6 @@ function validateAvailability(availability) {
         if (!availability.date) {
             errors.push('Indiquer une date');
         }
-        if (!availability.startTime) {
-            errors.push('Indiquer une heure de début');
-        }
-        if (!availability.endTime) {
-            errors.push('Indiquer une heure de fin');
-        }
-        if (!availability.interval) {
-            errors.push('Indiquer une durée de créneau');
-        }
-        if (availability.startTime > availability.endTime) {
-            errors.push('Horaires non valides');
-        }
     }
 
     if (selectedTab.value === 'multiDay') {
@@ -153,21 +143,25 @@ function validateAvailability(availability) {
         if (!availability.endDate) {
             errors.push('Indiquer une date de fin');
         }
-        if (!availability.startTime) {
-            errors.push('Indiquer une heure de début');
-        }
-        if (!availability.endTime) {
-            errors.push('Indiquer une heure de fin');
-        }
-        if (!availability.interval) {
-            errors.push('Indiquer une durée de créneau');
-        }
         if (new Date(availability.startDate) > new Date(availability.endDate)) {
             errors.push('Dates non valides');
         }
-        if (availability.startTime > availability.endTime) {
-            errors.push('Horaires non valides');
-        }
+    }
+
+    if (!availability.startTime) {
+        errors.push('Indiquer une heure de début');
+    }
+    if (!availability.endTime) {
+        errors.push('Indiquer une heure de fin');
+    }
+    if (!availability.interval) {
+        errors.push('Indiquer une durée de créneau');
+    }
+    if (availability.interval % 30 !== 0) {
+        errors.push('Durée de créneau non valide');
+    }
+    if (availability.startTime > availability.endTime) {
+        errors.push('Horaires non valides');
     }
 
     return errors;
@@ -234,7 +228,7 @@ onMounted(async () => {
                             class="row-start-1 w-[200px] bg-quartiary border-2 border-primary rounded-[10px] p-[5px] text-center">
                     </div>
                     <div class="lg:grid justify-between items-center mx-[50px] pb-2">
-                        <p class="row-start-1 text-tertiary">Durée d'un créneau :</p>
+                        <p class="row-start-1 text-tertiary">Durée d'un créneau (en min) :</p>
                         <input type="number" min="30" max="120" step="30" v-model="singleDayAvailability.interval"
                             class="row-start-1 w-[200px] bg-quartiary border-2 border-primary rounded-[10px] p-[5px] text-center">
                     </div>
@@ -262,7 +256,7 @@ onMounted(async () => {
                             class="row-start-1 w-[200px] bg-quartiary border-2 border-primary rounded-[10px] p-[5px] text-center">
                     </div>
                     <div class="lg:grid justify-between items-center mx-[50px] pb-2">
-                        <p class="row-start-1 text-tertiary">Durée d'un créneau :</p>
+                        <p class="row-start-1 text-tertiary">Durée d'un créneau (en min) :</p>
                         <input type="number" min="30" max="120" step="30" v-model="multiDayAvailability.interval"
                             class="row-start-1 w-[200px] bg-quartiary border-2 border-primary rounded-[10px] p-[5px] text-center">
                     </div>
