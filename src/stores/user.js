@@ -58,7 +58,7 @@ export const useUserStore = defineStore('user', {
         });
         this.me = {
           id: response.userDetails.userId,
-          officeId: response.userDetails.office.officeId,
+          officeId: response.userDetails.office ? response.userDetails.office.officeId : null,
           firstname: response.userDetails.firstName,
           lastname: response.userDetails.lastName,
           fullname: response.userDetails.firstName + ' ' + response.userDetails.lastName.toUpperCase(),

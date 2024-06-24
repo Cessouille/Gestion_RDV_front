@@ -30,6 +30,22 @@ export const useConversationStore = defineStore('conversation', {
                 throw e;
             }
         },
+        async fetchPaginatedMessages(userid, convId, page, time = null) {
+            try {
+                var result = await api.get('/Messages/messagesPaged/' + convId + '/' + userid + '/?pageIndex=' + page + '&pageSize=10' + (time ? ('&beforeDate=' + time) : ''));
+                if (time) {
+                    this.messages = result;
+                } else {
+                    this.messages = result.reverse();
+                }
+                this.msgError = null;
+                return;
+            } catch (e) {
+                console.error(e);
+                this.msgError = e;
+                throw e;
+            }
+        },
         async fetchNewMessages(userid, convId, time) {
             try {
                 var result = await api.get('/Messages/newMessages/' + convId + '/' + userid + '/?since=' + time);
@@ -69,6 +85,14 @@ export const useConversationStore = defineStore('conversation', {
             } catch (e) {
                 console.error(e);
                 this.error = e;
+            }
+        },
+        async createConversation(userIds, name) {
+            try {
+                var result = await api.post('/Conversations', { body: { "conversationName": name, "userIds": userIds } });
+                return result;
+            } catch (e) {
+                console.error(e);
             }
         }
     },

@@ -4,9 +4,14 @@ import Loader from '../components/loader/Loader.vue';
 import { onMounted, ref } from 'vue';
 import { useConversationStore } from '@/stores/conversation';
 import { useUserStore } from '@/stores/user';
+import { useDoctorStore } from '@/stores/doctor';
+
+import Form from '../components/form/Form.vue';
+import Field from '../components/form/Field.js';
 
 const convStore = useConversationStore();
 const userStore = useUserStore();
+const doctorStore = useDoctorStore();
 
 onMounted(async () => {
   await LoadChats();
@@ -19,28 +24,60 @@ var chatError = ref(false);
 var conversations = ref(false);
 var sending = ref(false);
 var lastTime = ref(null);
-var intervalId = ref(null)
+var intervalId = ref(null);
+var currentMsgPage = ref(0);
+var messageNumber = ref(0);
+var allOlderLoaded = ref(false);
+var showAddForm = ref(false);
+var errMsg = ref(null);
+var errField = ref(null);
 
 var currentConversation = ref(false);
 
+var firstTime = ref(null);
+var nothingToShow = ref(true);
+
+var formFields = ref([
+  new Field("Nom", "text", "name"),
+  new Field("Utilisateurs", "select-m", "users", []),
+]);
+
 function showConvNames(users) {
-  if (users.length > 2) {
-    var userString = "";
-    users.forEach(function callback(value, index) {
-      var fullname = value.firstName + ' ' + value.lastName.toUpperCase();
-      userString += fullname + (fullname != currentUser.value.fullname ? "" : " (Vous)");
-      if (index < users.length - 1) {
-        userString += ", ";
-      }
-    });
-    return userString;
+  var userString = "";
+  users.forEach(function callback(value, index) {
+    var fullname = value.firstName + ' ' + value.lastName.toUpperCase();
+    userString += fullname + (fullname != currentUser.value.fullname ? "" : " (Vous)");
+    if (index < users.length - 1) {
+      userString += ", ";
+    }
+  });
+  return userString;
+}
+
+async function handleSubmit(data) {
+  if (!data.name) {
+    errMsg.value = "La conversation doit avoir un nom";
+    errField.value = "name";
+  } else if (!data.users || data.users.length <= 0) {
+    errMsg.value = "La conversation doit avoir au moins un autre utilisateur";
+    errField.value = "users";
   } else {
-    var name = users.find(u => u.userId != currentUser.value.id);
-    return name;
+    var userIds = [];
+    await Promise.all(data.users.map(async (doctor) => {
+      var doctorUserId = await doctorStore.getDoctorUserId(doctor.id);
+      userIds.push(doctorUserId);
+    }));
+    userIds.push(currentUser.value.id);
+    await convStore.createConversation(userIds, data.name);
+    await LoadChats();
+    showAddForm.value = false;
   }
 }
 
 async function LoadChats() {
+  allOlderLoaded.value = false;
+  currentMsgPage.value = 0;
+  messageNumber.value = 0;
   error.value = null;
   chatError.value = null;
   await convStore.fetchUserConversations(currentUser.value.id);
@@ -48,27 +85,59 @@ async function LoadChats() {
     error.value = convStore.error;
     chatError.value = true;
   } else {
-      currentConversation.value = convStore.conversations[0];
-      conversations.value = convStore.conversations;
+    currentConversation.value = convStore.conversations[0];
+    conversations.value = convStore.conversations;
     if (convStore.conversations.length > 0) {
+      currentMsgPage.value = 0;
       await loadMessages(currentUser.value.id, currentConversation.value.conversationId);
     }
   }
   return;
 }
 
-async function loadMessages(userId, convId) {
+async function loadMessages(userId, convId, relaunch = true) {
   chatError.value = false;
   textChats.value = false;
   try {
-    await convStore.fetchConversationMessages(userId, convId);
+    await convStore.fetchPaginatedMessages(userId, convId, 0);
+    if (convStore.messages.length < 10) {
+      allOlderLoaded.value = true;
+    }
     textChats.value = convStore.messages.map((msg => {
-      return { user: msg.user ? msg.user.firstName + ' ' + msg.user.lastName.toUpperCase() : 'Utilisateur ' + msg.userId, date: msg.created, text: msg.text.replace(/\n/g, '<br />') };
+      return { user: msg.user ? msg.user.firstName + ' ' + msg.user.lastName.toUpperCase() : 'Utilisateur ' + msg.userId, date: msg.created, text: msg.text.replace(/\n/g, '<br />'), id: messageNumber.value++ };
     }));
+    if (convStore.messages.length > 0) {
+      lastTime.value = textChats.value[textChats.value.length - 1].date;
+      firstTime.value = lastTime.value;
+    }
+    if (relaunch) {
+      intervalId.value = setInterval(function () {
+        getNewMessages(currentUser.value.id, currentConversation.value.conversationId);
+      }, 1000);
+    }
+  } catch (error) {
+    console.log(error)
+    chatError.value = true;
+    textChats.value = false;
+  }
+  return;
+}
+
+async function loadOlderMessages(userId, convId) {
+  chatError.value = false;
+  try {
+    await convStore.fetchPaginatedMessages(userId, convId, currentMsgPage.value + 1, firstTime.value);
+    currentMsgPage.value++;
+    if (convStore.messages.length < 10) {
+      allOlderLoaded.value = true;
+    }
+    var olderChats = convStore.messages.map((msg => {
+      return { user: msg.user ? msg.user.firstName + ' ' + msg.user.lastName.toUpperCase() : 'Utilisateur ' + msg.userId, date: msg.created, text: msg.text.replace(/\n/g, '<br />'), id: messageNumber.value++ };
+    }));
+    olderChats.forEach(msg => {
+      textChats.value.unshift(msg);
+    });
     lastTime.value = textChats.value[textChats.value.length - 1].date;
-    intervalId.value = setInterval(function () {
-      getNewMessages(currentUser.value.id, currentConversation.value.conversationId);
-    }, 1000);
   } catch (error) {
     console.log(error)
     chatError.value = true;
@@ -80,11 +149,11 @@ async function loadMessages(userId, convId) {
 async function getNewMessages(userId, convId, fromSubmit = false) {
   chatError.value = false;
   try {
-    if (textChats.value) {
+    if (textChats.value.length > 0) {
       var lastChatIndex = textChats.value.findIndex(msg => msg.date == lastTime.value);
       await convStore.fetchNewMessages(userId, convId, textChats.value[lastChatIndex].date);
       var newMessages = convStore.messages.map((msg => {
-        return { user: msg.user ? msg.user.firstName + ' ' + msg.user.lastName.toUpperCase() : 'Utilisateur ' + msg.userId, date: msg.created, text: msg.text.replace(/\n/g, '<br />') };
+        return { user: msg.user ? msg.user.firstName + ' ' + msg.user.lastName.toUpperCase() : 'Utilisateur ' + msg.userId, date: msg.created, text: msg.text.replace(/\n/g, '<br />'), id: messageNumber.value++ };
       }));
       if (fromSubmit) {
         newMessages[newMessages.length - 1].justSent = true;
@@ -92,39 +161,62 @@ async function getNewMessages(userId, convId, fromSubmit = false) {
       newMessages.forEach(element => {
         textChats.value.push(element)
       });
-      lastTime.value = textChats.value[textChats.value.length - 1].date;
+      if (textChats.value.length > 0) {
+        lastTime.value = textChats.value[textChats.value.length - 1].date;
+      }
     } else {
-      throw "No chats to load";
+      nothingToShow.value = true;
+      clearInterval(intervalId.value);
+      await loadMessages(currentUser.value.id, currentConversation.value.conversationId, false);
     }
     return;
   } catch (error) {
+    console.log(error)
     clearInterval(intervalId.value);
     chatError.value = true;
     textChats.value = false;
   }
   return;
 }
+async function loadShowAddConvForm() {
+  showAddForm.value = true;
+  await doctorStore.fetchDoctors();
+  formFields.value[1].values = doctorStore.doctors.map((cat => {
+    return { name: cat.name, doctors: cat.doctors }
+  }));
+}
+
 async function sendMsg() {
-  if (currentConversation.value) {
-    var message = document.querySelector("#messageBox").innerText;
-    if (message) {
-      sending.value = true;
-      try {
-        lastTime.value = textChats.value[textChats.value.length - 1].date;
-        await convStore.sendMessage(currentUser.value.id, currentConversation.value.conversationId, message);
-        await getNewMessages(currentUser.value.id, currentConversation.value.conversationId, true);
-        sending.value = false
-      } catch (error) {
-        chatError.value = true;
+  try {
+    if (currentConversation.value) {
+      var message = document.querySelector("#messageBox").innerText;
+      if (message) {
+        sending.value = true;
+        try {
+          if (textChats.value.length > 0) {
+            lastTime.value = textChats.value[textChats.value.length - 1].date;
+          }
+          await convStore.sendMessage(currentUser.value.id, currentConversation.value.conversationId, message);
+          await getNewMessages(currentUser.value.id, currentConversation.value.conversationId, true);
+          sending.value = false
+        } catch (error) {
+          chatError.value = true;
+        }
+        document.querySelector("#messageBox").innerText = "";
       }
-      document.querySelector("#messageBox").innerText = "";
     }
+  } catch (e) {
+    console.log(e)
   }
 }
 function stopBadLines(e) {
   e.preventDefault();
 }
+
 async function switchChat(e) {
+  allOlderLoaded.value = false;
+  currentMsgPage.value = 0;
+  messageNumber.value = 0;
   var chats = document.querySelectorAll(".chatName");
   chats.forEach(chat => {
     if (chat.id != e.target.id) {
@@ -155,7 +247,7 @@ async function switchChat(e) {
           :id="'c' + conv.conversationId"
           :class="{ chatName: true, currentChat: currentConversation.conversationId == conv.conversationId }"
           v-on:click="switchChat">{{
-      conv.conversationName }}
+      conv.name }}
         </div>
         <div v-else-if="conversations.length == 0" class="flex justify-center text-primary text-xs text-center">
           Vous n'êtes dans aucune conversations.
@@ -163,10 +255,13 @@ async function switchChat(e) {
         <div v-else>
           <Loader message="Chargement des conversations"></Loader>
         </div>
+        <div @click="loadShowAddConvForm"
+          class="chatName flex gap-3 bg-quartiary border-2 border-solid border-secondary rounded"><span
+            class="material-symbols-rounded fill">add</span>Ajouter</div>
       </div>
       <div class="chat h-[90vh]">
-        <div v-if="currentConversation" id="chatName">{{ currentConversation.conversationName }}
-          <div class="text-xs text-primary" v-if="currentConversation.users.length > 2">{{
+        <div v-if="currentConversation" id="chatName">{{ currentConversation.name }}
+          <div class="text-xs text-primary">{{
       showConvNames(currentConversation.users) }}</div>
         </div>
         <div v-else id="chatName">Chat</div>
@@ -177,11 +272,12 @@ async function switchChat(e) {
             class="flex justify-center gap-2 bg-secondary text-tertiary p-2 rounded w-fit m-0-auto"><span
               class="material-symbols-rounded fill">refresh</span>Recharger</button>
         </div>
-        <div v-else-if="textChats" id="chatScroll"
+        <div v-else-if="textChats.length > 0" id="chatScroll"
           class="scrollwindow flex align-self-center flex-col h-full overflow-scroll overflow-x-hidden bg-quartiary">
-          <Chat :chats="textChats" :currentUser="currentUser.fullname"></Chat>
+          <Chat @loadMore="loadOlderMessages(currentUser.id, currentConversation.conversationId)" :chats="textChats"
+            :currentUser="currentUser.fullname" :currentPage="currentMsgPage" :allLoaded="allOlderLoaded"></Chat>
         </div>
-        <div v-else-if="conversations.length > 0" class="bg-quartiary">
+        <div v-else-if="conversations.length > 0 && !nothingToShow" class="bg-quartiary">
           <Loader message="Chargement des messages"></Loader>
         </div>
         <div v-else class="bg-quartiary">
@@ -200,10 +296,45 @@ async function switchChat(e) {
       </div>
     </div>
   </main>
+  <div v-if="showAddForm" class="formModal">
+    <Form style="width: 80%;" @submit="handleSubmit" :fields="formFields" buttonName="Créer"
+      name="Nouvelle conversation" :err-msg="errMsg" :err-line="errField"></Form>
+    <button @click="showAddForm = false" class="reply">Annuler</button>
+  </div>
+
 </template>
 
-<style lang="scss">
+<style lang="scss" scoped>
 @import "../assets/scss/settings.scss";
+
+.erroredLine:after {
+  box-shadow: none !important;
+}
+
+.reply {
+  background: rgb(230, 28, 28);
+  border: none;
+  border-radius: 8px;
+  padding: 5px 10px 5px 10px;
+  color: white;
+  font-weight: 700;
+  transition: all ease-in-out 0.1s;
+  cursor: pointer;
+  margin: 0 auto;
+}
+
+.formModal {
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  background: #fdfdfd54;
+}
 
 #errMsg {
   background-color: rgba(255, 0, 0, 0.25);
