@@ -63,6 +63,7 @@ export const useAppointementStore = defineStore('appointement', {
                     description: rdv.description,
                     prix: rdv.price,
                     fichierJoint: null,
+                    availabilityId: rdv.availabilityId,
                     userId: rdv.userId,
                     officeId: rdv.officeId
                   }
