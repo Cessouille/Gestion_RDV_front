@@ -32,6 +32,18 @@ async function newAvailability() {
             ? generateSingleDayTimeSlots(singleDayAvailability.value)
             : generateMultiDayTimeSlots(multiDayAvailability.value));
 
+        const validationErrors = (selectedTab.value === 'singleDay'
+            ? validateAvailability(singleDayAvailability.value)
+            : validateAvailability(multiDayAvailability.value));
+
+        if (validationErrors.length > 0) {
+            validationErrors.forEach((error) => $toast.error(error, {
+                position: 'bottom-right',
+                duration: 3000,
+            }))
+            return;
+        }
+
         availabilities.forEach(async availability => await availabilityStore.add(availability));
         await availabilityStore.fetchAvailabilities($cookies.get('me').officeId);
 
@@ -67,6 +79,7 @@ async function deleteAvailability(availabilityId) {
 }
 
 function generateSingleDayTimeSlots(availability) {
+
     const slots = [];
     const startDateTime = dayjs(`${availability.date} ${availability.startTime}`);
     const endDateTime = dayjs(`${availability.date} ${availability.endTime}`);
@@ -92,6 +105,7 @@ function generateSingleDayTimeSlots(availability) {
 }
 
 function generateMultiDayTimeSlots(availability) {
+
     const slots = [];
     const startDate = dayjs(availability.startDate);
     const endDate = dayjs(availability.endDate);
@@ -109,6 +123,54 @@ function generateMultiDayTimeSlots(availability) {
     }
 
     return slots;
+}
+
+function validateAvailability(availability) {
+    const errors = [];
+
+    if (selectedTab.value === 'singleDay') {
+        if (!availability.date) {
+            errors.push('Indiquer une date');
+        }
+        if (!availability.startTime) {
+            errors.push('Indiquer une heure de début');
+        }
+        if (!availability.endTime) {
+            errors.push('Indiquer une heure de fin');
+        }
+        if (!availability.interval) {
+            errors.push('Indiquer une durée de créneau');
+        }
+        if (availability.startTime > availability.endTime) {
+            errors.push('Horaires non valides');
+        }
+    }
+
+    if (selectedTab.value === 'multiDay') {
+        if (!availability.startDate) {
+            errors.push('Indiquer une date de début');
+        }
+        if (!availability.endDate) {
+            errors.push('Indiquer une date de fin');
+        }
+        if (!availability.startTime) {
+            errors.push('Indiquer une heure de début');
+        }
+        if (!availability.endTime) {
+            errors.push('Indiquer une heure de fin');
+        }
+        if (!availability.interval) {
+            errors.push('Indiquer une durée de créneau');
+        }
+        if (new Date(availability.startDate) > new Date(availability.endDate)) {
+            errors.push('Dates non valides');
+        }
+        if (availability.startTime > availability.endTime) {
+            errors.push('Horaires non valides');
+        }
+    }
+
+    return errors;
 }
 
 const groupedAvailabilities = computed(() => {
@@ -138,40 +200,40 @@ onMounted(async () => {
         <h2 class="text-tertiary font-bold text-center text-xl uppercase">Mes disponibilités</h2>
         <div class="bg-secondary border-[3px] border-primary rounded-[15px] p-[7px] w-2/5 mx-auto my-[20px]">
             <div class="flex justify-around text-tertiary text-medium font-bold hover:cursor-pointer"
-                @click="adding = true">
+                @click="adding = !adding">
                 Ajouter une disponibilité
             </div>
             <div class="flex flex-col gap-[5px] my-[20px]" v-if="adding">
-                <div class="flex justify-between mx-[50px] gap-[15px] pb-2">
+                <div class="lg:flex justify-between mx-[50px] gap-[15px] pb-2">
                     <button @click="selectedTab = 'singleDay'"
-                        :class="{ 'bg-tertiary text-white border-2 border-tertiary': selectedTab === 'singleDay' }"
+                        :class="{ 'bg-tertiary text-white border-2 border-tertiary mb-2 lg:mb-0': selectedTab === 'singleDay' }"
                         class="bg-quartiary border-2 border-tertiary rounded-[18px] px-[20px] py-[5px] text-tertiary font-bold transition-all ease-in-out duration-100 cursor-pointer w-full">
                         Jour simple
                     </button>
                     <button @click="selectedTab = 'multiDay'"
-                        :class="{ 'bg-tertiary text-white border-2 border-tertiary': selectedTab === 'multiDay' }"
+                        :class="{ 'bg-tertiary text-white border-2 border-tertiary mt-2 lg:mt-0': selectedTab === 'multiDay' }"
                         class="bg-quartiary border-2 border-tertiary rounded-[18px] px-[20px] py-[5px] text-tertiary font-bold transition-all ease-in-out duration-100 cursor-pointer w-full">
                         Jours multiples
                     </button>
                 </div>
 
                 <div v-if="selectedTab === 'singleDay'">
-                    <div class="grid justify-between items-center mx-[50px] pb-2">
+                    <div class="lg:grid justify-between items-center mx-[50px] pb-2">
                         <p class="row-start-1 text-tertiary">Date :</p>
                         <input type="date" v-model="singleDayAvailability.date"
                             class="row-start-1 w-[200px] bg-quartiary border-2 border-primary rounded-[10px] p-[5px] text-center">
                     </div>
-                    <div class="grid justify-between items-center mx-[50px] pb-2">
+                    <div class="lg:grid justify-between items-center mx-[50px] pb-2">
                         <p class="row-start-1 text-tertiary">Heure de départ :</p>
                         <input type="time" v-model="singleDayAvailability.startTime"
                             class="row-start-1 w-[200px] bg-quartiary border-2 border-primary rounded-[10px] p-[5px] text-center">
                     </div>
-                    <div class="grid justify-between items-center mx-[50px] pb-2">
+                    <div class="lg:grid justify-between items-center mx-[50px] pb-2">
                         <p class="row-start-1 text-tertiary">Heure de fin :</p>
                         <input type="time" v-model="singleDayAvailability.endTime"
                             class="row-start-1 w-[200px] bg-quartiary border-2 border-primary rounded-[10px] p-[5px] text-center">
                     </div>
-                    <div class="grid justify-between items-center mx-[50px] pb-2">
+                    <div class="lg:grid justify-between items-center mx-[50px] pb-2">
                         <p class="row-start-1 text-tertiary">Durée d'un créneau :</p>
                         <input type="number" min="30" max="120" step="30" v-model="singleDayAvailability.interval"
                             class="row-start-1 w-[200px] bg-quartiary border-2 border-primary rounded-[10px] p-[5px] text-center">
@@ -179,27 +241,27 @@ onMounted(async () => {
                 </div>
 
                 <div v-if="selectedTab === 'multiDay'">
-                    <div class="grid justify-between items-center mx-[50px] pb-2">
+                    <div class="lg:grid justify-between items-center mx-[50px] pb-2">
                         <p class="row-start-1 text-tertiary">Date de début :</p>
                         <input type="date" v-model="multiDayAvailability.startDate"
                             class="row-start-1 w-[200px] bg-quartiary border-2 border-primary rounded-[10px] p-[5px] text-center">
                     </div>
-                    <div class="grid justify-between items-center mx-[50px] pb-2">
+                    <div class="lg:grid justify-between items-center mx-[50px] pb-2">
                         <p class="row-start-1 text-tertiary">Date de fin :</p>
                         <input type="date" v-model="multiDayAvailability.endDate"
                             class="row-start-1 w-[200px] bg-quartiary border-2 border-primary rounded-[10px] p-[5px] text-center">
                     </div>
-                    <div class="grid justify-between items-center mx-[50px] pb-2">
+                    <div class="lg:grid justify-between items-center mx-[50px] pb-2">
                         <p class="row-start-1 text-tertiary">Heure de départ :</p>
                         <input type="time" v-model="multiDayAvailability.startTime"
                             class="row-start-1 w-[200px] bg-quartiary border-2 border-primary rounded-[10px] p-[5px] text-center">
                     </div>
-                    <div class="grid justify-between items-center mx-[50px] pb-2">
+                    <div class="lg:grid justify-between items-center mx-[50px] pb-2">
                         <p class="row-start-1 text-tertiary">Heure de fin :</p>
                         <input type="time" v-model="multiDayAvailability.endTime"
                             class="row-start-1 w-[200px] bg-quartiary border-2 border-primary rounded-[10px] p-[5px] text-center">
                     </div>
-                    <div class="grid justify-between items-center mx-[50px] pb-2">
+                    <div class="lg:grid justify-between items-center mx-[50px] pb-2">
                         <p class="row-start-1 text-tertiary">Durée d'un créneau :</p>
                         <input type="number" min="30" max="120" step="30" v-model="multiDayAvailability.interval"
                             class="row-start-1 w-[200px] bg-quartiary border-2 border-primary rounded-[10px] p-[5px] text-center">
