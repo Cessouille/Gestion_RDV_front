@@ -29,10 +29,13 @@ export const useAppointementStore = defineStore('appointement', {
                 };
                 
                 const formatDate = date => {
+                    const days = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
+                    const months = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+                    const dayOfWeek = days[date.getDay()];
+                    const dayOfMonth = date.getDate();
+                    const month = months[date.getMonth()];
                     const year = date.getFullYear();
-                    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-                    const day = date.getDate().toString().padStart(2, '0');
-                    return `${year}-${month}-${day}`;
+                    return `${dayOfWeek} ${dayOfMonth} ${month} ${year}`;
                 };
 
                 return {
@@ -69,6 +72,14 @@ export const useAppointementStore = defineStore('appointement', {
                 throw e;
             }
             console.log('YOUPI');
+        },
+        async deleteAppointement(id) {
+            try {
+                await api.delete(`/RendezVous/${id}`);
+            } catch (e) {
+                console.error(e);
+                throw e;
+            }
         }
     },
 });

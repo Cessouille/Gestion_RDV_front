@@ -7,6 +7,7 @@ export const useUserStore = defineStore('user', {
   state: () => {
     return {
       me: null,
+      userSelected: null,
       appointments: null
     }
   },
@@ -25,6 +26,15 @@ export const useUserStore = defineStore('user', {
         } else {
           return false;
         }
+      } catch (e) {
+        console.error(e);
+        throw e;
+      }
+    },
+    async getUserById(userId) {
+      try {
+        this.userSelected = await api.get(`/Users/${userId}`);
+        return this.userSelected;
       } catch (e) {
         console.error(e);
         throw e;
