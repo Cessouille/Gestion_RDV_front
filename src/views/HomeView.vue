@@ -46,11 +46,7 @@ async function newPost() {
 }
 
 onMounted(async () => {
-  if (!userStore.isAuthentificated) {
-    router.push({ path: '/doctors' });
-  } else {
-    await postStore.fetchPosts();
-  }
+  await postStore.fetchPosts();
 });
 </script>
 
