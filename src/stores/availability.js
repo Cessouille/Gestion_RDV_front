@@ -64,7 +64,6 @@ export const useAvailabilityStore = defineStore('availability', {
         async reserveAvailability(id) {
             try {
                 const response = await api.put(`/Availabilities/${id}?reserve=true`);
-                console.log(response);
             } catch (e) {
                 console.error(e);
                 throw e;
@@ -73,7 +72,6 @@ export const useAvailabilityStore = defineStore('availability', {
         async unreserveAvailability(id) {
             try {
                 const response = await api.put(`/Availabilities/${id}?reserve=false`);
-                console.log(response);
             } catch (e) {
                 console.error(e);
                 throw e;

@@ -89,11 +89,7 @@ router.beforeEach((to, from, next) => {
 
   if (!me && to.path !== '/doctors' && to.name !== 'user' && to.path !== '/login') {
     next({ path: '/doctors' });
-  } else {
-    next();
-  }
-
-  if (me && me.activated === false && to.path !== '/validation' && to.path !== '/login') {
+  } if (me && me.activated === false && to.path !== '/validation' && to.path !== '/login') {
     next({ path: '/validation' });
   } else {
     next();
