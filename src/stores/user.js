@@ -14,7 +14,10 @@ export const useUserStore = defineStore('user', {
   getters: {
     isAuthentificated() {
       return $cookies.get('me') !== null;
-    }
+    },
+    isActivated() {
+      return $cookies.get('me').activated;
+    },
   },
   actions: {
     getMe() {
@@ -48,7 +51,7 @@ export const useUserStore = defineStore('user', {
         throw e;
       }
     },
-    async LogIn(data) {
+    async logIn(data) {
       try {
         var response = await api.post('/Login/Login', {
           body: data,
@@ -64,6 +67,7 @@ export const useUserStore = defineStore('user', {
           fullname: response.userDetails.firstName + ' ' + response.userDetails.lastName.toUpperCase(),
           profilePicture: response.userDetails.avatar ? response.userDetails.avatar : '/src/assets/images/avatar.png',
           role: this.getRole(response.userDetails.role),
+          activated: response.userDetails.activated,
         }
 
         $cookies.set('me', this.me, '1d');
@@ -75,7 +79,7 @@ export const useUserStore = defineStore('user', {
         throw e;
       }
     },
-    LogOut() {
+    logOut() {
       const loggedOutEvent = new CustomEvent('loggedout::hide')
       window.dispatchEvent(loggedOutEvent);
       $cookies.remove('me');
