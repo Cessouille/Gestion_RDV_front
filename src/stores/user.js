@@ -106,6 +106,10 @@ export const useUserStore = defineStore('user', {
         price: rdv.prix,
         file: rdv.fichierJoint,
       }));
+
+      this.appointments = this.appointments.filter((appointment) => {
+        return appointment.startDate > new Date();
+      });
     },
     async sendValidationEmail(id) {
       try {
